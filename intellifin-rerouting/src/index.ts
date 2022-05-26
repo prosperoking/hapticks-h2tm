@@ -39,7 +39,8 @@ app.use(morgan(':date *** :method :: :url ** :response-time'));
 
 app.use('/api/v1', Routes);
 
-app.use('/',express.static('public'))
+app.use(express.static('./public'))
+app.use('*',express.static('public'))
 
 app.listen(port, () => {
     //if (err) return console.error(err);
