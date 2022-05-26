@@ -93,7 +93,7 @@ class RoutingServices implements IRoutingServices {
                 if (updateRecord.saved) {
                     const payloadData = updateRecord.DbrecordInstance;
                     const notificationHeader = {
-                        'Authorization': 'Bearer vBCP1CGReJAqY3IDZ2Rs64Eb1uJ5rIXTO7oZceIn',
+                        'Authorization': `Bearer ${process.env.NOTIFICATION_TOKEN}`,
                         terminalId: payloadData['terminalId']
                     };
                     try {

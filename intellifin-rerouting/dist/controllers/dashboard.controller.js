@@ -15,54 +15,29 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const vasjournals_model_1 = __importDefault(require("../db/models/vasjournals.model"));
 const logger_1 = __importDefault(require("../helpers/logger"));
 const terminal_model_1 = __importDefault(require("../db/models/terminal.model"));
+const moment_1 = __importDefault(require("moment"));
 class DashboardController {
     index(request, response) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                const date = moment_1.default().format("YYYY-MM-DD");
                 const totalTransactionsToday = yield vasjournals_model_1.default.where({
-                    $and: [
-                        {
-                            transactionTime: {
-                                $gte: Date.now(),
-                            }
-                        },
-                        {
-                            transactionTime: {
-                                $lte: Date.now(),
-                            }
-                        },
-                    ]
+                    transactionTime: {
+                        $gte: new Date(date),
+                    }
                 }).count();
                 const totalFailedTransactionsToday = yield vasjournals_model_1.default.where({
-                    $and: [
-                        {
-                            transactionTime: {
-                                $gte: Date.now(),
-                            }
-                        },
-                        {
-                            transactionTime: {
-                                $lte: Date.now(),
-                            }
-                        },
-                    ],
+                    transactionTime: {
+                        $gte: new Date(date),
+                    },
                     responseCode: {
                         $ne: "00",
                     }
                 }).count();
                 const lastestTransacions = yield vasjournals_model_1.default.find({
-                    $and: [
-                        {
-                            transactionTime: {
-                                $gte: Date.now(),
-                            }
-                        },
-                        {
-                            transactionTime: {
-                                $lte: Date.now(),
-                            }
-                        },
-                    ]
+                    transactionTime: {
+                        $gte: new Date(date),
+                    }
                 }).sort({ _id: -1 }).limit(50);
                 const terminalCount = yield terminal_model_1.default.find({}).count();
                 return response.json({
