@@ -26,8 +26,13 @@ let JournalsSchema = new mongoose_1.default.Schema({
     MTI: { type: String, default: "0200" },
     STAN: { type: String, default: "" },
     PAN: { type: String, default: "" },
-    vasData: Object,
-    extraData: { type: String, default: "" }
+    cardExpiration: { type: String, defualt: "" },
+    vasData: {
+        type: Object,
+        default: null,
+    },
+    extraData: { type: String, default: "" },
+    processor: { type: String, default: "NIBSS" }
 });
 exports.default = mongoose_1.default.model('journal', JournalsSchema);
 //# sourceMappingURL=vasjournals.model.js.map

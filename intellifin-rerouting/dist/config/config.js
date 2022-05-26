@@ -5,8 +5,8 @@ class Config {
     constructor() {
         this.configObject = {
             development: {
-                // DATABASE_URL: `mongodb://localhost:${process.env.MDB_PORT}/${process.env.DATABASE_NAME_DEV}`,
-                DATABASE_URL: `mongodb+srv://middleware:z8GWlErX507ReQ2U@cluster0.tdrmv.mongodb.net/eftEngine?retryWrites=true&w=majority`,
+                DATABASE_URL: `mongodb://localhost:${process.env.MDB_PORT}/${process.env.DATABASE_NAME_DEV}`,
+                // DATABASE_URL: `mongodb+srv://middleware:z8GWlErX507ReQ2U@cluster0.tdrmv.mongodb.net/eftEngine?retryWrites=true&w=majority`,
                 SECRET_KEY: process.env.API_SECRET_KEY,
                 DATABASE_HOSTNAME: "localhost",
                 DATABASE_PORT: process.env.MDB_PORT,

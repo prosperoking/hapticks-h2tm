@@ -37,6 +37,7 @@ app.use(body_parser_1.default.json({ limit: '50mb' }));
 app.use(body_parser_1.default.urlencoded({ limit: '50mb', extended: true, parameterLimit: 50000 }));
 app.use(morgan_1.default(':date *** :method :: :url ** :response-time'));
 app.use('/api/v1', index_route_1.default);
+app.use('/', express_1.default.static('public'));
 app.listen(port, () => {
     //if (err) return console.error(err);
     return console.log(`Server Magic happening on port ${port}`);
