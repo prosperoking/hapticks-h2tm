@@ -3,7 +3,6 @@ import PTSPProfileModel from '../db/models/ptspProfile.model';
 export default class ProfileController {
     async create(request: Request, response: Response) {
         try {
-            console.log(request.body)
             const data = await PTSPProfileModel.create(request.body);
 
             response.json({status: true, data})

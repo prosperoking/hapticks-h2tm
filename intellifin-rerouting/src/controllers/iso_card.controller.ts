@@ -57,7 +57,7 @@ class IsoCardContoller {
             await terminal.save();
             return response.json(data);
         } catch (error) {
-            logger.log(error);
+            console.log(error);
             return response.status(400).json({
                 status: false,
                 message: "An error occurred"

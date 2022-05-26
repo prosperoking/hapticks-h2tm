@@ -109,7 +109,6 @@ terminalSchema.virtual('profile',{
 })
 
 terminalSchema.virtual('parsedParams').get(function(){
-    console.log(this)
     if(!this.paramdownload?.length) {
         return null;
     }

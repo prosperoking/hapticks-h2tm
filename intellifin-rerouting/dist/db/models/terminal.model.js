@@ -81,7 +81,6 @@ terminalSchema.virtual('profile', {
 });
 terminalSchema.virtual('parsedParams').get(function () {
     var _a;
-    console.log(this);
     if (!((_a = this.paramdownload) === null || _a === void 0 ? void 0 : _a.length)) {
         return null;
     }

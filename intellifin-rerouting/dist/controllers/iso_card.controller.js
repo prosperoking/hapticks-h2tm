@@ -13,7 +13,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const terminal_model_1 = __importDefault(require("../db/models/terminal.model"));
-const logger_1 = __importDefault(require("../helpers/logger"));
 const cardsockethelper_1 = require("../helpers/cardsockethelper");
 const types_1 = require("../@types/types");
 const vasjournals_model_1 = __importDefault(require("../db/models/vasjournals.model"));
@@ -56,7 +55,7 @@ class IsoCardContoller {
                 return response.json(data);
             }
             catch (error) {
-                logger_1.default.log(error);
+                console.log(error);
                 return response.status(400).json({
                     status: false,
                     message: "An error occurred"
