@@ -68,17 +68,21 @@ class IsoCardContoller {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const serial = request.header('x-serial-no');
-                const brand = request.header('x-brand');
-                const appVersion = request.header('x-app-version');
-                const terminal = yield terminal_model_1.default.findOne({ serialNo: serial }).populate('profile');
+                const brand = request.header('x-brand') || null;
+                const deviceModel = request.header('x-device-model') || null;
+                const appVersion = request.header('x-app-version') || null;
+                const terminal = yield terminal_model_1.default.findOne({ serialNo: serial }).populate({ path: 'profile', select: "title isoHost isoPort isSSL" });
                 if (!terminal)
                     return response.status(404).json({ message: "Terminal not found" });
                 terminal.brand = brand;
                 terminal.appVersion = appVersion;
+                terminal.deviceModel = deviceModel;
                 terminal.save();
                 return response.json(terminal);
             }
             catch (error) {
+                console.log("Error: %s", error.message);
+                return response.status(400).json({ message: "An error Occured" });
             }
         });
     }
@@ -102,6 +106,8 @@ class IsoCardContoller {
                 return response.json(socketResponse.data);
             }
             catch (error) {
+                console.log("Error: %s", error.message);
+                return response.status(400).json({ message: "An error Occured" });
             }
         });
     }

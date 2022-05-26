@@ -26,7 +26,8 @@ export interface ITerminal {
         merchantNameLocation: string,
         mid: string,
         timeout: string,
-    }
+    },
+    deviceModel?: string,
 }
 
 
@@ -88,6 +89,10 @@ const terminalSchema = new Schema<ITerminal>({
         type: String,
         default: null
     },
+    deviceModel: {
+        type: String,
+        default: null,
+    }
 },{
     timestamps: true,
     toJSON: {

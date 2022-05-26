@@ -63,6 +63,10 @@ const terminalSchema = new mongoose_1.Schema({
         type: String,
         default: null
     },
+    deviceModel: {
+        type: String,
+        default: null,
+    }
 }, {
     timestamps: true,
     toJSON: {
