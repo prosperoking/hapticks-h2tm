@@ -12,6 +12,7 @@ const express_1 = __importDefault(require("express"));
 const index_route_1 = __importDefault(require("./routes/index.route"));
 const config_1 = __importDefault(require("./config/config"));
 const logger_1 = __importDefault(require("./helpers/logger"));
+const path_1 = __importDefault(require("path"));
 require("dotenv/config");
 const app = express_1.default();
 const port = process.env.PORT || '5009';
@@ -37,8 +38,8 @@ app.use(body_parser_1.default.json({ limit: '50mb' }));
 app.use(body_parser_1.default.urlencoded({ limit: '50mb', extended: true, parameterLimit: 50000 }));
 app.use(morgan_1.default(':date *** :method :: :url ** :response-time'));
 app.use('/api/v1', index_route_1.default);
-app.use(express_1.default.static('./public'));
-app.use('*', express_1.default.static('./public'));
+app.use(express_1.default.static(path_1.default.join(__dirname, 'public')));
+app.use('*', express_1.default.static(path_1.default.join(__dirname, 'public')));
 app.listen(port, () => {
     //if (err) return console.error(err);
     return console.log(`Server Magic happening on port ${port}`);

@@ -8,6 +8,7 @@ import winston from 'winston';
 import Routes from './routes/index.route';
 import Config from './config/config';
 import Logger from './helpers/logger';
+import path from 'path';
 import 'dotenv/config';
 
 
@@ -39,8 +40,8 @@ app.use(morgan(':date *** :method :: :url ** :response-time'));
 
 app.use('/api/v1', Routes);
 
-app.use(express.static('./public'))
-app.use('*',express.static('./public'))
+app.use(express.static(path.join(__dirname,'public')))
+app.use('*',express.static(path.join(__dirname,'public')))
 
 app.listen(port, () => {
     //if (err) return console.error(err);
