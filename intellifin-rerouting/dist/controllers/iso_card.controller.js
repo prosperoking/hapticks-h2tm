@@ -95,7 +95,7 @@ class IsoCardContoller {
                 const { body } = request;
                 if (!terminal || terminal.terminalId !== body.tid)
                     return response.status(404).json({ message: "Terminal not found/ Provisioned" });
-                const messageType = body.transaction === cardsockethelper_1.TransactionTypes.ISO_TRANSACTION ? cardsockethelper_1.TransactionTypes.ISO_TRANSACTION : cardsockethelper_1.TransactionTypes.ISW_KIMONO;
+                const messageType = this.getMessageType(terminal, body.totalAmount);
                 const socketResponse = yield cardsockethelper_1.performCardSocketTranaction(messageType, body);
                 const { data } = socketResponse;
                 const journalPayload = messageType === cardsockethelper_1.TransactionTypes.ISO_TRANSACTION ? this.createNIBBSJournal(data, body) : this.createISWJournal(data, body, terminal);
@@ -109,6 +109,14 @@ class IsoCardContoller {
                 return response.status(400).json({ message: "An error Occured" });
             }
         });
+    }
+    getMessageType(terminal, amount) {
+        var _a;
+        if (!((_a = terminal === null || terminal === void 0 ? void 0 : terminal.profile) === null || _a === void 0 ? void 0 : _a.iswSwitchAmount))
+            return cardsockethelper_1.TransactionTypes.ISO_TRANSACTION;
+        return amount >= (terminal === null || terminal === void 0 ? void 0 : terminal.profile.iswSwitchAmount) ?
+            cardsockethelper_1.TransactionTypes.ISO_TRANSACTION :
+            cardsockethelper_1.TransactionTypes.ISW_KIMONO;
     }
     createNIBBSJournal(response, payload) {
         return {
