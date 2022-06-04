@@ -101,7 +101,7 @@ class IsoCardContoller {
 
             if (!terminal || terminal.terminalId !== body.tid) return response.status(404).json({ message: "Terminal not found/ Provisioned" });
             
-            const messageType = this.getMessageType(terminal, body.totalAmount)
+            const messageType = IsoCardContoller.getMessageType(terminal, body.totalAmount)
 
             const socketResponse = await performCardSocketTranaction(messageType, body);
             const { data } = socketResponse
@@ -120,7 +120,7 @@ class IsoCardContoller {
         }
     }
 
-    private getMessageType(terminal: ITerminal, amount: number): TransactionTypes {
+    private static getMessageType(terminal: ITerminal, amount: number): TransactionTypes {
         if(!terminal?.profile?.iswSwitchAmount) return TransactionTypes.ISO_TRANSACTION
         
         return amount >= terminal?.profile.iswSwitchAmount ? 
