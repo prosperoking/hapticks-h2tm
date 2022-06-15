@@ -1,21 +1,20 @@
 import { App } from "vue";
 import Axios from 'axios';
+export const appHttp = Axios.create({
+    baseURL: '/api/v1',
+    withCredentials: true,
+})
+
+appHttp.interceptors.response.use(response=>response,error=>{
+    console.log(error)
+    return Promise.reject(error);
+})
 
 export default {
     install: (app: App<Element>, options:object) => {
-        const axios = Axios.create({
-            baseURL: '/api/v1',
-            withCredentials: true,
-        })
-
-        axios.interceptors.response.use(response=>response,error=>{
-            console.log(error)
-            Promise.reject(error);
-        } )
-
-        app.config.globalProperties.$axios = axios;
-        app.config.globalProperties.$request = axios;
-        app.provide('$axios',axios);
-        app.provide('$request',axios);
+        app.config.globalProperties.$axios = appHttp;
+        app.config.globalProperties.$request = appHttp;
+        app.provide('$axios',appHttp);
+        app.provide('$request',appHttp);
     }
 }

@@ -8,7 +8,6 @@ const ptspProfileSchema = new mongoose_1.Schema({
     },
     isoHost: {
         type: String,
-        unique: true,
     },
     isoPort: {
         type: String,
@@ -20,11 +19,9 @@ const ptspProfileSchema = new mongoose_1.Schema({
     },
     componentKey1: {
         type: String,
-        unique: true,
     },
     componentKey2: {
         type: String,
-        unique: true,
     },
     iswSwitchAmount: {
         type: Number,
@@ -47,6 +44,6 @@ ptspProfileSchema.virtual('terminals_count', {
     count: true,
 });
 // ptspProfileSchema.plugin(paginate);
-const PTSPProfileModel = mongoose_1.model("ptspProfile", ptspProfileSchema);
+const PTSPProfileModel = (0, mongoose_1.model)("ptspProfile", ptspProfileSchema);
 exports.default = PTSPProfileModel;
 //# sourceMappingURL=ptspProfile.model.js.map

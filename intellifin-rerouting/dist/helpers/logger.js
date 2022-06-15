@@ -10,7 +10,7 @@ class Logger {
         if (typeof data === "object") {
             data = JSON.stringify(data);
         }
-        console.error(moment_1.default().toString(), data);
+        console.error((0, moment_1.default)().toString(), data);
     }
     error(data) {
         if (typeof data === "object") {
@@ -21,7 +21,7 @@ class Logger {
                 new winston_1.default.transports.Console()
             ]
         });
-        logger.error(`${moment_1.default().toString()} ${data}`);
+        logger.error(`${(0, moment_1.default)().toString()} ${data}`);
     }
     logWinston(data) {
         if (typeof data === "object") {
@@ -32,7 +32,7 @@ class Logger {
                 new winston_1.default.transports.Console()
             ]
         });
-        logger.info(`${moment_1.default().toString()} ${data}`);
+        logger.info(`${(0, moment_1.default)().toString()} ${data}`);
     }
 }
 exports.default = new Logger();

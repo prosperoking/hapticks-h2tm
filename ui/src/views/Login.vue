@@ -18,9 +18,9 @@
         <label class="block">
           <span class="text-sm text-gray-700">Email</span>
           <input
-            type="email"
+            type="username/email"
             class="block w-full mt-1 border-gray-200 rounded-md focus:border-indigo-600 focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
-            v-model="email"
+            v-model="username"
           />
         </label>
 
@@ -36,7 +36,7 @@
         <div class="flex items-center justify-between mt-4">
           <div>
             <label class="inline-flex items-center">
-              <input type="checkbox" class="text-indigo-600 border-gray-200 rounded-md focus:border-indigo-600 focus:ring focus:ring-opacity-40 focus:ring-indigo-500" />
+              <input v-model="rememberMe" type="checkbox" class="text-indigo-600 border-gray-200 rounded-md focus:border-indigo-600 focus:ring focus:ring-opacity-40 focus:ring-indigo-500" />
               <span class="mx-2 text-sm text-gray-600">Remember me</span>
             </label>
           </div>
@@ -64,14 +64,25 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { AxiosInstance } from "axios";
+import { inject, ref } from "vue";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
-const email = ref("johndoe@mail.com");
-const password = ref("@#!@#asdf1231!_!@#");
-
-function login() {
-  router.push("/dashboard");
+const username = ref("");
+const rememberMe = ref(false);
+const password = ref("");
+const request: AxiosInstance| undefined = inject('$axios');
+async function login() {
+  try {
+    await request?.post('/login',{
+      username: username.value,
+      rememberMe: rememberMe.value,
+      password: password.value,
+    });
+    router.push("/dashboard");
+  } catch (error) {
+    
+  }
 }
 </script>

@@ -11,5 +11,7 @@ router.get('/profiles', index_controller_1.profileController.index);
 router.post('/profiles', index_controller_1.profileController.create);
 router.get('/terminals', index_controller_1.terminalController.index);
 router.post('/terminals', index_controller_1.terminalController.create);
+router.get('/auth/user', index_controller_1.authController.getUserInfo);
+router.get('/auth/logout', index_controller_1.authController.logout);
 exports.default = router;
 //# sourceMappingURL=admin.dashboard.route.js.map

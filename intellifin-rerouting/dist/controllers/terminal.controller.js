@@ -12,6 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const logger_1 = __importDefault(require("../helpers/logger"));
 const terminal_model_1 = __importDefault(require("../db/models/terminal.model"));
 class ProfileController {
     index(request, response) {
@@ -43,6 +44,16 @@ class ProfileController {
             catch (error) {
                 console.log(error);
                 response.status(400).json({ message: error.message });
+            }
+        });
+    }
+    bulkUpload(request, response) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+            }
+            catch (error) {
+                logger_1.default.error(error);
+                response.status(400).json({ message: "Import failed" });
             }
         });
     }

@@ -1,4 +1,5 @@
 import { createApp } from 'vue';
+import {createPinia} from 'pinia'
 import App from './App.vue';
 import router from './router';
 import AxiosPlugin from './plugins/AxiosPlugin';
@@ -14,4 +15,5 @@ app.component('empty-layout', EmptyLayout);
 
 app.use(router);
 app.use(AxiosPlugin)
+app.use(createPinia())
 app.mount('#app');

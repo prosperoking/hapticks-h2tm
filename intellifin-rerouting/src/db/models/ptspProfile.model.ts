@@ -7,7 +7,7 @@ export interface IPTSPProfileData {
     isoPort: string,
     isSSL: boolean,
     componentKey1: string,
-    componnentKey2: string,
+    componentKey2: string,
     iswSwitchAmount: Number,
     terminals_count?: number,
 }
@@ -21,7 +21,6 @@ const ptspProfileSchema = new Schema<IPTSPProfileData>({
     },
     isoHost: {
         type: String,
-        unique: true,
     },
     isoPort: {
         type: String,
@@ -33,11 +32,9 @@ const ptspProfileSchema = new Schema<IPTSPProfileData>({
     },
     componentKey1: {
         type: String,
-        unique: true,
     },
     componentKey2: {
         type: String,
-        unique: true,
     },
     iswSwitchAmount: {
         type: Number,

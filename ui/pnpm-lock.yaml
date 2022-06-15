@@ -11,6 +11,7 @@ specifiers:
   autoprefixer: ^10.4.2
   axios: ^0.27.2
   date-fns: ^2.28.0
+  pinia: ^2.0.14
   postcss: ^8.4.7
   tailwindcss: ^3.0.23
   typescript: ^4.3.2
@@ -27,6 +28,7 @@ dependencies:
   '@vuelidate/validators': 2.0.0-alpha.29_vue@3.2.31
   axios: 0.27.2
   date-fns: 2.28.0
+  pinia: 2.0.14_yiky6a7nq42a76m3cgtakyoff4
   vue: 3.2.31
   vue-router: 4.0.12_vue@3.2.31
 
@@ -238,6 +240,10 @@ packages:
 
   /@vue/devtools-api/6.0.12:
     resolution: {integrity: sha512-iO/4FIezHKXhiDBdKySCvJVh8/mZPxHpiQrTy+PXVqJZgpTPTdHy4q8GXulaY+UKEagdkBb0onxNQZ0LNiqVhw==}
+    dev: false
+
+  /@vue/devtools-api/6.1.4:
+    resolution: {integrity: sha512-IiA0SvDrJEgXvVxjNkHPFfDx6SXw0b/TUkqMcDZWNg9fnCAHbTpoo59YfJ9QLFkwa3raau5vSlRVzMSLDnfdtQ==}
     dev: false
 
   /@vue/reactivity-transform/3.2.31:
@@ -1159,6 +1165,24 @@ packages:
     resolution: {integrity: sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==}
     engines: {node: '>=8.6'}
     dev: true
+
+  /pinia/2.0.14_yiky6a7nq42a76m3cgtakyoff4:
+    resolution: {integrity: sha512-0nPuZR4TetT/WcLN+feMSjWJku3SQU7dBbXC6uw+R6FLQJCsg+/0pzXyD82T1FmAYe0lsx+jnEDQ1BLgkRKlxA==}
+    peerDependencies:
+      '@vue/composition-api': ^1.4.0
+      typescript: '>=4.4.4'
+      vue: ^2.6.14 || ^3.2.0
+    peerDependenciesMeta:
+      '@vue/composition-api':
+        optional: true
+      typescript:
+        optional: true
+    dependencies:
+      '@vue/devtools-api': 6.1.4
+      typescript: 4.5.5
+      vue: 3.2.31
+      vue-demi: 0.12.5_vue@3.2.31
+    dev: false
 
   /postcss-js/4.0.0_postcss@8.4.7:
     resolution: {integrity: sha512-77QESFBwgX4irogGVPgQ5s07vLvFqWr228qZY+w6lW599cRlK/HmnlivnnVUxkjHnCu4J16PDMHcH+e+2HbvTQ==}

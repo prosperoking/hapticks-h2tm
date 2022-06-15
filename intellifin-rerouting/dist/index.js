@@ -14,11 +14,11 @@ const config_1 = __importDefault(require("./config/config"));
 const logger_1 = __importDefault(require("./helpers/logger"));
 const path_1 = __importDefault(require("path"));
 require("dotenv/config");
-const app = express_1.default();
+const index_1 = __importDefault(require("./auth/index"));
+const app = (0, express_1.default)();
 const port = process.env.PORT || '5009';
 /** connection mongodb */
 mongoose_1.default.Promise = global.Promise;
-mongoose_1.default.set('useFindAndModify', false);
 const config = new config_1.default();
 const dbConfig = config.getConfig(process.env.NODE_ENV);
 console.log("connection URL :: ", dbConfig.DATABASE_URL);
@@ -31,12 +31,13 @@ mongoose_1.default.connect(dbConfig.DATABASE_URL, dbConfig.options, (err) => {
 });
 mongoose_1.default.set('debug', true);
 /** Enable Cross Origin Resource Sharing */
-app.use(cors_1.default());
-app.use(connect_timeout_1.default('5m'));
+app.use((0, cors_1.default)());
+app.use((0, connect_timeout_1.default)('5m'));
 /** set parser to parse the request data in json format */
 app.use(body_parser_1.default.json({ limit: '50mb' }));
 app.use(body_parser_1.default.urlencoded({ limit: '50mb', extended: true, parameterLimit: 50000 }));
-app.use(morgan_1.default(':date *** :method :: :url ** :response-time'));
+app.use((0, morgan_1.default)(':date *** :method :: :url ** :response-time'));
+(0, index_1.default)(app);
 app.use('/api/v1', index_route_1.default);
 app.use(express_1.default.static(path_1.default.join(__dirname, 'public')));
 app.use('*', express_1.default.static(path_1.default.join(__dirname, 'public')));

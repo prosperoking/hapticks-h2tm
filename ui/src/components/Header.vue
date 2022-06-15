@@ -69,7 +69,7 @@
         >
           <img
             class="object-cover w-full h-full"
-            src="https://images.unsplash.com/photo-1528892952291-009c663ce843?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=296&q=80"
+            :src="auth.imageUrl"
             alt="Your avatar"
           />
         </button>
@@ -99,13 +99,9 @@
             >
             <a
               href="#"
+              @click.prevent="logout"
               class="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-600 hover:text-white"
-              >Products</a
-            >
-            <router-link
-              to="/"
-              class="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-600 hover:text-white"
-              >Log out</router-link
+              >Log out</a
             >
           </div>
         </transition>
@@ -117,7 +113,13 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useSidebar } from "../hooks/useSidebar";
+import { useUserStore } from "../stores/user.store"
 
 const dropdownOpen = ref(false);
 const { isOpen } = useSidebar();
+const auth = useUserStore()
+
+const logout = ()=>{
+  auth.logoutUser();
+}
 </script>

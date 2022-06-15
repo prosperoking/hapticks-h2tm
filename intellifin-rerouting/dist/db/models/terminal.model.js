@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = require("mongoose");
 const ptspProfile_model_1 = __importDefault(require("./ptspProfile.model"));
+const organisation_model_1 = __importDefault(require("./organisation.model"));
 const terminalSchema = new mongoose_1.Schema({
     serialNo: {
         type: String,
@@ -54,6 +55,10 @@ const terminalSchema = new mongoose_1.Schema({
     profileId: {
         type: mongoose_1.SchemaTypes.ObjectId,
         ref: ptspProfile_model_1.default
+    },
+    organisationId: {
+        type: mongoose_1.SchemaTypes.ObjectId,
+        ref: organisation_model_1.default,
     },
     brand: {
         type: String,
@@ -105,6 +110,6 @@ terminalSchema.virtual('parsedParams').get(function () {
     }
     return data;
 });
-const Termninal = mongoose_1.model('terminal', terminalSchema);
+const Termninal = (0, mongoose_1.model)('terminal', terminalSchema);
 exports.default = Termninal;
 //# sourceMappingURL=terminal.model.js.map

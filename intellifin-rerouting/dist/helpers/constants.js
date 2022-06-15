@@ -45,7 +45,7 @@ exports.paysurecoreCredentials = paysurecoreCredentials;
 const paysurecoreEndpoints = {
     gettoken: `${process.env.PAYSURECOREBASEURL}/login/auth`,
     addterminals: `${process.env.PAYSURECOREBASEURL}/merchants/addterminals`,
-    getTerminalsByMerchantCode: `${process.env.PAYSURECOREBASEURL}/merchants/`,
+    getTerminalsByMerchantCode: `${process.env.PAYSURECOREBASEURL}/merchants/`, // to be added to this url /:merchantCode/terminals
 };
 exports.paysurecoreEndpoints = paysurecoreEndpoints;
 //# sourceMappingURL=constants.js.map

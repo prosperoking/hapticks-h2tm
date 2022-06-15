@@ -33,7 +33,7 @@ class IsoCardContoller {
                     });
                 }
                 const { componentKey1, isoHost, isoPort, isSSL } = terminal.profile;
-                const result = yield cardsockethelper_1.performCardSocketTranaction(cardsockethelper_1.TransactionTypes.KEY_EXCHANGE, {
+                const result = yield (0, cardsockethelper_1.performCardSocketTranaction)(cardsockethelper_1.TransactionTypes.KEY_EXCHANGE, {
                     tid: terminal.terminalId,
                     component: componentKey1,
                     ip: isoHost,
@@ -96,7 +96,7 @@ class IsoCardContoller {
                 if (!terminal || terminal.terminalId !== body.tid)
                     return response.status(404).json({ message: "Terminal not found/ Provisioned" });
                 const messageType = IsoCardContoller.getMessageType(terminal, body.totalAmount);
-                const socketResponse = yield cardsockethelper_1.performCardSocketTranaction(messageType, body);
+                const socketResponse = yield (0, cardsockethelper_1.performCardSocketTranaction)(messageType, body);
                 const { data } = socketResponse;
                 const journalPayload = messageType === cardsockethelper_1.TransactionTypes.ISO_TRANSACTION ? IsoCardContoller.createNIBBSJournal(data, body) : IsoCardContoller.createISWJournal(data, body, terminal);
                 vasjournals_model_1.default.create(journalPayload).catch(err => {

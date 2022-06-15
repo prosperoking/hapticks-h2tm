@@ -7,7 +7,7 @@ interface IApiCient {
 
 export class ApiClient implements IApiCient {
   
-  sendPostRequest(data: any ={}, headers: object, url: string) {
+  sendPostRequest(data: any ={}, headers: any, url: string) {
 
     console.log("endpoint =>", url);
     console.log("headers =>", headers);

@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import logger from '../helpers/logger';
 import Terminal from '../db/models/terminal.model';
 export default class ProfileController {
     public async index(request: Request, response: Response) {
@@ -21,13 +22,22 @@ export default class ProfileController {
 
     public async create(request: Request, response: Response) {
         try {
-            console.log(request.body)
             const data = await Terminal.create(request.body);
 
             response.json({status: true, data})
         } catch (error) {
             console.log(error)
             response.status(400).json({message: error.message})
+        }
+    }
+
+    public async bulkUpload(request: Request, response: Response) {
+        try {
+            
+        } catch (error) {
+
+            logger.error(error)
+            response.status(400).json({message: "Import failed"})
         }
     }
 }

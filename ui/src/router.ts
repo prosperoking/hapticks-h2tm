@@ -7,11 +7,13 @@ import UIElements from "./views/UIElements.vue";
 import Transactions from "./views/Transactions.vue";
 import Profiles from "./views/profiles/Profiles.vue";
 import Terminals from "./views/terminal/Terminals.vue";
+import UploadTerminal from "./views/terminal/UploadTerminals.vue";
 import Login from "./views/Login.vue";
 import Modal from "./views/Modal.vue";
 import Card from "./views/Card.vue";
 import Blank from "./views/Blank.vue";
 import NotFound from "./views/NotFound.vue";
+import { useUserStore } from "./stores/user.store";
 
 const routes: RouteRecordRaw[] = [
   {
@@ -44,6 +46,11 @@ const routes: RouteRecordRaw[] = [
     path: "/terminals",
     name: "terminals",
     component: Terminals,
+  },
+  { 
+    path: "/bulk-upload", 
+    name: "bulk-upload", 
+    component: UploadTerminal 
   },
   {
     path: "/cards",
@@ -81,6 +88,32 @@ const routes: RouteRecordRaw[] = [
 const router = createRouter({
   history: createWebHistory(),
   routes: routes,
+});
+
+router.beforeEach((to, from,next)=>{
+  const userStore = useUserStore();
+  const decideNavigation = ()=>{
+    if(to.name === 'Login' && !userStore.isLoggedIn){
+
+      next();
+    }
+    
+    if(to.name !== 'Login' && !userStore.isLoggedIn){
+      router.push({ name: 'Login' })
+    }
+    if(userStore.isLoggedIn && to.name === 'Login') {
+      router.replace({name: from.name?? 'Dashboard'});
+    }
+    next();
+  }
+
+  userStore.getUser().then(()=>{
+    decideNavigation();
+  }).catch(err=>{
+    console.log(err);
+    router.push({ name: 'Login' })
+  });
+
 });
 
 export default router;

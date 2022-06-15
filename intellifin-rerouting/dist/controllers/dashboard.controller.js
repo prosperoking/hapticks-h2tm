@@ -20,7 +20,7 @@ class DashboardController {
     index(request, response) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const date = moment_1.default().format("YYYY-MM-DD");
+                const date = (0, moment_1.default)().format("YYYY-MM-DD");
                 const totalTransactionsToday = yield vasjournals_model_1.default.where({
                     transactionTime: {
                         $gte: new Date(date),

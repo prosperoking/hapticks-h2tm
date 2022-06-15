@@ -1,5 +1,7 @@
 import {Schema, model, SchemaTypes, ObjectId} from "mongoose";
 import PTSPProfileModel, { IPTSPProfile,  } from "./ptspProfile.model";
+import OrganisationModel from './organisation.model';
+import { OrganisationProfile } from './organisation.model';
 
 export interface ITerminal {
     serialNo: string,
@@ -17,6 +19,7 @@ export interface ITerminal {
     createdAt: Date,
     updatedAt: Date,
     profile?: IPTSPProfile,
+    organisationId?: OrganisationProfile,
     parsedParams?: {
         callHomeTimeout: string,
         countryCode: string,
@@ -80,6 +83,10 @@ const terminalSchema = new Schema<ITerminal>({
     profileId: {
         type: SchemaTypes.ObjectId,
         ref: PTSPProfileModel
+    },
+    organisationId: {
+        type: SchemaTypes.ObjectId,
+        ref: OrganisationModel,
     },
     brand: {
         type: String,

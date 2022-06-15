@@ -16,13 +16,18 @@
           class="flex w-full py-2 pl-8 pr-6 text-sm text-gray-700 placeholder-gray-400 bg-white border border-b border-gray-400 rounded appearance-none focus:bg-white focus:placeholder-gray-600 focus:text-gray-700 focus:outline-none" />
       </div>
       </div>
-      <div>
+      <div class="space-x-2">
         <button
         @click="open = true"
-        class="px-6 py-3 mt-3 font-medium tracking-wide text-white bg-indigo-600 rounded-md hover:bg-indigo-500 focus:outline-none"
+        class="px-6 py-2 mt-3 font-medium tracking-wide text-white bg-indigo-600 rounded-md hover:bg-indigo-500 focus:outline-none"
       >
-      Add profile
+      Add Terminal
     </button>
+
+      <router-link :to="{name: 'bulk-upload'}">
+        upload csv
+      </router-link>
+
       </div>
     </div>
 
@@ -104,7 +109,7 @@
             </template>
             <template v-else>
               <tr>
-                <td class="px-5 py-5 text-sm bg-white border-b border-gray-200" colspan="4">
+                <td class="px-5 py-5 text-sm bg-white border-b border-gray-200" colspan="5">
                   <div class="flex items-center">
                     <div class="ml-3">
                       <p class="text-center text-gray-900 whitespace-nowrap">
@@ -309,7 +314,6 @@ const $v = useVuelidate(rules, form, { $autoDirty: true,  })
 const fetchData = async () =>{
   try {
     const {data} =await $axios.get('/dashboard/terminals')
-    console.log(data,state.value.count)
     state.value = {...state, ...data};
   } catch (error) {
     console.log(error)
@@ -340,9 +344,7 @@ const saveProfileForm =async () => {
 
 
 const formatExchangeTime = (value:string)=>{
-  console.log(value)
   const parsed = parse(value, 'yyyyLLddHHmmss', new Date);
-  console.log(parsed)
   return format(parsed,'hh:mm a eee do LLL yyyy')
 }
 

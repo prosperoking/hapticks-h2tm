@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import ApiResponse from '../helpers/apiResponse';
 import { apiStatusCodes } from '../helpers/constants'; 
 import VasServices from '../services/vas.services';
+import { IUserData } from '../db/models/user.model';
 
 
 class AuthContoller {
@@ -26,6 +27,16 @@ class AuthContoller {
 
     // }
 
+    public getUserInfo(request: Request, response: Response) {
+        const { id, username, email, role, permissions, imageUrl } = request.user as IUserData;
+        return response.json({ id, username, email, role , permissions, imageUrl  });
+    }
+
+    public logout(request: Request, response: Response) {
+        request.logOut();
+
+        return response.json({message: "done"})
+    }
 }
 
 export default AuthContoller;
