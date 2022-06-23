@@ -105,7 +105,7 @@ class IsoCardContoller {
 
             const socketResponse = await performCardSocketTranaction(messageType, body);
             const { data } = socketResponse
-            const journalPayload = messageType === TransactionTypes.ISO_TRANSACTION ? IsoCardContoller.createNIBBSJournal(data, body) : IsoCardContoller.createISWJournal(data, body, terminal);
+            const journalPayload = messageType === TransactionTypes.ISO_TRANSACTION ? IsoCardContoller.createNIBBSJournal(data.data, body) : IsoCardContoller.createISWJournal(data.data, body, terminal);
 
             vasjournalsModel.create(journalPayload).catch(err => {
                 console.error("Error: %s \r\n Unable to save transaction: %s", err.message, JSON.stringify(journalPayload))
@@ -129,7 +129,6 @@ class IsoCardContoller {
     }
 
     private static createNIBBSJournal(response: CardPurchaseResponse, payload: ISOPayload): IJournal {
-        console.log(response);
         return {
             PAN: Utils.getMaskPan(payload.field2),
             rrn: payload.field37,
@@ -151,7 +150,6 @@ class IsoCardContoller {
     }
 
     private static createISWJournal(response: CardPurchaseResponse, payload: KIMONOPayload, terminal: ITerminal): IJournal {
-        console.log(response);
         return {
             PAN: Utils.getMaskPan(payload.pan),
             rrn: payload.rrn,
