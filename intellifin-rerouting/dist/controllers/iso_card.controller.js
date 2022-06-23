@@ -119,6 +119,7 @@ class IsoCardContoller {
             cardsockethelper_1.TransactionTypes.ISW_KIMONO;
     }
     static createNIBBSJournal(response, payload) {
+        console.log(response);
         return {
             PAN: utils_1.default.getMaskPan(payload.field2),
             rrn: payload.field37,
@@ -139,6 +140,7 @@ class IsoCardContoller {
         };
     }
     static createISWJournal(response, payload, terminal) {
+        console.log(response);
         return {
             PAN: utils_1.default.getMaskPan(payload.pan),
             rrn: payload.rrn,

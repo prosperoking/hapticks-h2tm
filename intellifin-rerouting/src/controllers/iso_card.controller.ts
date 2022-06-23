@@ -129,6 +129,7 @@ class IsoCardContoller {
     }
 
     private static createNIBBSJournal(response: CardPurchaseResponse, payload: ISOPayload): IJournal {
+        console.log(response);
         return {
             PAN: Utils.getMaskPan(payload.field2),
             rrn: payload.field37,
@@ -150,6 +151,7 @@ class IsoCardContoller {
     }
 
     private static createISWJournal(response: CardPurchaseResponse, payload: KIMONOPayload, terminal: ITerminal): IJournal {
+        console.log(response);
         return {
             PAN: Utils.getMaskPan(payload.pan),
             rrn: payload.rrn,
