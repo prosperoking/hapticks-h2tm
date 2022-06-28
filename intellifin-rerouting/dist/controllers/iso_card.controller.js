@@ -91,12 +91,14 @@ class IsoCardContoller {
                 const serial = request.header('x-serial-no');
                 const brand = request.header('x-brand');
                 const appVersion = request.header('x-app-version');
-                const terminal = yield terminal_model_1.default.findOne({ serialNo: serial }).populate('profile');
+                const terminal = yield terminal_model_1.default.findOne({ serialNo: serial })
+                    .populate({ path: 'profile', });
                 const { body } = request;
                 if (!terminal || terminal.terminalId !== body.tid)
                     return response.status(404).json({ message: "Terminal not found/ Provisioned" });
                 const messageType = IsoCardContoller.getMessageType(terminal, body.totalAmount);
-                const socketResponse = yield (0, cardsockethelper_1.performCardSocketTranaction)(messageType, body);
+                const patchedPayload = messageType === cardsockethelper_1.TransactionTypes.ISW_KIMONO ? IsoCardContoller.patchISWPayload(body, terminal.profile, terminal) : body;
+                const socketResponse = yield (0, cardsockethelper_1.performCardSocketTranaction)(messageType, patchedPayload);
                 const { data } = socketResponse;
                 const journalPayload = messageType === cardsockethelper_1.TransactionTypes.ISO_TRANSACTION ? IsoCardContoller.createNIBBSJournal(data.data, body) : IsoCardContoller.createISWJournal(data.data, body, terminal);
                 vasjournals_model_1.default.create(journalPayload).catch(err => {
@@ -109,6 +111,9 @@ class IsoCardContoller {
                 return response.status(400).json({ message: "An error Occured" });
             }
         });
+    }
+    static patchISWPayload(data, profile, terminal) {
+        return Object.assign(Object.assign({}, data), { destInstitutionCode: profile.iswInstitutionCode, destAccountNumber: profile.iswDestinationAccount, merchantLocation: (terminal === null || terminal === void 0 ? void 0 : terminal.parsedParams.merchantNameLocation) || "HAPTICKSDATA LTD LA LANG" });
     }
     static getMessageType(terminal, amount) {
         var _a;

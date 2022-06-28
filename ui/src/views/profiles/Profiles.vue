@@ -81,6 +81,9 @@
                       :class="`absolute inset-0 bg-${profile?.statusColor}-200 opacity-50 rounded-full`"></span>
                     <span class="relative">{{ profile?.status }}</span>
                   </span> -->
+                  <button @click="editProfile(profile)">
+                    edit
+                  </button>
                 </td>
               </tr>
             </template>
@@ -189,6 +192,14 @@
              <div>
               <Input title="ISW Switch Amount" v-model:value="form.iswSwitchAmount" type="number" />
             </div>
+
+            <div>
+              <Input title="ISW Destination Institution Code" v-model:value="form.iswInstitutionCode" type="number" />
+            </div>
+
+            <div>
+              <Input title="ISW Destination Account" v-model:value="form.iswDestinationAccount" type="number" />
+            </div>
           </div>
           <div>
             <p v-for="error of $v.$errors" :key="error.$uid">
@@ -220,10 +231,11 @@
 
 <script lang="ts" setup>
 import { reactive, inject, onMounted, ref, watch,computed } from 'vue';
+import {notify} from "@kyvg/vue3-notification"
 import {Axios} from 'axios';
 import Input from '../../components/Input.vue'
 import useVuelidate from "@vuelidate/core";
-import {required, ipAddress, numeric, minValue} from "@vuelidate/validators"
+import {required, ipAddress, numeric, minValue, } from "@vuelidate/validators"
 
 interface Profile {
   _id?: string,
@@ -235,6 +247,8 @@ interface Profile {
   componentKey2: string,
   iswSwitchAmount: number,
   terminals_count?: number,
+  iswInstitutionCode?: string,
+  iswDestinationAccount?: string,
 }
 
 interface State {
@@ -257,6 +271,8 @@ const defualtState = {
   componentKey1: '',
   componentKey2: '',
   iswSwitchAmount: 0,
+  iswInstitutionCode: '',
+  iswDestinationAccount: '',
 }
 let form = ref<Profile>({...defualtState})
 const open = ref(false);
@@ -267,7 +283,7 @@ const rules = computed(()=>({
   isSSL: {required},
   componentKey1: {required},
   componentKey2: {required},
-  iswSwitchAmount: {required, minValue: minValue(0)},
+  iswSwitchAmount: {minValue: minValue(0)},
 }))
 const $v = useVuelidate(rules, form, { $autoDirty: true,  })
 
@@ -276,8 +292,22 @@ const fetchData = async () =>{
     const {data} =await $axios.get('/dashboard/profiles')
     console.log(data,state.value.count)
     state.value = {...state, ...data};
-  } catch (error) {
+  } catch (error: any) {
     console.log(error)
+    notify({
+      title: "Error",
+      type: "error",
+      text: error?.message
+    })
+  }
+}
+
+const editProfile = (value: Profile)=>{
+  open.value = true;
+  form.value = {
+    ...form.value ,
+    ... value,
+    _id: value._id,
   }
 }
 
@@ -286,12 +316,23 @@ const saveProfileForm =async () => {
   if(!await $v?.$valid)
   loading.value = true;
   try {
-    const {data} = await $axios.post('/dashboard/profiles',form.value);
+    console.log(form.value._id)
+    const {data} = await( 
+      form.value._id === null? $axios.post('/dashboard/profiles',form.value):
+                               $axios.put(
+                                `/dashboard/profiles/${form.value._id}`,
+                                form.value
+                              )
+    );
     console.log(data)
     open.value = false;
     fetchData()
   } catch (error:any) {
-    alert(error?.response.data.message || error.message)
+    notify({
+      title: "Error",
+      type: "error",
+      text: error?.response.data.message || error.message
+    })
   }finally {
     loading.value = false;
     

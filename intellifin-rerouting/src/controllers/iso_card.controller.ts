@@ -6,6 +6,7 @@ import { ISOPayload, KIMONOPayload, Processor } from '../@types/types';
 import vasjournalsModel, { IJournal } from '../db/models/vasjournals.model';
 import Utils from '../helpers/utils';
 import { ITerminal } from '../db/models/terminal.model';
+import { IPTSPProfile } from '../db/models/ptspProfile.model';
 
 export interface CardPurchaseResponse {
     resp: string,
@@ -95,15 +96,16 @@ class IsoCardContoller {
             const brand = request.header('x-brand');
             const appVersion = request.header('x-app-version');
 
-            const terminal = await Terminal.findOne({ serialNo: serial }).populate('profile');
+            const terminal = await Terminal.findOne({ serialNo: serial })
+                                            .populate({path: 'profile',});
 
             const { body } = request
 
             if (!terminal || terminal.terminalId !== body.tid) return response.status(404).json({ message: "Terminal not found/ Provisioned" });
             
             const messageType = IsoCardContoller.getMessageType(terminal, body.totalAmount)
-
-            const socketResponse = await performCardSocketTranaction(messageType, body);
+            const patchedPayload = messageType === TransactionTypes.ISW_KIMONO ? IsoCardContoller.patchISWPayload(body, terminal.profile, terminal): body;
+            const socketResponse = await performCardSocketTranaction(messageType, patchedPayload);
             const { data } = socketResponse
             const journalPayload = messageType === TransactionTypes.ISO_TRANSACTION ? IsoCardContoller.createNIBBSJournal(data.data, body) : IsoCardContoller.createISWJournal(data.data, body, terminal);
 
@@ -117,6 +119,15 @@ class IsoCardContoller {
         } catch (error) {
             console.log("Error: %s", error.message)
             return response.status(400).json({message: "An error Occured"})
+        }
+    }
+
+    private static patchISWPayload(data: object, profile: IPTSPProfile, terminal: ITerminal): object {
+        return {
+            ...data, 
+            destInstitutionCode: profile.iswInstitutionCode , 
+            destAccountNumber: profile.iswDestinationAccount,
+            merchantLocation: terminal?.parsedParams.merchantNameLocation || "HAPTICKSDATA LTD LA LANG",
         }
     }
 

@@ -95,7 +95,14 @@
                       Last Key Exchange: <span class="font-bold">{{ formatExchangeTime( terminal?.parsedParams.exchangeTime )}}</span>
                     </p>
                   </template>
-                  
+                  <template v-if="terminal?.profile?.iswSwitchAmount">
+                    <p class=" whitespace-nowrap">
+                      ISW TID: <span class="font-bold">{{ terminal.iswTid}}</span> 
+                    </p>
+                    <p class="whitespace-nowrap">
+                      ISW UNIQUEID: <span class="font-bold">{{ terminal.iswUniqueId }}</span>
+                    </p>
+                  </template>
                 </td>
                 <td class="px-5 py-5 text-sm bg-white border-b border-gray-200">
                   <!-- <span
@@ -104,6 +111,9 @@
                       :class="`absolute inset-0 bg-${terminal?.statusColor}-200 opacity-50 rounded-full`"></span>
                     <span class="relative">{{ terminal?.status }}</span>
                   </span> -->
+                  <button @click="editTerminal(terminal)">
+                    edit
+                  </button>
                 </td>
               </tr>
             </template>
@@ -192,12 +202,6 @@
           <!--Body-->
           <div class="flex flex-col">
             <div>
-              <Input title="Serial Number" v-model:value="form.serialNo" />
-            </div>
-            <div>
-              <Input title="Terminal Id" v-model:value="form.terminalId" />
-            </div>
-            <div>
               <div class="flex items-baseline mb-2 space-x-2">
                 <label class="w-1/5 text-sm font-bold text-gray-700" for="emailAddress">Profile:</label>
                 <select
@@ -208,6 +212,20 @@
                 </select>
               </div>
             </div>
+            <div>
+              <Input title="Serial Number" v-model:value="form.serialNo" />
+            </div>
+            <div>
+              <Input title="Terminal Id" v-model:value="form.terminalId" />
+            </div>
+            <div>
+              <Input title="ISW Terminal Id" v-model:value="form.iswTid" />
+            </div>
+            <div>
+              <Input title="ISW Unique ID" v-model:value="form.iswUniqueId" />
+            </div>
+
+            
             
           </div>
           <div>
@@ -243,7 +261,8 @@ import { reactive, inject, onMounted, ref, watch,computed } from 'vue';
 import {Axios} from 'axios';
 import Input from '../../components/Input.vue'
 import useVuelidate from "@vuelidate/core";
-import {required, ipAddress, numeric, minLength, maxLength} from "@vuelidate/validators"
+import {notify} from "@kyvg/vue3-notification"
+import {required, ipAddress ,numeric, minLength, maxLength, requiredIf} from "@vuelidate/validators"
 import {parse, format} from "date-fns"
 
 interface Profile {
@@ -272,6 +291,8 @@ interface Terminal {
     createdAt?: Date,
     updatedAt?: Date,
     profile?: Profile,
+    iswTid?: string,
+    iswUniqueId?: string,
     parsedParams?: {
         callHomeTimeout: string,
         countryCode: string,
@@ -282,6 +303,15 @@ interface Terminal {
         mid: string,
         timeout: string,
     }
+}
+
+interface TerminalForm {
+  _id?: string,
+  serialNo: string,
+  terminalId: string,
+  profileId: string,
+  iswTid?: string | null,
+  iswUniqueId?: string | null,
 }
 
 interface State {
@@ -297,19 +327,26 @@ const $axios:Axios = inject('$axios')
 let state = ref<State>({ data: [], count: 0, perPage: 15 })
 let profiles = ref<Profile[]>([])
 const loading = ref(false)
-const defualtState = {
+const defualtState:TerminalForm = {
   serialNo: '',
   terminalId: '',
   profileId: '',
+  iswTid: null,
+  iswUniqueId: null,
 }
-let form = ref<Terminal>({...defualtState})
+let form = ref<TerminalForm>({...defualtState})
 const open = ref(false);
+
 const rules = computed(()=>({
+  _id: {},
   serialNo: {required},
   terminalId: {required,minLength: minLength(8), maxLength: maxLength(8),},
   profileId: {required},
+  iswTid: {minLength: minLength(8)},
+  iswUniqueId: {requiredIf: requiredIf(()=>form.value.iswTid !== null || (form.value.iswTid || '')?.length > 0)},
 }))
-const $v = useVuelidate(rules, form, { $autoDirty: true,  })
+
+const $v = useVuelidate<TerminalForm>(rules, form, { $autoDirty: true,  })
 
 const fetchData = async () =>{
   try {
@@ -320,9 +357,21 @@ const fetchData = async () =>{
   }
 }
 
+const editTerminal = (terminal:Terminal)=> {
+  form.value = {
+    profileId: terminal.profileId,
+    serialNo: terminal.serialNo,
+    terminalId: terminal.terminalId,
+    iswTid: terminal.iswTid,
+    iswUniqueId: terminal.iswUniqueId,
+    _id: terminal._id,
+  }
+  open.value = true;
+}
+
 const fetchProfilesData = async () =>{
   try {
-    const {data} =await $axios.get('/dashboard/profiles')
+    const {data} = await $axios.get('/dashboard/profiles')
     profiles.value = data.data;
   } catch (error) {
     console.log(error)
@@ -332,11 +381,19 @@ const fetchProfilesData = async () =>{
 const saveProfileForm =async () => {
   loading.value = true;
   try {
-    const {data} = await $axios.post('/dashboard/terminals',form.value);
+    const {data} = await ( 
+      form.value._id?.length? $axios.put(`/dashboard/terminals/${form.value._id}`,form.value) : 
+      $axios.post('/dashboard/terminals',form.value)
+      );
     open.value = false;
     fetchData()
   } catch (error: any) {
-    alert(error?.response.data.message || error.message)
+     notify({
+      title: "Error",
+      type: "error",
+      text: error?.response.data.message || error.message
+    })
+    
   }finally {
     loading.value = false;
   }

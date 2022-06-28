@@ -10,6 +10,9 @@ export interface IPTSPProfileData {
     componentKey2: string,
     iswSwitchAmount: Number,
     terminals_count?: number,
+    iswMid?: string,
+    iswInstitutionCode?: string,
+    iswDestinationAccount?: string,
 }
 
 export interface IPTSPProfile extends Document, IPTSPProfileData { }
@@ -38,6 +41,18 @@ const ptspProfileSchema = new Schema<IPTSPProfileData>({
     },
     iswSwitchAmount: {
         type: Number,
+        default: null,
+    },
+    iswMid: {
+        type: String,
+        default: null,
+    },
+    iswInstitutionCode: {
+        type: String,
+        default: null,
+    },
+    iswDestinationAccount: {
+        type: String,
         default: null,
     },
 }, {

@@ -7,6 +7,7 @@
       :type="type" :value="value" @input="updateValue" />
     <input
       v-if="['checkbox','radio'].includes(type)"
+      :checked="value"
       class="p-1 mt-2 border border-gray-200 rounded-md focus:outline-none focus:border-none focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
       :type="type" :value="value" @input="updateValue" />  
     <p v-if="desciption" v-text="desciption"></p>

@@ -71,11 +71,28 @@ const terminalSchema = new mongoose_1.Schema({
     deviceModel: {
         type: String,
         default: null,
-    }
+    },
+    iswTid: {
+        type: String,
+        unique: true,
+        default: null,
+        get: function (value) {
+            return (value === null || value === void 0 ? void 0 : value.length) ? value : this.terminalId;
+        },
+    },
+    iswUniqueId: {
+        type: String,
+        default: null,
+        unique: true,
+        get: function (value) {
+            return (value === null || value === void 0 ? void 0 : value.length) ? value : this.serialNo;
+        }
+    },
 }, {
     timestamps: true,
     toJSON: {
-        virtuals: true
+        virtuals: true,
+        getters: true
     }
 });
 terminalSchema.virtual('profile', {

@@ -18,7 +18,8 @@
         <label class="block">
           <span class="text-sm text-gray-700">Email</span>
           <input
-            type="username/email"
+            placeholder="username/email"
+            type="text"
             class="block w-full mt-1 border-gray-200 rounded-md focus:border-indigo-600 focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
             v-model="username"
           />
@@ -32,6 +33,11 @@
             v-model="password"
           />
         </label>
+        <div v-if="errorMsg !== null" class="flex items-center justify-between mt-4">
+          <div class="text-red-400">
+            {{ errorMsg }}
+          </div>
+        </div>
 
         <div class="flex items-center justify-between mt-4">
           <div>
@@ -52,8 +58,9 @@
 
         <div class="mt-6">
           <button
+            :disabled="loading"
             type="submit"
-            class="w-full px-4 py-2 text-sm text-center text-white bg-indigo-600 rounded-md focus:outline-none hover:bg-indigo-500"
+            class="w-full px-4 py-2 text-sm text-center text-white bg-indigo-600 rounded-md disabled:pointer-events-none disabled:opacity-50 focus:outline-none hover:bg-indigo-500"
           >
             Sign in
           </button>
@@ -64,7 +71,7 @@
 </template>
 
 <script setup lang="ts">
-import { AxiosInstance } from "axios";
+import { AxiosError, AxiosInstance } from "axios";
 import { inject, ref } from "vue";
 import { useRouter } from "vue-router";
 
@@ -72,8 +79,12 @@ const router = useRouter();
 const username = ref("");
 const rememberMe = ref(false);
 const password = ref("");
+const errorMsg = ref<String | null>(null);
+const loading = ref(false);
 const request: AxiosInstance| undefined = inject('$axios');
 async function login() {
+  loading.value = true;
+  errorMsg.value = null;
   try {
     await request?.post('/login',{
       username: username.value,
@@ -81,8 +92,16 @@ async function login() {
       password: password.value,
     });
     router.push("/dashboard");
-  } catch (error) {
+  } catch (error: any) {
+    console.log(error.response.status)
+    if(error.isAxiosError) {
+      errorMsg.value = error.response.status == 401? "Incorrect email or password" :error.response?.data.message;
+      return;
+    }
     
+    errorMsg.value = error.message;
+  } finally {
+    loading.value = false;
   }
 }
 </script>

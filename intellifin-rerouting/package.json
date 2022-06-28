@@ -39,6 +39,7 @@
     "joi": "^14.3.1",
     "json2xls": "^0.1.2",
     "jsonwebtoken": "^8.5.1",
+    "lodash-es": "^4.17.21",
     "moment": "^2.26.0",
     "moment-timezone": "^0.5.31",
     "mongo-seeding": "^3.5.0",

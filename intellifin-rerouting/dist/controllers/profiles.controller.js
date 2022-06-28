@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const ptspProfile_model_1 = __importDefault(require("../db/models/ptspProfile.model"));
+const lodash_1 = require("lodash");
 class ProfileController {
     create(request, response) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -29,8 +30,36 @@ class ProfileController {
     index(request, response) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const data = yield ptspProfile_model_1.default.find({}, { componentKey1: false, componentKey2: false }).populate('terminals_count');
+                const data = yield ptspProfile_model_1.default.find({}).populate('terminals_count');
                 response.json({ data, count: data.length });
+            }
+            catch (error) {
+                console.log(error);
+                response.status(400).json({ message: error.message });
+            }
+        });
+    }
+    edit(request, response) {
+        var _a;
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const profile = yield ptspProfile_model_1.default.findById((_a = request.params) === null || _a === void 0 ? void 0 : _a.id);
+                if (!profile)
+                    return response.status(404).json({ message: "Profile not found" });
+                const data = yield profile.update((0, lodash_1.pick)(request.body, [
+                    "title",
+                    "isoHost",
+                    "isoPort",
+                    "isSSL",
+                    "componentKey1",
+                    "componentKey2",
+                    "iswSwitchAmount",
+                    "terminals_count",
+                    "iswMid",
+                    "iswInstitutionCode",
+                    "iswDestinationAccount",
+                ]));
+                response.json({ status: true, data });
             }
             catch (error) {
                 console.log(error);

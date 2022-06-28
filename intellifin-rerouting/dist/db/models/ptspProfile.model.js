@@ -27,6 +27,18 @@ const ptspProfileSchema = new mongoose_1.Schema({
         type: Number,
         default: null,
     },
+    iswMid: {
+        type: String,
+        default: null,
+    },
+    iswInstitutionCode: {
+        type: String,
+        default: null,
+    },
+    iswDestinationAccount: {
+        type: String,
+        default: null,
+    },
 }, {
     timestamps: true, toJSON: {
         virtuals: true

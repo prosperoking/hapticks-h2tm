@@ -20,6 +20,8 @@ export interface ITerminal {
     updatedAt: Date,
     profile?: IPTSPProfile,
     organisationId?: OrganisationProfile,
+    iswTid?: string,
+    iswUniqueId?: string,
     parsedParams?: {
         callHomeTimeout: string,
         countryCode: string,
@@ -99,11 +101,28 @@ const terminalSchema = new Schema<ITerminal>({
     deviceModel: {
         type: String,
         default: null,
-    }
+    },
+    iswTid: {
+        type: String,
+        unique: true,
+        default: null,
+        get: function(value){
+          return value?.length ? value : this.terminalId
+        },
+    },
+    iswUniqueId: {
+        type: String,
+        default: null,
+        unique: true,
+        get: function(value){
+            return value?.length ? value : this.serialNo
+        }
+    },
 },{
     timestamps: true,
     toJSON: {
-        virtuals: true
+        virtuals: true,
+        getters: true
     }
 })
 
