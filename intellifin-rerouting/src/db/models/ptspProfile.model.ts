@@ -13,6 +13,7 @@ export interface IPTSPProfileData {
     iswMid?: string,
     iswInstitutionCode?: string,
     iswDestinationAccount?: string,
+
 }
 
 export interface IPTSPProfile extends Document, IPTSPProfileData { }

@@ -66,7 +66,7 @@
                   <p class="text-gray-900 whitespace-nowrap">Host: {{ profile.isoHost }}:{{profile.isoPort}}</p>
                   <p class="text-gray-900 whitespace-nowrap">Is SSL: {{ profile?.isSSL? "Yes":"No" }}</p>
                   <p class="text-gray-900 whitespace-nowrap">
-                    Switch Amount: {{ profile.iswSwitchAmount>0 || profile.iswSwitchAmount === null? 'None': profile.iswSwitchAmount }}
+                    Switch Amount: {{  !Boolean(profile.iswSwitchAmount) ? 'None': currencyFormatter(profile.iswSwitchAmount) }}
                   </p>
                 </td>
                 <td class="px-5 py-5 text-sm bg-white border-b border-gray-200">
@@ -189,10 +189,12 @@
             <div>
               <Input title="Is SSL" v-model:value="form.isoHost" type="checkbox" />
             </div>
-             <div>
+            <div>
               <Input title="ISW Switch Amount" v-model:value="form.iswSwitchAmount" type="number" />
             </div>
-
+            <div>
+              <Input title="ISW MID" v-model:value="form.iswMid" type="number" />
+            </div>
             <div>
               <Input title="ISW Destination Institution Code" v-model:value="form.iswInstitutionCode" type="number" />
             </div>
@@ -234,8 +236,9 @@ import { reactive, inject, onMounted, ref, watch,computed } from 'vue';
 import {notify} from "@kyvg/vue3-notification"
 import {Axios} from 'axios';
 import Input from '../../components/Input.vue'
+import { currencyFormatter, dateFormatter } from '../../utils/Formatters';
 import useVuelidate from "@vuelidate/core";
-import {required, ipAddress, numeric, minValue, } from "@vuelidate/validators"
+import {required, ipAddress, numeric, minValue, requiredIf} from "@vuelidate/validators"
 
 interface Profile {
   _id?: string,
@@ -249,6 +252,7 @@ interface Profile {
   terminals_count?: number,
   iswInstitutionCode?: string,
   iswDestinationAccount?: string,
+  iswMid?: string | null,
 }
 
 interface State {
@@ -273,6 +277,7 @@ const defualtState = {
   iswSwitchAmount: 0,
   iswInstitutionCode: '',
   iswDestinationAccount: '',
+  iswMid: null,
 }
 let form = ref<Profile>({...defualtState})
 const open = ref(false);
@@ -284,8 +289,9 @@ const rules = computed(()=>({
   componentKey1: {required},
   componentKey2: {required},
   iswSwitchAmount: {minValue: minValue(0)},
+  iswMid: { requiredIf: requiredIf(()=>Boolean(form.value.iswSwitchAmount) ) }
 }))
-const $v = useVuelidate(rules, form, { $autoDirty: true,  })
+const $v = useVuelidate<Profile>(rules, form, { $autoDirty: true,  })
 
 const fetchData = async () =>{
   try {
