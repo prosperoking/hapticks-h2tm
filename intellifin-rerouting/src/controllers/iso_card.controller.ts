@@ -138,8 +138,7 @@ class IsoCardContoller {
 
     private static getMessageType(terminal: ITerminal, amount: number): TransactionTypes {
         if(!terminal?.profile?.iswSwitchAmount) return TransactionTypes.ISO_TRANSACTION
-        console.log("amount: %d %d",amount, terminal?.profile.iswSwitchAmount)
-        return amount >= terminal?.profile.iswSwitchAmount ? 
+        return (amount/100) >= terminal?.profile.iswSwitchAmount ? 
             TransactionTypes.ISW_KIMONO : 
             TransactionTypes.ISO_TRANSACTION;
     }

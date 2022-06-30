@@ -123,8 +123,7 @@ class IsoCardContoller {
         var _a;
         if (!((_a = terminal === null || terminal === void 0 ? void 0 : terminal.profile) === null || _a === void 0 ? void 0 : _a.iswSwitchAmount))
             return cardsockethelper_1.TransactionTypes.ISO_TRANSACTION;
-        console.log("amount: %d %d", amount, terminal === null || terminal === void 0 ? void 0 : terminal.profile.iswSwitchAmount);
-        return amount >= (terminal === null || terminal === void 0 ? void 0 : terminal.profile.iswSwitchAmount) ?
+        return (amount / 100) >= (terminal === null || terminal === void 0 ? void 0 : terminal.profile.iswSwitchAmount) ?
             cardsockethelper_1.TransactionTypes.ISW_KIMONO :
             cardsockethelper_1.TransactionTypes.ISO_TRANSACTION;
     }
