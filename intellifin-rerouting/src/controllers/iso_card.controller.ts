@@ -104,7 +104,7 @@ class IsoCardContoller {
 
             if (!terminal || terminal.terminalId !== body.tid) return response.status(404).json({ message: "Terminal not found/ Provisioned" });
             
-            const messageType = IsoCardContoller.getMessageType(terminal, body.totalamount)
+            const messageType = IsoCardContoller.getMessageType(terminal, Number(body.field4))
             const patchedPayload = messageType === TransactionTypes.ISW_KIMONO ? IsoCardContoller.patchISWPayload(body, terminal.profile, terminal): body;
             const socketResponse = await performCardSocketTranaction(messageType, patchedPayload);
             console.log("result: ", socketResponse)
@@ -124,7 +124,7 @@ class IsoCardContoller {
         }
     }
 
-    private static patchISWPayload(data: object, profile: IPTSPProfile, terminal: ITerminal): object {
+    private static patchISWPayload(data: any, profile: IPTSPProfile, terminal: ITerminal): object {
         return {
             ...data, 
             destInstitutionCode: profile.iswInstitutionCode , 
@@ -133,6 +133,8 @@ class IsoCardContoller {
             tid: terminal.iswTid,
             mid: profile.iswMid,
             uniqueId: terminal.iswUniqueId,
+            amount: data.field4 || data.amount || 0,
+            totalamount: data.field4 || data.amount || 0,
         }
     }
 

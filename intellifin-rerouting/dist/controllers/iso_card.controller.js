@@ -97,7 +97,7 @@ class IsoCardContoller {
                 const { body } = request;
                 if (!terminal || terminal.terminalId !== body.tid)
                     return response.status(404).json({ message: "Terminal not found/ Provisioned" });
-                const messageType = IsoCardContoller.getMessageType(terminal, body.totalamount);
+                const messageType = IsoCardContoller.getMessageType(terminal, Number(body.field4));
                 const patchedPayload = messageType === cardsockethelper_1.TransactionTypes.ISW_KIMONO ? IsoCardContoller.patchISWPayload(body, terminal.profile, terminal) : body;
                 const socketResponse = yield (0, cardsockethelper_1.performCardSocketTranaction)(messageType, patchedPayload);
                 console.log("result: ", socketResponse);
@@ -117,7 +117,7 @@ class IsoCardContoller {
         });
     }
     static patchISWPayload(data, profile, terminal) {
-        return Object.assign(Object.assign({}, data), { destInstitutionCode: profile.iswInstitutionCode, destAccountNumber: profile.iswDestinationAccount, merchantLocation: (terminal === null || terminal === void 0 ? void 0 : terminal.parsedParams.merchantNameLocation) || "HAPTICKSDATA LTD LA LANG", tid: terminal.iswTid, mid: profile.iswMid, uniqueId: terminal.iswUniqueId });
+        return Object.assign(Object.assign({}, data), { destInstitutionCode: profile.iswInstitutionCode, destAccountNumber: profile.iswDestinationAccount, merchantLocation: (terminal === null || terminal === void 0 ? void 0 : terminal.parsedParams.merchantNameLocation) || "HAPTICKSDATA LTD LA LANG", tid: terminal.iswTid, mid: profile.iswMid, uniqueId: terminal.iswUniqueId, amount: data.field4 || data.amount || 0, totalamount: data.field4 || data.amount || 0 });
     }
     static getMessageType(terminal, amount) {
         var _a;
