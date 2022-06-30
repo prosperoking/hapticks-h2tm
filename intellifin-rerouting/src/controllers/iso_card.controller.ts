@@ -104,7 +104,7 @@ class IsoCardContoller {
 
             if (!terminal || terminal.terminalId !== body.tid) return response.status(404).json({ message: "Terminal not found/ Provisioned" });
             
-            const messageType = IsoCardContoller.getMessageType(terminal, body.totalAmount)
+            const messageType = IsoCardContoller.getMessageType(terminal, body.totalamount)
             const patchedPayload = messageType === TransactionTypes.ISW_KIMONO ? IsoCardContoller.patchISWPayload(body, terminal.profile, terminal): body;
             const socketResponse = await performCardSocketTranaction(messageType, patchedPayload);
             console.log("result: ", socketResponse)
@@ -138,10 +138,10 @@ class IsoCardContoller {
 
     private static getMessageType(terminal: ITerminal, amount: number): TransactionTypes {
         if(!terminal?.profile?.iswSwitchAmount) return TransactionTypes.ISO_TRANSACTION
-        
+        console.log("amount: %d %d",amount, terminal?.profile.iswSwitchAmount)
         return amount >= terminal?.profile.iswSwitchAmount ? 
-            TransactionTypes.ISO_TRANSACTION : 
-            TransactionTypes.ISW_KIMONO;
+            TransactionTypes.ISW_KIMONO : 
+            TransactionTypes.ISO_TRANSACTION;
     }
 
     private static createNIBBSJournal(response: CardPurchaseResponse, payload: ISOPayload): IJournal {
