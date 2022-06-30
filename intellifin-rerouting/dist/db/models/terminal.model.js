@@ -76,17 +76,25 @@ const terminalSchema = new mongoose_1.Schema({
         type: String,
         unique: true,
         default: null,
+        sparse: true,
         get: function (value) {
             return (value === null || value === void 0 ? void 0 : value.length) ? value : this.terminalId;
         },
+        // set: function(value: string | null){
+        //     return value.length?value: null;
+        // }
     },
     iswUniqueId: {
         type: String,
         default: null,
         unique: true,
+        sparse: true,
         get: function (value) {
             return (value === null || value === void 0 ? void 0 : value.length) ? value : this.serialNo;
-        }
+        },
+        // set: function(value: string | null){
+        //    return value.length?value: null;
+        // }
     },
 }, {
     timestamps: true,

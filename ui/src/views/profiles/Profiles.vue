@@ -193,7 +193,7 @@
               <Input title="ISW Switch Amount" v-model:value="form.iswSwitchAmount" type="number" />
             </div>
             <div>
-              <Input title="ISW MID" v-model:value="form.iswMid" type="number" />
+              <Input title="ISW MID" v-model:value="form.iswMid" type="text" />
             </div>
             <div>
               <Input title="ISW Destination Institution Code" v-model:value="form.iswInstitutionCode" type="number" />
@@ -330,7 +330,6 @@ const saveProfileForm =async () => {
                                 form.value
                               )
     );
-    console.log(data)
     open.value = false;
     fetchData()
   } catch (error:any) {

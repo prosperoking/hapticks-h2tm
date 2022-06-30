@@ -40,6 +40,7 @@ class IsoCardContoller {
                     ssl: String(isSSL),
                     port: isoPort
                 });
+                console.log("result: ", result);
                 if (!result.status) {
                     return response.status(400).json(result);
                 }
@@ -99,21 +100,24 @@ class IsoCardContoller {
                 const messageType = IsoCardContoller.getMessageType(terminal, body.totalAmount);
                 const patchedPayload = messageType === cardsockethelper_1.TransactionTypes.ISW_KIMONO ? IsoCardContoller.patchISWPayload(body, terminal.profile, terminal) : body;
                 const socketResponse = yield (0, cardsockethelper_1.performCardSocketTranaction)(messageType, patchedPayload);
+                console.log("result: ", socketResponse);
                 const { data } = socketResponse;
-                const journalPayload = messageType === cardsockethelper_1.TransactionTypes.ISO_TRANSACTION ? IsoCardContoller.createNIBBSJournal(data.data, body) : IsoCardContoller.createISWJournal(data.data, body, terminal);
+                console.log(data);
+                const responseData = data.data || data;
+                const journalPayload = messageType === cardsockethelper_1.TransactionTypes.ISO_TRANSACTION ? IsoCardContoller.createNIBBSJournal(responseData, body) : IsoCardContoller.createISWJournal(responseData, body, terminal);
                 vasjournals_model_1.default.create(journalPayload).catch(err => {
                     console.error("Error: %s \r\n Unable to save transaction: %s", err.message, JSON.stringify(journalPayload));
                 });
                 return response.json(socketResponse.data);
             }
             catch (error) {
-                console.log("Error: %s", error.message);
+                console.log("Error: %s", error);
                 return response.status(400).json({ message: "An error Occured" });
             }
         });
     }
     static patchISWPayload(data, profile, terminal) {
-        return Object.assign(Object.assign({}, data), { destInstitutionCode: profile.iswInstitutionCode, destAccountNumber: profile.iswDestinationAccount, merchantLocation: (terminal === null || terminal === void 0 ? void 0 : terminal.parsedParams.merchantNameLocation) || "HAPTICKSDATA LTD LA LANG" });
+        return Object.assign(Object.assign({}, data), { destInstitutionCode: profile.iswInstitutionCode, destAccountNumber: profile.iswDestinationAccount, merchantLocation: (terminal === null || terminal === void 0 ? void 0 : terminal.parsedParams.merchantNameLocation) || "HAPTICKSDATA LTD LA LANG", tid: terminal.iswTid, mid: profile.iswMid, uniqueId: terminal.iswUniqueId });
     }
     static getMessageType(terminal, amount) {
         var _a;

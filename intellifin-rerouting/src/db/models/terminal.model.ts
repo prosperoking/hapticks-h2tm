@@ -106,17 +106,25 @@ const terminalSchema = new Schema<ITerminal>({
         type: String,
         unique: true,
         default: null,
+        sparse: true,
         get: function(value){
           return value?.length ? value : this.terminalId
         },
+        // set: function(value: string | null){
+        //     return value.length?value: null;
+        // }
     },
     iswUniqueId: {
         type: String,
         default: null,
         unique: true,
+        sparse: true,
         get: function(value){
             return value?.length ? value : this.serialNo
-        }
+        },
+        // set: function(value: string | null){
+        //    return value.length?value: null;
+        // }
     },
 },{
     timestamps: true,
