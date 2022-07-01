@@ -131,7 +131,7 @@ class IsoCardContoller {
         return {
             PAN: utils_1.default.getMaskPan(payload.field2),
             rrn: payload.field37,
-            amount: Number.parseFloat(payload.amount),
+            amount: Number.parseFloat(payload.field4) / 100,
             STAN: payload.field11,
             cardExpiration: payload.field14,
             terminalId: payload.field41,
@@ -151,7 +151,7 @@ class IsoCardContoller {
         return {
             PAN: utils_1.default.getMaskPan(payload.pan),
             rrn: payload.rrn,
-            amount: Number.parseFloat(payload.totalamount),
+            amount: Number.parseFloat(payload.field4) / 100,
             STAN: payload.stan,
             cardExpiration: payload.expirydate,
             terminalId: payload.tid,

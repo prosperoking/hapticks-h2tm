@@ -63,6 +63,7 @@ export interface KIMONOPayload {
     stan: string;
     rrn: string;
     totalamount: string;
+    field4: string;
 }
 
 export enum Processor {
