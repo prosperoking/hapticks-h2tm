@@ -177,9 +177,9 @@
             <div>
               <Input title="Component Key 1" v-model:value="form.componentKey1" />
             </div>
-            <div>
+            <!-- <div>
               <Input title="Component Key 2" v-model:value="form.componentKey2" />
-            </div>
+            </div> -->
             <div>
               <Input title="Host IP" v-model:value="form.isoHost" />
             </div>
@@ -187,7 +187,7 @@
               <Input title="Host PORT" v-model:value="form.isoPort" />
             </div>
             <div>
-              <Input title="Is SSL" v-model:value="form.isoHost" type="checkbox" />
+              <Input title="Is SSL" v-model:value="form.isSSL" type="checkbox" />
             </div>
             <div>
               <Input title="ISW Switch Amount" v-model:value="form.iswSwitchAmount" type="number" />
@@ -287,7 +287,7 @@ const rules = computed(()=>({
   isoPort: {required, numeric},
   isSSL: {required},
   componentKey1: {required},
-  componentKey2: {required},
+  // componentKey2: {required},
   iswSwitchAmount: {minValue: minValue(0)},
   iswMid: { requiredIf: requiredIf(()=>Boolean(form.value.iswSwitchAmount) ) }
 }))
@@ -324,7 +324,7 @@ const saveProfileForm =async () => {
   try {
     console.log(form.value._id)
     const {data} = await( 
-      form.value._id?.length? $axios.post('/dashboard/profiles',form.value):
+      !form.value._id?.length? $axios.post('/dashboard/profiles',form.value):
                                $axios.put(
                                 `/dashboard/profiles/${form.value._id}`,
                                 form.value
