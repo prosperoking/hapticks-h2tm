@@ -1,12 +1,10 @@
 import { Request, Response } from 'express';
 import PTSPProfileModel from '../db/models/ptspProfile.model';
-import {pick, omit} from "lodash"
+import {pick,} from "lodash"
 export default class ProfileController {
     public async create(request: Request, response: Response) {
         try {
-            let {body} = request;
-
-            const data = await (new  PTSPProfileModel(omit(body,['_id'])) ).save();
+            const data = await PTSPProfileModel.create(request.body);
 
             response.json({status: true, data})
         } catch (error) {

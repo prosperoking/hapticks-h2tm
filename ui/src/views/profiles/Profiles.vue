@@ -324,7 +324,7 @@ const saveProfileForm =async () => {
   try {
     console.log(form.value._id)
     const {data} = await( 
-      form.value._id === null? $axios.post('/dashboard/profiles',form.value):
+      form.value._id?.length? $axios.post('/dashboard/profiles',form.value):
                                $axios.put(
                                 `/dashboard/profiles/${form.value._id}`,
                                 form.value
