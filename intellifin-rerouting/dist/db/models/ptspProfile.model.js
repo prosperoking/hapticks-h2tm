@@ -11,7 +11,6 @@ const ptspProfileSchema = new mongoose_1.Schema({
     },
     isoPort: {
         type: String,
-        unique: true,
     },
     isSSL: {
         type: Boolean,
@@ -39,6 +38,10 @@ const ptspProfileSchema = new mongoose_1.Schema({
         type: String,
         default: null,
     },
+    organisationId: {
+        type: mongoose_1.SchemaTypes.ObjectId,
+        default: null,
+    }
 }, {
     timestamps: true, toJSON: {
         virtuals: true

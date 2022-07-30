@@ -1,4 +1,4 @@
-import { Schema, model, Document } from "mongoose";
+import { Schema, model, Document, SchemaTypes } from "mongoose";
 import { paginate } from 'mongoose-paginate-v2';
 
 export interface IPTSPProfileData {
@@ -13,7 +13,7 @@ export interface IPTSPProfileData {
     iswMid?: string,
     iswInstitutionCode?: string,
     iswDestinationAccount?: string,
-
+    organisationId?: string | any,
 }
 
 export interface IPTSPProfile extends Document, IPTSPProfileData { }
@@ -28,7 +28,6 @@ const ptspProfileSchema = new Schema<IPTSPProfileData>({
     },
     isoPort: {
         type: String,
-        unique: true,
     },
     isSSL: {
         type: Boolean,
@@ -56,6 +55,10 @@ const ptspProfileSchema = new Schema<IPTSPProfileData>({
         type: String,
         default: null,
     },
+    organisationId: {
+        type: SchemaTypes.ObjectId,
+        default: null,
+    }
 }, {
     timestamps: true, toJSON: {
         virtuals: true
