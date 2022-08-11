@@ -100,8 +100,8 @@ class IsoCardContoller {
                     return response.status(404).json({ message: "Terminal not found/ Provisioned" });
                 const { componentKey1, isoHost, isoPort, isSSL } = terminal.profile;
                 const messageType = IsoCardContoller.getMessageType(terminal, Number(body.field4));
-                const patchedPayload = messageType === cardsockethelper_1.TransactionTypes.ISW_KIMONO ? IsoCardContoller.patchISWPayload(body, terminal.profile, terminal) : body;
-                const socketResponse = yield (0, cardsockethelper_1.performCardSocketTranaction)(messageType, Object.assign(Object.assign({}, patchedPayload), { tid: terminal.terminalId, component: componentKey1, ip: isoHost, ssl: String(isSSL), port: isoPort }));
+                const patchedPayload = messageType === cardsockethelper_1.TransactionTypes.ISW_KIMONO ? IsoCardContoller.patchISWPayload(body, terminal.profile, terminal) : Object.assign(Object.assign({}, body), { component: componentKey1, ip: isoHost, ssl: String(isSSL), port: isoPort });
+                const socketResponse = yield (0, cardsockethelper_1.performCardSocketTranaction)(messageType, patchedPayload);
                 console.log("result: ", socketResponse);
                 const { data } = socketResponse;
                 console.log(data);

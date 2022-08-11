@@ -106,15 +106,14 @@ class IsoCardContoller {
             const { componentKey1, isoHost, isoPort, isSSL } = terminal.profile;
 
             const messageType = IsoCardContoller.getMessageType(terminal, Number(body.field4))
-            const patchedPayload = messageType === TransactionTypes.ISW_KIMONO ? IsoCardContoller.patchISWPayload(body, terminal.profile, terminal): body;
-            const socketResponse = await performCardSocketTranaction(messageType, {
-                ...patchedPayload,
-                tid: terminal.terminalId,
+            const patchedPayload = messageType === TransactionTypes.ISW_KIMONO ? IsoCardContoller.patchISWPayload(body, terminal.profile, terminal): {
+                ...body,
                 component: componentKey1,
                 ip: isoHost,
                 ssl: String(isSSL),
                 port: isoPort
-            });
+            };
+            const socketResponse = await performCardSocketTranaction(messageType, patchedPayload);
             console.log("result: ", socketResponse)
             const { data } = socketResponse
             console.log(data);
