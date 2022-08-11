@@ -87,6 +87,7 @@ class IsoCardContoller {
         });
     }
     processCard(request, response) {
+        var _a;
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const serial = request.header('x-serial-no');
@@ -97,9 +98,10 @@ class IsoCardContoller {
                 const { body } = request;
                 if (!terminal || terminal.terminalId !== body.tid)
                     return response.status(404).json({ message: "Terminal not found/ Provisioned" });
+                const { componentKey1, isoHost, isoPort, isSSL } = terminal.profile;
                 const messageType = IsoCardContoller.getMessageType(terminal, Number(body.field4));
                 const patchedPayload = messageType === cardsockethelper_1.TransactionTypes.ISW_KIMONO ? IsoCardContoller.patchISWPayload(body, terminal.profile, terminal) : body;
-                const socketResponse = yield (0, cardsockethelper_1.performCardSocketTranaction)(messageType, patchedPayload);
+                const socketResponse = yield (0, cardsockethelper_1.performCardSocketTranaction)(messageType, Object.assign(Object.assign({}, patchedPayload), { tid: terminal.terminalId, component: componentKey1, ip: isoHost, ssl: String(isSSL), port: isoPort }));
                 console.log("result: ", socketResponse);
                 const { data } = socketResponse;
                 console.log(data);
@@ -108,7 +110,7 @@ class IsoCardContoller {
                 vasjournals_model_1.default.create(journalPayload).catch(err => {
                     console.error("Error: %s \r\n Unable to save transaction: %s", err.message, JSON.stringify(journalPayload));
                 });
-                return response.json(socketResponse.data);
+                return response.json(Object.assign(Object.assign({}, socketResponse.data), Object.assign({}, ((_a = socketResponse.data) === null || _a === void 0 ? void 0 : _a.data) || {})));
             }
             catch (error) {
                 console.log("Error: %s", error);

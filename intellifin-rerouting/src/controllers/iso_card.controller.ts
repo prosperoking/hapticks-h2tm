@@ -103,10 +103,18 @@ class IsoCardContoller {
             const { body } = request
 
             if (!terminal || terminal.terminalId !== body.tid) return response.status(404).json({ message: "Terminal not found/ Provisioned" });
-            
+            const { componentKey1, isoHost, isoPort, isSSL } = terminal.profile;
+
             const messageType = IsoCardContoller.getMessageType(terminal, Number(body.field4))
             const patchedPayload = messageType === TransactionTypes.ISW_KIMONO ? IsoCardContoller.patchISWPayload(body, terminal.profile, terminal): body;
-            const socketResponse = await performCardSocketTranaction(messageType, patchedPayload);
+            const socketResponse = await performCardSocketTranaction(messageType, {
+                ...patchedPayload,
+                tid: terminal.terminalId,
+                component: componentKey1,
+                ip: isoHost,
+                ssl: String(isSSL),
+                port: isoPort
+            });
             console.log("result: ", socketResponse)
             const { data } = socketResponse
             console.log(data);
@@ -117,7 +125,7 @@ class IsoCardContoller {
                 console.error("Error: %s \r\n Unable to save transaction: %s", err.message, JSON.stringify(journalPayload))
             });
 
-            return response.json(socketResponse.data)
+            return response.json({... socketResponse.data, ...{...socketResponse.data?.data || {}, }, });
         } catch (error) {
             console.log("Error: %s", error)
             return response.status(400).json({message: "An error Occured"})

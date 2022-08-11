@@ -18,8 +18,7 @@ class ProfileController {
     create(request, response) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                let { body } = request;
-                const data = yield (new ptspProfile_model_1.default((0, lodash_1.omit)(body, ['_id']))).save();
+                const data = yield ptspProfile_model_1.default.create(request.body);
                 response.json({ status: true, data });
             }
             catch (error) {
