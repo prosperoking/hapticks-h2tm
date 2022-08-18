@@ -177,9 +177,6 @@
             <div>
               <Input title="Component Key 1" v-model:value="form.componentKey1" />
             </div>
-            <!-- <div>
-              <Input title="Component Key 2" v-model:value="form.componentKey2" />
-            </div> -->
             <div>
               <Input title="Host IP" v-model:value="form.isoHost" />
             </div>

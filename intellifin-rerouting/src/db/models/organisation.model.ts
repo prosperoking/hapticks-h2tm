@@ -1,6 +1,7 @@
 import { Schema, model, Document } from "mongoose";
 import uniqueValidator from "mongoose-unique-validator";
 import paginate from 'mongoose-paginate-v2';
+import * as mongoose from 'mongoose';
 
 export interface OrganisationProfileData {
     name: string,
@@ -8,7 +9,7 @@ export interface OrganisationProfileData {
 
 export interface OrganisationProfile extends Document, OrganisationProfileData { }
 
-const orgSchema = new Schema<OrganisationProfileData>({
+const orgSchema = new mongoose.Schema<OrganisationProfileData>({
     name: {
         type: String,
         unique: true,
@@ -33,9 +34,10 @@ orgSchema.virtual('terminals_count', {
     count: true,
 });
 
+// @ts-ignore
 orgSchema.plugin(paginate);
 orgSchema.plugin(uniqueValidator);
 
 
-const OrganisationModel = model<OrganisationProfile>("organisaionProfile", orgSchema);
+const OrganisationModel = mongoose.model<OrganisationProfile>("organisaionProfile", orgSchema);
 export default OrganisationModel

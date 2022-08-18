@@ -50,3 +50,16 @@ export interface User {
     organisation_id: string,
     permissions: string[],
 }
+
+export interface PaginatedData<T> {
+    docs: T[],
+    totalDocs: number,
+    limit: number,
+    totalPages: number,
+    page: number,
+    pagingCounter?: number,
+    hasPrevPage?: boolean,
+    hasNextPage?: boolean,
+    prevPage?: number,
+    nextPage?: number
+}

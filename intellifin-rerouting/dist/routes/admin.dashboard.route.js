@@ -7,6 +7,7 @@ const express_1 = __importDefault(require("express"));
 const index_controller_1 = require("../controllers/index.controller");
 const router = express_1.default.Router();
 router.get('/', index_controller_1.dashboardController.index);
+router.get('/transactions', index_controller_1.dashboardController.transactions);
 router.get('/profiles', index_controller_1.profileController.index);
 router.post('/profiles', index_controller_1.profileController.create);
 router.put('/profiles/:id', index_controller_1.profileController.edit);

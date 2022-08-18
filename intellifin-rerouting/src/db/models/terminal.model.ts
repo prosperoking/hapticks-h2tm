@@ -1,7 +1,9 @@
-import {Schema, model, SchemaTypes, ObjectId} from "mongoose";
+import {Schema, model, SchemaTypes, ObjectId, PaginateModel} from "mongoose";
 import PTSPProfileModel, { IPTSPProfile,  } from "./ptspProfile.model";
 import OrganisationModel from './organisation.model';
 import { OrganisationProfile } from './organisation.model';
+import paginate from 'mongoose-paginate-v2';
+import * as mongoose from 'mongoose';
 
 export interface ITerminal {
     serialNo: string,
@@ -36,7 +38,7 @@ export interface ITerminal {
 }
 
 
-const terminalSchema = new Schema<ITerminal>({
+const terminalSchema = new mongoose.Schema<ITerminal>({
     serialNo: {
         type: String,
         required: true,
@@ -170,6 +172,9 @@ terminalSchema.virtual('parsedParams').get(function(){
     return data;
 });
 
-const Termninal = model<ITerminal>('terminal', terminalSchema);
+// @ts-ignore
+terminalSchema.plugin(paginate)
+
+const Termninal = mongoose.model<ITerminal, PaginateModel<ITerminal>>('terminal', terminalSchema);
 
 export default Termninal;

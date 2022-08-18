@@ -6,6 +6,7 @@ const router = express.Router();
 
 
 router.get('/',dashboardController.index);
+router.get('/transactions',dashboardController.transactions);
 router.get('/profiles', profileController.index)
 router.post('/profiles',profileController.create)
 router.put('/profiles/:id',profileController.edit)

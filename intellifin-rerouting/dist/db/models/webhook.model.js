@@ -22,38 +22,38 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const mongoose_unique_validator_1 = __importDefault(require("mongoose-unique-validator"));
-const mongoose_paginate_v2_1 = __importDefault(require("mongoose-paginate-v2"));
+const mongoose_1 = require("mongoose");
+const crypt_1 = require("../../helpers/crypt");
+const paginate = __importStar(require("mongoose-paginate-v2"));
 const mongoose = __importStar(require("mongoose"));
-const orgSchema = new mongoose.Schema({
+const webhookSchema = new mongoose.Schema({
+    organisation_id: {
+        type: mongoose_1.SchemaTypes.ObjectId,
+        default: null,
+    },
     name: {
         type: String,
-        unique: true,
-        set: (value) => String(value).toUpperCase(),
+        required: true,
+        set: value => String(value).toUpperCase(),
     },
+    url: {
+        type: String,
+        required: true,
+    },
+    headers: {
+        type: String,
+        set: value => (value === null || value === void 0 ? void 0 : value.length) ? (0, crypt_1.encrypt)(JSON.stringify(value)) : null,
+        get: value => (value === null || value === void 0 ? void 0 : value.length) ? JSON.stringify((0, crypt_1.decrypt)(value)) : null,
+        default: null,
+    }
 }, {
-    timestamps: true, toJSON: {
-        virtuals: true
+    timestamps: {
+        createdAt: true,
+        updatedAt: true,
     }
 });
-orgSchema.virtual('terminals', {
-    ref: 'terminal',
-    localField: '_id',
-    foreignField: 'organisationId',
-});
-orgSchema.virtual('terminals_count', {
-    ref: 'terminal',
-    localField: '_id',
-    foreignField: 'organisationId',
-    count: true,
-});
 // @ts-ignore
-orgSchema.plugin(mongoose_paginate_v2_1.default);
-orgSchema.plugin(mongoose_unique_validator_1.default);
-const OrganisationModel = mongoose.model("organisaionProfile", orgSchema);
-exports.default = OrganisationModel;
-//# sourceMappingURL=organisation.model.js.map
+webhookSchema.plugin(paginate);
+exports.default = mongoose.model('webhook', webhookSchema);
+//# sourceMappingURL=webhook.model.js.map

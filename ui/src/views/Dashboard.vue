@@ -79,8 +79,13 @@
                 </th>
                 <th
                   class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
+                  Info
+                </th>
+                <th
+                  class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
                   Amount
                 </th>
+                
                 <th
                   class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
                   MERCHANT INFO
@@ -89,7 +94,7 @@
                   class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
                   PROCESSOR
                 </th>
-               
+
                 <th
                   class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
                   Date
@@ -115,6 +120,18 @@
                       </div>
                       <div class="text-sm leading-5 text-gray-500">
                         {{ u.responseDescription }}
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <div class="ml-4">
+                      <div class="text-sm leading-5 text-gray-900">
+                       STAN <span class="font-medium">{{ u.STAN }}</span>
+                      </div>
+                      <div class="text-sm leading-5 text-gray-500">
+                       RRN: <span class="font-medium">{{ u.rrn }}</span>
                       </div>
                     </div>
                   </div>

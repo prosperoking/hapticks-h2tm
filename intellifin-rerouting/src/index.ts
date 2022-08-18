@@ -21,13 +21,11 @@ mongoose.Promise = global.Promise;
 const config = new Config();
 const dbConfig = config.getConfig(process.env.NODE_ENV);
 
-console.log("connection URL :: ", dbConfig.DATABASE_URL);
-
 mongoose.connect(dbConfig.DATABASE_URL, dbConfig.options, (err) => {
   if (err) Logger.log(err);
-  else { Logger.log(`Connected to mongodb successfully on ${process.env.NODE_ENV}`); }
+  else { Logger.log(`Connected to mongodb successfully ...`); }
 });
-mongoose.set('debug', true);
+mongoose.set('debug', dbConfig.enable_logging);
 
 
 /** Enable Cross Origin Resource Sharing */

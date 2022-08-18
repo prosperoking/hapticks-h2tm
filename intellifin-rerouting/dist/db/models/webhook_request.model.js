@@ -22,81 +22,73 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = require("mongoose");
-const mongoose_paginate_v2_1 = __importDefault(require("mongoose-paginate-v2"));
+const paginate = __importStar(require("mongoose-paginate-v2"));
 const mongoose = __importStar(require("mongoose"));
-const ptspProfileSchema = new mongoose.Schema({
-    title: {
+const webhookRequestSchema = new mongoose.Schema({
+    webhookId: {
+        type: mongoose_1.SchemaTypes.ObjectId,
+        required: true,
+    },
+    terminalId: {
         type: String,
-        unique: true,
+        required: true,
     },
-    isoHost: {
+    payload: {
+        type: Object,
+        required: true
+    },
+    responseBody: {
         type: String,
+        default: null,
     },
-    isoPort: {
+    responseType: {
         type: String,
+        default: null,
     },
-    isSSL: {
-        type: Boolean,
-        default: false,
-    },
-    componentKey1: {
-        type: String,
-    },
-    componentKey2: {
-        type: String,
-    },
-    iswSwitchAmount: {
+    responseCode: {
         type: Number,
         default: null,
     },
-    iswMid: {
-        type: String,
-        default: null,
+    isRetry: {
+        type: Boolean,
+        default: false,
     },
-    iswInstitutionCode: {
+    status: {
         type: String,
-        default: null,
+        required: true,
     },
-    iswDestinationAccount: {
-        type: String,
-        default: null,
+    journalId: {
+        type: mongoose_1.SchemaTypes.ObjectId,
+        required: true,
     },
     organisationId: {
         type: mongoose_1.SchemaTypes.ObjectId,
         default: null,
-    },
-    webhookId: {
-        type: mongoose_1.SchemaTypes.ObjectId,
-        default: null,
     }
 }, {
-    timestamps: true, toJSON: {
-        virtuals: true
+    timestamps: {
+        createdAt: true,
+        updatedAt: true
     }
 });
-ptspProfileSchema.virtual('terminals', {
-    ref: 'terminal',
+webhookRequestSchema.virtual('transaction', {
+    ref: 'journal',
     localField: '_id',
-    foreignField: 'profileId',
+    foreignField: 'journalId',
 });
-ptspProfileSchema.virtual('terminals_count', {
-    ref: 'terminal',
-    localField: '_id',
-    foreignField: 'profileId',
-    count: true,
-});
-ptspProfileSchema.virtual('webhook', {
+webhookRequestSchema.virtual('webhook', {
     ref: 'webhook',
     localField: '_id',
     foreignField: 'webhookId',
 });
+webhookRequestSchema.virtual('organisation', {
+    ref: 'organisation',
+    localField: '_id',
+    foreignField: 'organisationId',
+});
 // @ts-ignore
-ptspProfileSchema.plugin(mongoose_paginate_v2_1.default);
-const PTSPProfileModel = mongoose.model("ptspProfile", ptspProfileSchema);
-exports.default = PTSPProfileModel;
-//# sourceMappingURL=ptspProfile.model.js.map
+webhookRequestSchema.plugin(paginate);
+exports.default = mongoose.model('webhookRequest', webhookRequestSchema);
+//# sourceMappingURL=webhook_request.model.js.map

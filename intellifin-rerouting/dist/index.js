@@ -21,15 +21,14 @@ const port = process.env.PORT || '5009';
 mongoose_1.default.Promise = global.Promise;
 const config = new config_1.default();
 const dbConfig = config.getConfig(process.env.NODE_ENV);
-console.log("connection URL :: ", dbConfig.DATABASE_URL);
 mongoose_1.default.connect(dbConfig.DATABASE_URL, dbConfig.options, (err) => {
     if (err)
         logger_1.default.log(err);
     else {
-        logger_1.default.log(`Connected to mongodb successfully on ${process.env.NODE_ENV}`);
+        logger_1.default.log(`Connected to mongodb successfully ...`);
     }
 });
-mongoose_1.default.set('debug', true);
+mongoose_1.default.set('debug', dbConfig.enable_logging);
 /** Enable Cross Origin Resource Sharing */
 app.use((0, cors_1.default)());
 app.use((0, connect_timeout_1.default)('5m'));

@@ -1,5 +1,7 @@
-import mongoose from 'mongoose';
+import { Document, PaginateModel, SchemaTypes } from 'mongoose';
 import { Processor } from '../../@types/types';
+import paginate from 'mongoose-paginate-v2';
+import * as mongoose from 'mongoose';
 
 export interface IJournal {
     amount: number,
@@ -26,10 +28,13 @@ export interface IJournal {
     cardExpiration?: string,
     vasData?: object,
     extraData?: string,
-    processor?: Processor
+    processor?: Processor | any,
+    organisationId?: string | any,
 }
 
-let JournalsSchema = new mongoose.Schema({
+export interface IJournalDocument extends Document, IJournal {}
+
+let JournalsSchema = new mongoose.Schema<IJournalDocument>({
 
     amount: Number,
     authCode: { type: String, default: '' },
@@ -57,9 +62,32 @@ let JournalsSchema = new mongoose.Schema({
         type: Object,
         default: null,
     },
+    organisationId: {
+        type: SchemaTypes.ObjectId,
+        default: null,
+    },
     extraData: { type: String, default: "" },
     processor: { type: String, default: "NIBSS" }
 
+},{
+    timestamps: true,
+    toJSON:{
+        virtuals: ['terminal','organisation']
+    }
 });
 
-export default mongoose.model('journal', JournalsSchema);
+JournalsSchema.virtual('terminal', {
+    ref: 'terminal',
+    localField: 'terminalId',
+    foreignField: 'terminalId',
+})
+
+JournalsSchema.virtual('organisation', {
+    ref: 'organisaionProfile',
+    localField: 'organisationId',
+    foreignField: '_id',
+})
+// @ts-ignore
+JournalsSchema.plugin(paginate)
+
+export default mongoose.model<IJournalDocument, PaginateModel<IJournalDocument>>('journal', JournalsSchema);

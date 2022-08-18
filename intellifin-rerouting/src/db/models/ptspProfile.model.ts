@@ -1,6 +1,6 @@
-import { Schema, model, Document, SchemaTypes } from "mongoose";
-import { paginate } from 'mongoose-paginate-v2';
-
+import { Schema, model, Document, SchemaTypes, PaginateModel } from "mongoose";
+import paginate from 'mongoose-paginate-v2';
+import * as mongoose from 'mongoose';
 export interface IPTSPProfileData {
     title: string,
     isoHost: string,
@@ -14,11 +14,12 @@ export interface IPTSPProfileData {
     iswInstitutionCode?: string,
     iswDestinationAccount?: string,
     organisationId?: string | any,
+    webhookId?: string | any,
 }
 
 export interface IPTSPProfile extends Document, IPTSPProfileData { }
 
-const ptspProfileSchema = new Schema<IPTSPProfileData>({
+const ptspProfileSchema = new mongoose.Schema<IPTSPProfileData>({
     title: {
         type: String,
         unique: true,
@@ -58,6 +59,10 @@ const ptspProfileSchema = new Schema<IPTSPProfileData>({
     organisationId: {
         type: SchemaTypes.ObjectId,
         default: null,
+    },
+    webhookId: {
+        type: SchemaTypes.ObjectId,
+        default: null,
     }
 }, {
     timestamps: true, toJSON: {
@@ -78,7 +83,14 @@ ptspProfileSchema.virtual('terminals_count', {
     count: true,
 });
 
-// ptspProfileSchema.plugin(paginate);
+ptspProfileSchema.virtual('webhook', {
+    ref: 'webhook',
+    localField: '_id',
+    foreignField: 'webhookId',
+});
 
-const PTSPProfileModel = model<IPTSPProfile>("ptspProfile", ptspProfileSchema);
+// @ts-ignore
+ptspProfileSchema.plugin(paginate);
+
+const PTSPProfileModel = mongoose.model<IPTSPProfile, PaginateModel<IPTSPProfile>>("ptspProfile", ptspProfileSchema);
 export default PTSPProfileModel

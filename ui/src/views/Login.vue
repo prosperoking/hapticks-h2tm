@@ -29,6 +29,7 @@
           <span class="text-sm text-gray-700">Password</span>
           <input
             type="password"
+            placeholder="Enter Password"
             class="block w-full mt-1 border-gray-200 rounded-md focus:border-indigo-600 focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
             v-model="password"
           />
