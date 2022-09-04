@@ -22,15 +22,7 @@ class ProfileController {
     index(request, response) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                // const data = await Terminal.find({},{
-                //     clrmasterkey: false,
-                //     encmasterkey: false,
-                //     encsesskey: false,
-                //     clrsesskey: false,
-                //     encpinkey: false,
-                //     clrpinkey: false,
-                // }).populate({path: 'profile', select:'title iswSwitchAmount'});
-                const { q } = request.query;
+                const { q, limit, page } = request.query;
                 let filter = {};
                 if (q === null || q === void 0 ? void 0 : q.length) {
                     filter = {
@@ -38,7 +30,6 @@ class ProfileController {
                             { terminalId: RegExp(`^${q}`, 'i') },
                             { serialNo: RegExp(`^${q}`, 'i') },
                             { brand: RegExp(`^${q}`, 'i') },
-                            { model: RegExp(`^${q}`, 'i') },
                             { deviceModel: RegExp(`^${q}`, 'i') },
                         ]
                     };
@@ -48,7 +39,8 @@ class ProfileController {
                     populate: [
                         { path: 'profile', select: 'title iswSwitchAmount' }
                     ],
-                    limit: 30,
+                    limit: Number.parseInt(`${limit}`) || 30,
+                    page: Number.parseInt(`${page}`) || 1,
                 });
                 response.json({ data, count: data.length });
             }

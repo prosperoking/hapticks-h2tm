@@ -8,15 +8,8 @@ import { keyExchange } from '../queue/queue';
 export default class ProfileController {
     public async index(request: Request, response: Response) {
         try {
-            // const data = await Terminal.find({},{
-            //     clrmasterkey: false,
-            //     encmasterkey: false,
-            //     encsesskey: false,
-            //     clrsesskey: false,
-            //     encpinkey: false,
-            //     clrpinkey: false,
-            // }).populate({path: 'profile', select:'title iswSwitchAmount'});
-            const {q} = request.query;
+
+            const {q,limit,page} = request.query;
             let filter = {}
             if(q?.length) {
                 filter = {
@@ -24,7 +17,6 @@ export default class ProfileController {
                         {terminalId: RegExp(`^${q}`,'i')},
                         { serialNo: RegExp(`^${q}`,'i') },
                         { brand: RegExp(`^${q}`,'i') },
-                        { model: RegExp(`^${q}`,'i') },
                         { deviceModel: RegExp(`^${q}`,'i') },
                     ]
                 };
@@ -33,7 +25,8 @@ export default class ProfileController {
                 populate: [
                     {path: 'profile', select:'title iswSwitchAmount'}
                 ],
-                limit: 30,
+                limit: Number.parseInt(`${limit}`) || 30,
+                page: Number.parseInt(`${page}`) || 1,
             });  
 
             response.json({data, count: data.length})
