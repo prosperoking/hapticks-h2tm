@@ -1,29 +1,36 @@
 lockfileVersion: 5.4
 
 specifiers:
+  '@headlessui/vue': ^1.6.7
+  '@heroicons/vue': ^2.0.8
   '@kyvg/vue3-notification': ^2.3.4
   '@tailwindcss/aspect-ratio': ^0.4.0
   '@tailwindcss/forms': ^0.4.0
   '@tailwindcss/typography': ^0.5.2
   '@types/lodash': ^4.14.182
-  '@vitejs/plugin-vue': ^1.6.0
-  '@vue/compiler-sfc': ^3.2.6
+  '@types/node': ^18.7.14
+  '@vitejs/plugin-vue': ^1.10.2
+  '@vue/compiler-sfc': ^3.2.31
   '@vuelidate/core': 2.0.0-alpha.41
   '@vuelidate/validators': 2.0.0-alpha.29
   autoprefixer: ^10.4.2
   axios: ^0.27.2
+  csv-parse: ^5.3.0
   date-fns: ^2.28.0
   lodash: ^4.17.21
   pinia: ^2.0.14
   postcss: ^8.4.7
+  solid: link:@heroicons/vue/solid
   tailwindcss: ^3.0.23
-  typescript: ^4.3.2
-  vite: ^2.5.1
-  vue: ^3.2.6
-  vue-router: '4'
+  typescript: ^4.5.5
+  vite: ^2.8.4
+  vue: ^3.2.31
+  vue-router: ^4.0.12
   vue-tsc: ^0.3.0
 
 dependencies:
+  '@headlessui/vue': 1.6.7_vue@3.2.31
+  '@heroicons/vue': 2.0.8_vue@3.2.31
   '@kyvg/vue3-notification': 2.3.4_vue@3.2.31
   '@tailwindcss/aspect-ratio': 0.4.0_tailwindcss@3.0.23
   '@tailwindcss/forms': 0.4.0_tailwindcss@3.0.23
@@ -31,19 +38,22 @@ dependencies:
   '@vuelidate/core': 2.0.0-alpha.41_vue@3.2.31
   '@vuelidate/validators': 2.0.0-alpha.29_vue@3.2.31
   axios: 0.27.2
+  csv-parse: 5.3.0
   date-fns: 2.28.0
   lodash: 4.17.21
   pinia: 2.0.14_yiky6a7nq42a76m3cgtakyoff4
+  solid: link:@heroicons/vue/solid
   vue: 3.2.31
   vue-router: 4.0.12_vue@3.2.31
 
 devDependencies:
   '@types/lodash': 4.14.182
+  '@types/node': 18.7.14
   '@vitejs/plugin-vue': 1.10.2_vite@2.8.4
   '@vue/compiler-sfc': 3.2.31
   autoprefixer: 10.4.2_postcss@8.4.7
   postcss: 8.4.7
-  tailwindcss: 3.0.23_autoprefixer@10.4.2
+  tailwindcss: 3.0.23_iwc7stpd5lcuyf56paxiwujvfq
   typescript: 4.5.5
   vite: 2.8.4
   vue-tsc: 0.3.0_typescript@4.5.5
@@ -98,6 +108,23 @@ packages:
     resolution: {integrity: sha512-8HqW8EVqjnCmWXVpqAOZf+EGESdkR27odcMMMGefgKXtar00SoYNSryGv//TELI4T3QFsECo78p+0lmalk/CFA==}
     dev: true
 
+  /@headlessui/vue/1.6.7_vue@3.2.31:
+    resolution: {integrity: sha512-5sTCBpkUoFE7zhANn/6Z+pf3PUA7MD6BBaTsJcQybq9E4fnNiMM9agOJI9meXbtcawE6Dm8EeB5A8HAJEnZCbQ==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      vue: ^3.2.0
+    dependencies:
+      vue: 3.2.31
+    dev: false
+
+  /@heroicons/vue/2.0.8_vue@3.2.31:
+    resolution: {integrity: sha512-m5sALwH9ezG6KzGWUXjvM0s5DScgS6+PukGgoBvv0wUx6cC6kq+slVVGXPbsDKuWc9q2aAguP7h/fjHPnkGjnQ==}
+    peerDependencies:
+      vue: '>= 3'
+    dependencies:
+      vue: 3.2.31
+    dev: false
+
   /@kyvg/vue3-notification/2.3.4_vue@3.2.31:
     resolution: {integrity: sha512-20Km1L75gncIZCjosT1OKbJl9HhNiOd7LRXqVIqlehHHem9NgBjQhDFz6XGo1RcF0MyA4/BC7kV7tcq/PMT+tA==}
     peerDependencies:
@@ -129,7 +156,7 @@ packages:
     peerDependencies:
       tailwindcss: '>=2.0.0 || >=3.0.0 || >=3.0.0-alpha.1'
     dependencies:
-      tailwindcss: 3.0.23_autoprefixer@10.4.2
+      tailwindcss: 3.0.23_iwc7stpd5lcuyf56paxiwujvfq
     dev: false
 
   /@tailwindcss/forms/0.4.0_tailwindcss@3.0.23:
@@ -138,7 +165,7 @@ packages:
       tailwindcss: '>=3.0.0 || >= 3.0.0-alpha.1'
     dependencies:
       mini-svg-data-uri: 1.4.3
-      tailwindcss: 3.0.23_autoprefixer@10.4.2
+      tailwindcss: 3.0.23_iwc7stpd5lcuyf56paxiwujvfq
     dev: false
 
   /@tailwindcss/typography/0.5.2_tailwindcss@3.0.23:
@@ -149,11 +176,15 @@ packages:
       lodash.castarray: 4.4.0
       lodash.isplainobject: 4.0.6
       lodash.merge: 4.6.2
-      tailwindcss: 3.0.23_autoprefixer@10.4.2
+      tailwindcss: 3.0.23_iwc7stpd5lcuyf56paxiwujvfq
     dev: false
 
   /@types/lodash/4.14.182:
     resolution: {integrity: sha512-/THyiqyQAP9AfARo4pF+aCGcyiQ94tX/Is2I7HofNRqoYLgN1PBoOWu2/zTA5zMxzP5EFutMtWtGAFRKUe961Q==}
+    dev: true
+
+  /@types/node/18.7.14:
+    resolution: {integrity: sha512-6bbDaETVi8oyIARulOE9qF1/Qdi/23z6emrUh0fNJRUmjznqrixD4MpGDdgOFk5Xb0m2H6Xu42JGdvAxaJR/wA==}
     dev: true
 
   /@types/parse-json/4.0.0:
@@ -376,7 +407,7 @@ packages:
       postcss: ^8.1.0
     dependencies:
       browserslist: 4.19.3
-      caniuse-lite: 1.0.30001312
+      caniuse-lite: 1.0.30001383
       fraction.js: 4.1.3
       normalize-range: 0.1.2
       picocolors: 1.0.0
@@ -414,7 +445,7 @@ packages:
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
     dependencies:
-      caniuse-lite: 1.0.30001312
+      caniuse-lite: 1.0.30001383
       electron-to-chromium: 1.4.73
       escalade: 3.1.1
       node-releases: 2.0.2
@@ -435,8 +466,8 @@ packages:
     resolution: {integrity: sha512-QOSvevhslijgYwRx6Rv7zKdMF8lbRmx+uQGx2+vDc+KI/eBnsy9kit5aj23AgGu3pa4t9AgwbnXWqS+iOY+2aA==}
     engines: {node: '>= 6'}
 
-  /caniuse-lite/1.0.30001312:
-    resolution: {integrity: sha512-Wiz1Psk2MEK0pX3rUzWaunLTZzqS2JYZFzNKqAiJGiuxIjRPLgV6+VDPOg6lQOUxmDwhTlh198JsTTi8Hzw6aQ==}
+  /caniuse-lite/1.0.30001383:
+    resolution: {integrity: sha512-swMpEoTp5vDoGBZsYZX7L7nXHe6dsHxi9o6/LKf/f0LukVtnrxly5GVb/fWdCDTqi/yw6Km6tiJ0pmBacm0gbg==}
 
   /chalk/2.4.2:
     resolution: {integrity: sha512-Mti+f9lpJNcwF4tWV8/OrTTtF1gZi+f8FqlyAdouralcFWFQWF2+NgCHShjkCb+IFBLq9buZwE1xckQU4peSuQ==}
@@ -521,6 +552,10 @@ packages:
 
   /csstype/2.6.19:
     resolution: {integrity: sha512-ZVxXaNy28/k3kJg0Fou5MiYpp88j7H9hLZp8PDC3jV0WFjfH5E9xHb56L0W59cPbKbcHXeP4qyT8PrHp8t6LcQ==}
+    dev: false
+
+  /csv-parse/5.3.0:
+    resolution: {integrity: sha512-UXJCGwvJ2fep39purtAn27OUYmxB1JQto+zhZ4QlJpzsirtSFbzLvip1aIgziqNdZp/TptvsKEV5BZSxe10/DQ==}
     dev: false
 
   /date-fns/2.28.0:
@@ -1361,12 +1396,13 @@ packages:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
 
-  /tailwindcss/3.0.23_autoprefixer@10.4.2:
+  /tailwindcss/3.0.23_iwc7stpd5lcuyf56paxiwujvfq:
     resolution: {integrity: sha512-+OZOV9ubyQ6oI2BXEhzw4HrqvgcARY38xv3zKcjnWtMIZstEsXdI9xftd1iB7+RbOnj2HOEzkA0OyB5BaSxPQA==}
     engines: {node: '>=12.13.0'}
     hasBin: true
     peerDependencies:
       autoprefixer: ^10.0.2
+      postcss: ^8.0.9
     dependencies:
       arg: 5.0.1
       autoprefixer: 10.4.2_postcss@8.4.7

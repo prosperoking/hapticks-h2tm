@@ -6,6 +6,7 @@ import paginate from 'mongoose-paginate-v2';
 import * as mongoose from 'mongoose';
 
 export interface ITerminal {
+    _id?: string,
     serialNo: string,
     terminalId: string,
     clrmasterkey: string,
@@ -95,14 +96,17 @@ const terminalSchema = new mongoose.Schema<ITerminal>({
     brand: {
         type: String,
         default: null,
+        set: (value: string)=> value.toUpperCase()
     },
     appVersion: {
         type: String,
-        default: null
+        default: null,
+        set: (value: string)=> value.toUpperCase()
     },
     deviceModel: {
         type: String,
         default: null,
+        set: (value: string)=> value.toUpperCase()
     },
     iswTid: {
         type: String,

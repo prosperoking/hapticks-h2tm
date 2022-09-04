@@ -116,5 +116,11 @@ export const authMiddleware: (roles?:string[])=> RequestHandler = (roles:string[
         });
     }
     // Todo: handle permissions
+    // @ts-ignore
+    if(roles.length && !(roles || []).includes(req.user?.role)) {
+        return res.status(403).json({
+            message: "Your not authorized to view this page"
+        });
+    }
     next();
 };

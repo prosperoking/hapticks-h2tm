@@ -1,0 +1,324 @@
+<template>
+
+  <h3 class="space-x-3 text-3xl font-medium text-gray-700">
+   <span class="text-gray-600">Organisations: {{ state.organisations.totalDocs }}</span> 
+    <small class="text-sm text-blue-500" v-if="state.loading">Loading ...</small>
+  </h3>
+  <div class="flex items-center justify-between mt-6">
+    <div class="flex w-6/12 space-x-4">
+      <div class="relative block w-full mt-2 sm:mt-0">
+        <span class="absolute inset-y-0 left-0 flex items-center pl-2">
+          <svg viewBox="0 0 24 24" class="w-4 h-4 text-gray-500 fill-current">
+            <path
+              d="M10 4a6 6 0 100 12 6 6 0 000-12zm-8 6a8 8 0 1114.32 4.906l5.387 5.387a1 1 0 01-1.414 1.414l-5.387-5.387A8 8 0 012 10z" />
+          </svg>
+        </span>
+
+        <input placeholder="Search"
+          v-model="state.q"
+          @change="()=>state.q.length > 3 ? debounce(getOrganisations, 400): null"
+          class="flex w-full py-2 pl-8 pr-6 text-sm text-gray-700 placeholder-gray-400 bg-white border border-b border-gray-400 rounded appearance-none focus:bg-white focus:placeholder-gray-600 focus:text-gray-700 focus:outline-none" />
+      </div>
+      <div class="space-x-2">
+        <button @click="getOrganisations"
+          class="px-3 py-2 font-medium tracking-wide text-white bg-gray-600 rounded-md hover:bg-gray-500 focus:outline-none">
+          search 
+        </button>
+      </div>
+    </div>
+    <div class="space-x-2">
+      <button @click="open = true"
+        class="px-6 py-2 font-medium tracking-wide text-white bg-indigo-600 rounded-md hover:bg-indigo-500 focus:outline-none">
+        Add an Organisation 
+      </button>
+    </div>
+  </div>
+  <div class="flex flex-col mt-8">
+    <p class="my-2 text-sm text-gray-700">
+      Page {{ state.organisations.page }} of {{ state.organisations.totalPages }}
+    </p>
+    <div class="py-2 -my-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+      <div class="inline-block min-w-full overflow-hidden align-middle border-b border-gray-200 shadow sm:rounded-lg">
+        <table class="min-w-full">
+          <thead>
+            <tr>
+            
+              <th
+                class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
+                Info
+              </th>
+             
+              <th
+                class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
+                MERCHANT INFO
+              </th>
+              <th
+                class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
+                PROCESSOR
+              </th>
+
+              <th
+                class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
+                Date
+              </th>
+              <th class="px-6 py-3 border-b border-gray-200 bg-gray-50"></th>
+            </tr>
+          </thead>
+
+          <tbody class="bg-white">
+            <template v-if="state.organisations?.totalDocs">
+              <tr v-for="(u, index) in state.organisations.docs" :key="index">
+               
+                <td class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <div class="ml-2">
+                      <div class="text-sm font-medium leading-5 text-gray-500">
+                        TID: 
+                         <span
+                    class="inline-flex px-2 text-xs font-semibold leading-5 text-green-800 bg-green-100 rounded-full">
+                    {{ u.terminalId}}</span>
+                      </div>
+                      <div class="text-sm font-medium leading-5 text-gray-500">
+                        Stan: {{ u.STAN }}
+                      </div>
+                      <div class="text-sm font-medium leading-5 text-gray-500">
+                        RRN: {{ u.rrn }}
+                      </div>
+                      <div class="text-sm font-medium leading-5 text-gray-500">
+                       Amount: {{ currencyFormatter(u.amount / 100) }}
+                      </div>
+                      <div class="text-sm leading-5 text-gray-500">
+                        Response Code: {{ u.responseCode }}
+                      </div>
+                      <div class="text-sm leading-5 text-gray-500">
+                        {{ u.responseDescription }}
+                      </div>
+                    </div>
+                  </div>
+                </td>
+               
+
+                <td class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
+                  <div class="text-sm leading-5 text-gray-900">
+                    {{ u.merchantName }}
+                  </div>
+                  <div class="text-sm leading-5 text-gray-500">
+                    {{ u.merchantAddress }}
+                  </div>
+                  <div class="text-sm leading-5 text-gray-500">
+                    {{ u.merchantId }}
+                  </div>
+                </td>
+
+                <td class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
+                  <span
+                    class="inline-flex px-2 text-xs font-semibold leading-5 text-green-800 bg-green-100 rounded-full">{{
+                        u.processor
+                    }}</span>
+                </td>
+
+                <td class="px-6 py-4 text-sm leading-5 text-gray-500 border-b border-gray-200 whitespace-nowrap">
+                  {{ dateFormatter(u.transactionTime) }}
+                </td>
+
+                <td
+                  class="px-6 py-4 text-sm font-medium leading-5 text-right border-b border-gray-200 whitespace-nowrap">
+                  <a href="#" class="text-indigo-600 hover:text-indigo-900">print</a>
+                </td>
+              </tr>
+            </template>
+            <template v-else>
+              <tr>
+                <td colspan="7" class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
+                  <div class="text-sm font-medium leading-5 text-gray-600">
+                    No organisation added yet
+                  </div>
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+         <div
+              v-if="state.organisations?.totalPages > 1"
+              class="flex flex-col items-center px-5 py-5 bg-white border-t xs:flex-row xs:justify-between"
+            >
+           <div class="space-x-10">
+             <span class="text-xs text-gray-900 xs:text-sm">
+                Page {{ state.organisations.page }} of {{ state.organisations.totalPages }}
+            </span>
+              <span class="text-xs text-gray-900 xs:text-sm"
+                >Showing 1 to {{state.organisations.limit}} of {{state.organisations.totalDocs}} transactions</span
+              >
+           </div>
+
+              <div class="inline-flex mt-2 xs:mt-0">
+                <button
+                  :disabled="!state.organisations.hasPrevPage"
+                  @click="()=>gotoPage(state.organisations?.prevPage || 1)"
+                  class="px-4 py-2 text-sm font-semibold text-gray-800 bg-gray-300 rounded-l disabled:opacity-30 hover:bg-gray-400"
+                >
+                  Prev
+                </button>
+                <button
+                  :disabled="!state.organisations.hasNextPage"
+                  @click="()=>gotoPage(state.organisations.nextPage || 1)"
+                  class="px-4 py-2 text-sm font-semibold text-gray-800 bg-gray-300 rounded-r disabled:opacity-20 hover:bg-gray-400"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+      </div>
+    </div>
+  </div>
+
+    <div :class="`modal ${!open && 'opacity-0 pointer-events-none'
+  } z-50 fixed w-full h-full top-0 left-0 flex items-center justify-center`">
+    <div class="absolute w-full h-full bg-gray-900 opacity-50 modal-overlay"></div>
+
+    <div class="z-50 w-11/12 mx-auto overflow-y-auto bg-white rounded shadow-lg modal-container md:max-w-md">
+      <div @click="open = false"
+        class="absolute top-0 right-0 z-50 flex flex-col items-center mt-4 mr-4 text-sm text-white cursor-pointer modal-close">
+        <svg class="text-white fill-current" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+          viewBox="0 0 18 18">
+          <path
+            d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z" />
+        </svg>
+        <span class="text-sm">(Esc)</span>
+      </div>
+
+      <!-- Add margin if you want to see some of the overlay behind the modal-->
+      <div class="px-6 py-4 text-left modal-content">
+        <!--Title-->
+        <div class="flex items-center justify-between pb-3">
+          <p class="text-2xl font-bold">Add Organisation</p>
+          <div class="z-50 cursor-pointer modal-close" @click="open = false">
+            <svg class="text-black fill-current" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+              viewBox="0 0 18 18">
+              <path
+                d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z" />
+            </svg>
+          </div>
+        </div>
+
+        <!--Body-->
+        <div class="flex flex-col">
+          
+          <div>
+            <Input title="Name" v-model:value="form.name" />
+          </div>
+
+        </div>
+        <div>
+          <p v-for="error of $v.$errors" :key="error.$uid">
+            {{ error.$message }}
+          </p>
+        </div>
+
+        <!--Footer-->
+        <div class="flex justify-end pt-2">
+          <button :disabled="state.loading" @click="open = false"
+            class="p-3 px-6 py-3 mr-2 text-indigo-500 bg-transparent rounded-lg disabled:pointer-events-none hover:bg-gray-100 hover:text-indigo-400 focus:outline-none">
+            Close
+          </button>
+          <button :disabled="state.loading || $v.$invalid" @click="saveOrganisation"
+            class="px-6 py-3 font-medium tracking-wide text-white bg-indigo-600 rounded-md disabled:opacity-25 disabled:pointer-events-none hover:bg-indigo-500 focus:outline-none">
+            save
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</template>
+
+<script setup lang="ts">
+import { ref, inject, reactive, onMounted, computed } from "vue";
+// @ts-ignore
+import Input from '../components/Input.vue'
+
+import axios, { AxiosInstance } from "axios"
+import { Transaction, PaginatedData } from '../@types/types';
+import { currencyFormatter, dateFormatter } from '../utils/Formatters';
+import debounce from 'lodash/debounce'
+import useVuelidate from "@vuelidate/core";
+import { required, ipAddress, numeric, minLength, maxLength, requiredIf } from "@vuelidate/validators"
+
+interface OrganisationState {
+  loading: boolean,
+  q: string,
+  organisations: PaginatedData<Transaction>
+}
+
+interface User {
+  name: string;
+  email: string;
+  title: string;
+  title2: string;
+  status: string;
+  role: string;
+}
+
+interface Form  {
+  name?: string | null,
+}
+
+const request: AxiosInstance | undefined = inject('$axios');
+const state: OrganisationState = reactive<OrganisationState>({
+  loading: false,
+  q: '',
+  organisations: {
+    docs: [],
+    totalDocs: 0,
+    limit: 30,
+    page: 1,
+    totalPages: 1,
+  },
+})
+
+
+
+const open = ref<boolean>(false);
+
+const form = ref<Form>({
+  name: null,
+})
+
+const rules = computed(() => ({
+  _id: {},
+  name: { required, minLength: minLength(5), },
+}))
+
+const $v = useVuelidate<Form>(rules, form, { $autoDirty: true, })
+
+
+const gotoPage = (page: number)=>{
+  state.organisations.page = page;
+  getOrganisations();
+}
+const getOrganisations = async () => {
+  try {
+    state.loading = true;
+    const { page, limit } = state.organisations;
+    const params = { page, limit, q: state.q }
+    // @ts-ignore: Unreachable code error
+    const { data } = await request?.get('/dashboard/organisations', {
+      params
+    });
+    state.organisations = data;
+  } catch (error: any) {
+
+    if (error.isAxiosError) {
+
+    }
+  } finally {
+    state.loading = false;
+  }
+}
+
+const saveOrganisation = async () => {}
+
+onMounted(() => {
+  getOrganisations()
+})
+</script>

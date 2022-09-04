@@ -105,12 +105,19 @@ function applyAuthSetup(app) {
 }
 exports.default = applyAuthSetup;
 const authMiddleware = (roles = []) => (req, res, next) => {
+    var _a;
     if (!req.user) {
         return res.status(401).json({
             message: "Not Authenticated"
         });
     }
     // Todo: handle permissions
+    // @ts-ignore
+    if (roles.length && !(roles || []).includes((_a = req.user) === null || _a === void 0 ? void 0 : _a.role)) {
+        return res.status(403).json({
+            message: "Your not authorized to view this page"
+        });
+    }
     next();
 };
 exports.authMiddleware = authMiddleware;

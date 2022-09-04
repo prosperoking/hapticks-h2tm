@@ -1,10 +1,11 @@
-import VasTransactionController from './vas.controller';
+import VasTransactionController from './transaction.controller';
 import AuthController from './auth.controller';
 import RoutingContoller from './routing.controller';
 import IsoCardController from './iso_card.controller';
 import DashboardController from './dashboard.controller';
 import ProfileController from './profiles.controller';
 import TerminalController from './terminal.controller';
+import * as OrganisationController from './organisation.controller'
 
 
 const vasTransactionController = new VasTransactionController();
@@ -24,4 +25,5 @@ export {
     dashboardController,
     terminalController,
     profileController,
+    OrganisationController
 }

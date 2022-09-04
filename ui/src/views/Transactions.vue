@@ -27,8 +27,7 @@
 
         <input placeholder="Search"
           type="date"
-          v-model="state.q"
-          
+          v-model="state.startDate"
           class="flex w-full py-2 pl-8 pr-6 text-sm text-gray-700 placeholder-gray-400 bg-white border border-b border-gray-400 rounded appearance-none focus:bg-white focus:placeholder-gray-600 focus:text-gray-700 focus:outline-none" />
       </div>
     </div>
@@ -37,7 +36,6 @@
       <div class="relative block w-full mt-2 sm:mt-0">
         <input
           type="date"
-          @change="()=>state.q?.length > 3 ? debounce(getTransactions, 400): null"
           class="flex w-full py-2 pl-8 pr-6 text-sm text-gray-700 placeholder-gray-400 bg-white border border-b border-gray-400 rounded appearance-none focus:bg-white focus:placeholder-gray-600 focus:text-gray-700 focus:outline-none" />
       </div>
     </div>
@@ -157,9 +155,14 @@
               v-if="state.transactions?.totalPages > 1"
               class="flex flex-col items-center px-5 py-5 bg-white border-t xs:flex-row xs:justify-between"
             >
+           <div class="space-x-10">
+             <span class="text-xs text-gray-900 xs:text-sm">
+                Page {{ state.transactions.page }} of {{ state.transactions.totalPages }}
+            </span>
               <span class="text-xs text-gray-900 xs:text-sm"
                 >Showing 1 to {{state.transactions.limit}} of {{state.transactions.totalDocs}} transactions</span
               >
+           </div>
 
               <div class="inline-flex mt-2 xs:mt-0">
                 <button

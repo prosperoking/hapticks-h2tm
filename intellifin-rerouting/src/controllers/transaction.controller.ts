@@ -7,7 +7,7 @@ import vasServices from '../services/vas.services';
 import routingServices from '../services/routing.services';
 import Utils from '../helpers/utils';
 
-class VasContoller {
+class TranactionController {
 
     public async processVasTransaction(request: Request, response: Response) {
         try {
@@ -54,4 +54,4 @@ class VasContoller {
     }
 }
 
-export default VasContoller;
+export default TranactionController;

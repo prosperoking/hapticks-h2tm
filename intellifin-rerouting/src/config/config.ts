@@ -16,6 +16,12 @@ export interface AppConfig {
     useNewUrlParser: boolean,
     useUnifiedTopology: boolean
   },
+  redis: {
+    host: string,
+    password: string,
+    port: number,
+    tls: boolean,
+  }
 }
 export default class Config {
 
@@ -36,6 +42,12 @@ export default class Config {
                 useUnifiedTopology: true,
                 useNewUrlParser: true,
               },
+              redis: {
+                host: process.env.REDIS_HOST || 'localhost',
+                password: process.env.REDIS_PASSWORD || '',
+                port: Number.parseInt(process.env.REDIS_PORT) || 6379,
+                tls: [1,'1','true',true].includes(process.env.REDIS_TLS) || false,
+              }
             };
         }
 

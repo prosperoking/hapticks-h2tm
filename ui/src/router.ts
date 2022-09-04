@@ -8,12 +8,14 @@ import Transactions from "./views/Transactions.vue";
 import Profiles from "./views/profiles/Profiles.vue";
 import Terminals from "./views/terminal/Terminals.vue";
 import UploadTerminal from "./views/terminal/UploadTerminals.vue";
+import Organisations from "./views/Organisations.vue";
 import Login from "./views/Login.vue";
 import Modal from "./views/Modal.vue";
 import Card from "./views/Card.vue";
 import Blank from "./views/Blank.vue";
 import NotFound from "./views/NotFound.vue";
 import { useUserStore } from "./stores/user.store";
+
 
 const routes: RouteRecordRaw[] = [
   {
@@ -46,6 +48,11 @@ const routes: RouteRecordRaw[] = [
     path: "/terminals",
     name: "terminals",
     component: Terminals,
+  },
+  {
+    path: "/organisations",
+    name: "organisations",
+    component: Organisations,
   },
   { 
     path: "/bulk-upload", 

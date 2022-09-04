@@ -18,6 +18,12 @@ class Config {
                 useUnifiedTopology: true,
                 useNewUrlParser: true,
             },
+            redis: {
+                host: process.env.REDIS_HOST || 'localhost',
+                password: process.env.REDIS_PASSWORD || '',
+                port: Number.parseInt(process.env.REDIS_PORT) || 6379,
+                tls: [1, '1', 'true', true].includes(process.env.REDIS_TLS) || false,
+            }
         };
     }
     getConfig(env) {

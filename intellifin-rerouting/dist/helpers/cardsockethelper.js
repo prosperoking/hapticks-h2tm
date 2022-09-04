@@ -17,7 +17,7 @@ function performCardSocketTranaction(transaction, payload) {
         let response = [];
         const socket = net_1.default.connect({
             port: parseInt(process.env.CARD_SERVICE_PORT),
-            timeout: 6000 * 1000
+            timeout: 6000 * 20
         }, () => {
             logger_1.default.log("Connected to card service socket to perform operation");
             socket.write(Buffer.from(JSON.stringify(Object.assign({ transaction }, payload)) + "\n"), err => {

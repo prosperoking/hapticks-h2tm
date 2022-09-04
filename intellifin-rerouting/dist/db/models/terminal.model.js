@@ -88,14 +88,17 @@ const terminalSchema = new mongoose.Schema({
     brand: {
         type: String,
         default: null,
+        set: (value) => value.toUpperCase()
     },
     appVersion: {
         type: String,
-        default: null
+        default: null,
+        set: (value) => value.toUpperCase()
     },
     deviceModel: {
         type: String,
         default: null,
+        set: (value) => value.toUpperCase()
     },
     iswTid: {
         type: String,

@@ -4,17 +4,37 @@ import Terminal from '../db/models/terminal.model';
 import { performCardSocketTranaction, TransactionTypes } from '../helpers/cardsockethelper';
 import {pick} from "lodash"
 import PTSPProfileModel from '../db/models/ptspProfile.model';
+import { keyExchange } from '../queue/queue';
 export default class ProfileController {
     public async index(request: Request, response: Response) {
         try {
-            const data = await Terminal.find({},{
-                clrmasterkey: false,
-                encmasterkey: false,
-                encsesskey: false,
-                clrsesskey: false,
-                encpinkey: false,
-                clrpinkey: false,
-            }).populate({path: 'profile', select:'title iswSwitchAmount'});
+            // const data = await Terminal.find({},{
+            //     clrmasterkey: false,
+            //     encmasterkey: false,
+            //     encsesskey: false,
+            //     clrsesskey: false,
+            //     encpinkey: false,
+            //     clrpinkey: false,
+            // }).populate({path: 'profile', select:'title iswSwitchAmount'});
+            const {q} = request.query;
+            let filter = {}
+            if(q?.length) {
+                filter = {
+                    $or:[
+                        {terminalId: RegExp(`^${q}`,'i')},
+                        { serialNo: RegExp(`^${q}`,'i') },
+                        { brand: RegExp(`^${q}`,'i') },
+                        { model: RegExp(`^${q}`,'i') },
+                        { deviceModel: RegExp(`^${q}`,'i') },
+                    ]
+                };
+            };
+            const data = await Terminal.paginate(filter,{
+                populate: [
+                    {path: 'profile', select:'title iswSwitchAmount'}
+                ],
+                limit: 30,
+            });  
 
             response.json({data, count: data.length})
         } catch (error) {
@@ -25,7 +45,9 @@ export default class ProfileController {
 
     public async create(request: Request, response: Response) {
         try {
-            const data = await Terminal.create(request.body);
+            const data = await Terminal.create({
+                ...request.body, 
+            });
 
             response.json({status: true, data})
         } catch (error) {
@@ -47,13 +69,33 @@ export default class ProfileController {
                 "profileId",
                 "iswTid",
                 "iswUniqueId",
+                "organisationId",
+                "brand",
+                "deviceModel"
             ]));
 
             try{
-                ProfileController.performKeyExchange(request.body, request.params.id);
+            //    ProfileController.performKeyExchange(request.body, request.params.id);
+            keyExchange.add('keyexchange', {_id: terminal.id});
             }catch(e){
                 console.log("Unable to trigger key exchange", e)
             }
+            
+            response.json({status: true, data})
+        } catch (error) {
+            console.log(error)
+            response.status(400).json({message: error.message})
+        }
+    }
+
+    public async destroy(request: Request, response: Response) {
+        try {
+            let terminal = await Terminal.findById(request.params.id);
+            if(!terminal) {
+                return response.status(404).json({message: "Terminal not found"});
+            }
+
+            const data = await terminal.delete();
             
             response.json({status: true, data})
         } catch (error) {

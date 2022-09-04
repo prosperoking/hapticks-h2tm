@@ -63,3 +63,11 @@ export interface PaginatedData<T> {
     prevPage?: number,
     nextPage?: number
 }
+
+export interface Organisation {
+    _id?: string | null,
+    name: string,
+    terminal_count?: number,
+    tranaction_count?: number,
+    users_count?: number,
+}

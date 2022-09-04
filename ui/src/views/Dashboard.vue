@@ -82,7 +82,7 @@
                   Info
                 </th>
                 <th
-                  class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
+                  class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 w-28 bg-gray-50">
                   Amount
                 </th>
                 
@@ -139,7 +139,7 @@
                 <td class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
                   <div class="flex items-center">
                     <div class="ml-4">
-                      <div class="text-sm font-medium leading-5 text-gray-900">
+                      <div class="text-sm font-medium leading-5 text-gray-900 text-ellipsis">
                         {{ currencyFormatter( u.amount/100 )  }}
                       </div>
                   
@@ -178,8 +178,8 @@
               </template>
               <template v-else>
                 <tr>
-                  <td colspan="7" class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
-                    <div class="text-sm font-medium leading-5 text-gray-900">
+                  <td colspan="8" class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
+                    <div class="text-sm font-medium leading-5 text-center text-gray-400">
                         Keep Calm Transactions are coming
                       </div>
                   </td>

@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const vasjournals_model_1 = __importDefault(require("../db/models/vasjournals.model"));
+const transaction_model_1 = __importDefault(require("../db/models/transaction.model"));
 const logger_1 = __importDefault(require("../helpers/logger"));
 const terminal_model_1 = __importDefault(require("../db/models/terminal.model"));
 const moment_1 = __importDefault(require("moment"));
@@ -21,12 +21,12 @@ class DashboardController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const date = (0, moment_1.default)().format("YYYY-MM-DD");
-                const totalTransactionsToday = yield vasjournals_model_1.default.where({
+                const totalTransactionsToday = yield transaction_model_1.default.where({
                     transactionTime: {
                         $gte: new Date(date),
                     }
                 }).count();
-                const totalFailedTransactionsToday = yield vasjournals_model_1.default.where({
+                const totalFailedTransactionsToday = yield transaction_model_1.default.where({
                     transactionTime: {
                         $gte: new Date(date),
                     },
@@ -34,7 +34,7 @@ class DashboardController {
                         $ne: "00",
                     }
                 }).count();
-                const lastestTransacions = yield vasjournals_model_1.default.find({
+                const lastestTransacions = yield transaction_model_1.default.find({
                     transactionTime: {
                         $gte: new Date(date),
                     }
@@ -60,7 +60,7 @@ class DashboardController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const date = (0, moment_1.default)().format("YYYY-MM-DD");
-                const transactions = yield vasjournals_model_1.default.paginate(Object.assign(Object.assign({}, DashboardController.filterGen(request.query)), { 
+                const transactions = yield transaction_model_1.default.paginate(Object.assign(Object.assign({}, DashboardController.filterGen(request.query)), { 
                     // @ts-ignore
                     organisationId: (_b = (_a = request.user) === null || _a === void 0 ? void 0 : _a.organisation_id) !== null && _b !== void 0 ? _b : null }), {
                     sort: { _id: -1 },

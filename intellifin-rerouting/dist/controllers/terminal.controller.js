@@ -17,18 +17,39 @@ const terminal_model_1 = __importDefault(require("../db/models/terminal.model"))
 const cardsockethelper_1 = require("../helpers/cardsockethelper");
 const lodash_1 = require("lodash");
 const ptspProfile_model_1 = __importDefault(require("../db/models/ptspProfile.model"));
+const queue_1 = require("../queue/queue");
 class ProfileController {
     index(request, response) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const data = yield terminal_model_1.default.find({}, {
-                    clrmasterkey: false,
-                    encmasterkey: false,
-                    encsesskey: false,
-                    clrsesskey: false,
-                    encpinkey: false,
-                    clrpinkey: false,
-                }).populate({ path: 'profile', select: 'title iswSwitchAmount' });
+                // const data = await Terminal.find({},{
+                //     clrmasterkey: false,
+                //     encmasterkey: false,
+                //     encsesskey: false,
+                //     clrsesskey: false,
+                //     encpinkey: false,
+                //     clrpinkey: false,
+                // }).populate({path: 'profile', select:'title iswSwitchAmount'});
+                const { q } = request.query;
+                let filter = {};
+                if (q === null || q === void 0 ? void 0 : q.length) {
+                    filter = {
+                        $or: [
+                            { terminalId: RegExp(`^${q}`, 'i') },
+                            { serialNo: RegExp(`^${q}`, 'i') },
+                            { brand: RegExp(`^${q}`, 'i') },
+                            { model: RegExp(`^${q}`, 'i') },
+                            { deviceModel: RegExp(`^${q}`, 'i') },
+                        ]
+                    };
+                }
+                ;
+                const data = yield terminal_model_1.default.paginate(filter, {
+                    populate: [
+                        { path: 'profile', select: 'title iswSwitchAmount' }
+                    ],
+                    limit: 30,
+                });
                 response.json({ data, count: data.length });
             }
             catch (error) {
@@ -40,7 +61,7 @@ class ProfileController {
     create(request, response) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const data = yield terminal_model_1.default.create(request.body);
+                const data = yield terminal_model_1.default.create(Object.assign({}, request.body));
                 response.json({ status: true, data });
             }
             catch (error) {
@@ -62,13 +83,33 @@ class ProfileController {
                     "profileId",
                     "iswTid",
                     "iswUniqueId",
+                    "organisationId",
+                    "brand",
+                    "deviceModel"
                 ]));
                 try {
-                    ProfileController.performKeyExchange(request.body, request.params.id);
+                    //    ProfileController.performKeyExchange(request.body, request.params.id);
+                    queue_1.keyExchange.add('keyexchange', { _id: terminal.id });
                 }
                 catch (e) {
                     console.log("Unable to trigger key exchange", e);
                 }
+                response.json({ status: true, data });
+            }
+            catch (error) {
+                console.log(error);
+                response.status(400).json({ message: error.message });
+            }
+        });
+    }
+    destroy(request, response) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                let terminal = yield terminal_model_1.default.findById(request.params.id);
+                if (!terminal) {
+                    return response.status(404).json({ message: "Terminal not found" });
+                }
+                const data = yield terminal.delete();
                 response.json({ status: true, data });
             }
             catch (error) {

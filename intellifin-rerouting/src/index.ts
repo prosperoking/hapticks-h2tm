@@ -10,7 +10,8 @@ import Config from './config/config';
 import Logger from './helpers/logger';
 import path from 'path';
 import 'dotenv/config';
-import applyAuthSetup from './auth/index';
+import applyAuthSetup, {authMiddleware} from './auth/index';
+import { registerQueueDashBoard, startQueWorkers } from './queue/queue';
 
 
 const app = express();
@@ -39,11 +40,12 @@ app.use(morgan(':date *** :method :: :url ** :response-time'));
 applyAuthSetup(app);
 
 app.use('/api/v1', Routes);
+app.use('/admin/queue', authMiddleware(['admin']), registerQueueDashBoard(app, '/admin/queue' ))
 
 app.use(express.static(path.join(__dirname,'public')))
 app.use('*',express.static(path.join(__dirname,'public')))
 
 app.listen(port, () => {
-    //if (err) return console.error(err);
+    startQueWorkers();
     return console.log(`Server Magic happening on port ${port}`);
 });

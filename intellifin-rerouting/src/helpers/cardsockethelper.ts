@@ -19,7 +19,7 @@ Promise<CardSocketResponse>  {
         let response = [];
         const socket = net.connect({
             port: parseInt(process.env.CARD_SERVICE_PORT),
-            timeout: 6000 * 1000            
+            timeout: 6000 * 20          
         },
         ()=>{
             logger.log("Connected to card service socket to perform operation");

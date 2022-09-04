@@ -1,6 +1,6 @@
 import routeLog from "../decorators/requestLogger";
 import { Response, Request } from 'express';
-import vasjournalsModel from "../db/models/vasjournals.model";
+import vasjournalsModel from "../db/models/transaction.model";
 import logger from "../helpers/logger";
 import Termninal from "../db/models/terminal.model";
 import moment from "moment"

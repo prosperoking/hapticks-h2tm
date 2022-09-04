@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const vasjournals_model_1 = __importDefault(require("../db/models/vasjournals.model"));
+const transaction_model_1 = __importDefault(require("../db/models/transaction.model"));
 const mappers_1 = __importDefault(require("../helpers/mappers"));
 ;
 class DBServices {
@@ -23,7 +23,7 @@ class DBServices {
         return __awaiter(this, void 0, void 0, function* () {
             const dbData = mappers_1.default.mapTransRequestDataToDbSchema(data, product);
             console.log("Formmatted Payload :: ", dbData);
-            this.DbrecordInstance = new vasjournals_model_1.default(dbData);
+            this.DbrecordInstance = new transaction_model_1.default(dbData);
             let saved = true;
             return yield this.DbrecordInstance.save().then((data) => {
                 saved = true;

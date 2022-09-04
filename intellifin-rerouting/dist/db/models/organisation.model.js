@@ -51,7 +51,23 @@ orgSchema.virtual('terminals_count', {
     foreignField: 'organisationId',
     count: true,
 });
-// @ts-ignore
+orgSchema.virtual('users', {
+    ref: 'user',
+    localField: '_id',
+    foreignField: 'organisationId',
+});
+orgSchema.virtual('users_count', {
+    ref: 'user',
+    localField: '_id',
+    foreignField: 'organisationId',
+    count: true,
+});
+orgSchema.virtual('tranactions_count', {
+    ref: 'journal',
+    localField: '_id',
+    foreignField: 'organisationId',
+    count: true,
+});
 orgSchema.plugin(mongoose_paginate_v2_1.default);
 orgSchema.plugin(mongoose_unique_validator_1.default);
 const OrganisationModel = mongoose.model("organisaionProfile", orgSchema);

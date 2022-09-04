@@ -1,5 +1,5 @@
 import mongoose, {Document} from 'mongoose';
-import Journal from '../db/models/vasjournals.model';
+import Journal from '../db/models/transaction.model';
 import Mappers from '../helpers/mappers';
 
 

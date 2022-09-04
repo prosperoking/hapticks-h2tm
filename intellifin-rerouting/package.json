@@ -17,10 +17,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@bull-board/express": "^4.2.2",
     "argon2": "^0.28.5",
     "axios": "^0.27.2",
     "bcrypt": "^5.0.0",
     "body-parser": "^1.20.0",
+    "bullmq": "^1.89.2",
     "commander": "^9.3.0",
     "compression": "^1.7.4",
     "connect-timeout": "^1.9.0",

@@ -13,6 +13,7 @@
           </span>
 
           <input placeholder="Search"
+            v-model="search"
             class="flex w-full py-2 pl-8 pr-6 text-sm text-gray-700 placeholder-gray-400 bg-white border border-b border-gray-400 rounded appearance-none focus:bg-white focus:placeholder-gray-600 focus:text-gray-700 focus:outline-none" />
         </div>
       </div>
@@ -44,6 +45,10 @@
               </th>
               <th
                 class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-600 uppercase bg-gray-100 border-b-2 border-gray-200">
+                Device Info
+              </th>
+              <th
+                class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-600 uppercase bg-gray-100 border-b-2 border-gray-200">
                 Profile
               </th>
               <th
@@ -57,9 +62,9 @@
             </tr>
           </thead>
           <tbody>
-            <template v-if="state.count">
+            <template v-if="state.data.totalDocs">
 
-              <tr v-for="(terminal) in state.data" :key="terminal._id">
+              <tr v-for="(terminal) in state.data.docs" :key="terminal._id">
                 <td class="px-5 py-5 text-sm bg-white border-b border-gray-200">
                   <div class="flex items-center">
                     <div class="ml-3">
@@ -75,6 +80,13 @@
                   <p class="text-gray-900 whitespace-nowrap">
                     Switch Amount: {{ profile.iswSwitchAmount>0 || profile.iswSwitchAmount === null? 'None': profile.iswSwitchAmount }}
                   </p> -->
+                </td>
+                <td class="px-5 py-5 text-sm bg-white border-b border-gray-200">
+                  <p class="text-gray-900 whitespace-nowrap">Brand: <span class="text-xs text-gray-700">{{ terminal?.brand }}</span> </p>
+                  <p class="text-gray-900 whitespace-nowrap">Model: <span class="text-xs text-gray-700">{{ terminal?.deviceModel}}</span></p>
+                  <p class="text-gray-900 whitespace-nowrap">
+                    App version: <span class="text-xs text-gray-700">{{ terminal.appVersion }}</span> 
+                  </p>
                 </td>
                 <td class="px-5 py-5 text-sm bg-white border-b border-gray-200">
                   <p class="text-gray-900 whitespace-nowrap">
@@ -105,21 +117,24 @@
                   </template>
                 </td>
                 <td class="px-5 py-5 text-sm bg-white border-b border-gray-200">
-                  <!-- <span
-                    :class="`relative inline-block px-3 py-1 font-semibold text-${terminal?.statusColor}-900 leading-tight`">
-                    <span aria-hidden
-                      :class="`absolute inset-0 bg-${terminal?.statusColor}-200 opacity-50 rounded-full`"></span>
-                    <span class="relative">{{ terminal?.status }}</span>
-                  </span> -->
-                  <button @click="editTerminal(terminal)">
-                    edit
+                  <button class="text-gray-500 hover:text-gray-600" @click="editTerminal(terminal)">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
+                    </svg>
+                  </button>
+                  <button 
+                    class="text-red-500 hover:text-red-600" 
+                    @click="confirmTerminalDelete(terminal)">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                    </svg>
                   </button>
                 </td>
               </tr>
             </template>
             <template v-else>
               <tr>
-                <td class="px-5 py-5 text-sm bg-white border-b border-gray-200" colspan="5">
+                <td class="px-5 py-5 text-sm bg-white border-b border-gray-200" colspan="6">
                   <div class="flex items-center">
                     <div class="ml-3">
                       <p class="text-center text-gray-900 whitespace-nowrap">
@@ -133,7 +148,7 @@
             </template>
           </tbody>
         </table>
-        <div v-if="state.count > state.perPage"
+        <div v-if="state.data.totalPages > 1"
           class="flex flex-col items-center px-5 py-5 bg-white border-t xs:flex-row xs:justify-between">
           <span class="text-xs text-gray-900 xs:text-sm">Showing 1 to 4 of 50 Entries</span>
 
@@ -192,6 +207,28 @@
             </div>
           </div>
           <div>
+            <div v-if="!brandCustom" class="flex items-baseline mb-2 space-x-2">
+              <label class="w-1/5 text-sm font-bold text-gray-700" for="emailAddress">Brand:</label>
+              <select
+                class="w-4/5 p-1 mt-2 border border-gray-200 rounded-md focus:outline-none focus:border-none focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
+                v-model="form.brand">
+                <option :value="null">Select Brand</option>
+                <option v-for="(brand,index) in terminalBrands" :value="brand" :key="index">{{ brand }}</option>
+              </select>
+              
+            </div>
+            
+            <Input v-else title="Brand" placeholder="Enter brand name" v-model:value="form.brand" />
+            <div>
+                <button class="text-xs text-gray-400 hover:underline hover:text:text-gray-500" @click="brandCustom = !brandCustom">
+                  {{ brandCustom ? 'Pick from options': 'enter another' }}
+                </button>
+            </div>
+          </div>
+          <div>
+            <Input title="Device Model" v-model:value="form.deviceModel" />
+          </div>
+          <div>
             <Input title="Serial Number" v-model:value="form.serialNo" />
           </div>
           <div>
@@ -227,16 +264,26 @@
       </div>
     </div>
   </div>
+
+  <ConfirmDialog 
+    v-model:value="confirmDelete.open" 
+    :title="confirmDelete.title"
+    :confirm="confirmDelete.value"
+    :message="confirmDelete.message"
+     @accepted="deleteTerminal"  />
 </template>
 
 <script lang="ts" setup>
 import { reactive, inject, onMounted, ref, watch, computed } from 'vue';
 import { Axios } from 'axios';
+// @ts-ignore
 import Input from '../../components/Input.vue'
+import ConfirmDialog from '../../components/ConfirmDialog.vue'
 import useVuelidate from "@vuelidate/core";
 import { notify } from "@kyvg/vue3-notification"
 import { required, ipAddress, numeric, minLength, maxLength, requiredIf } from "@vuelidate/validators"
 import { parse, format } from "date-fns"
+import { Organisation, PaginatedData } from '../../@types/types';
 
 interface Profile {
   _id?: string,
@@ -249,6 +296,8 @@ interface Profile {
   iswSwitchAmount: number,
   terminals_count?: number,
 }
+
+
 
 interface Terminal {
   _id?: string,
@@ -266,6 +315,9 @@ interface Terminal {
   profile?: Profile,
   iswTid?: string,
   iswUniqueId?: string,
+  brand?: string,
+  deviceModel?: string,
+  appVersion?: string,
   parsedParams?: {
     callHomeTimeout: string,
     countryCode: string,
@@ -285,30 +337,51 @@ interface TerminalForm {
   profileId: string,
   iswTid?: string | null,
   iswUniqueId?: string | null,
+  brand?: string | null,
+  deviceModel?: string | null,
 }
 
 interface State {
-  data: Terminal[],
+  data: PaginatedData<Terminal>,
   count: number,
   perPage: number
 }
 
+const terminalBrands = ['HORIZONPAY','PAX','NEXGO','MOREFUN','MPOS',"AISINO"].sort();
 
 // @ts-ignore: Unreachable code error
 const $axios: Axios = inject('$axios')
 
-let state = ref<State>({ data: [], count: 0, perPage: 15 })
+let state = ref<State>({ data: {
+    docs: [],
+    totalDocs: 0,
+    limit: 30,
+    page: 1,
+    totalPages: 1,
+}, count: 0, perPage: 15 })
+let defaultDeleteState:{[key:string]: any, id: string| null} = {
+  open: false,
+  title: "Do you really want to delete his TID?",
+  value: '',
+  id: null,
+}
 let profiles = ref<Profile[]>([])
+let organisations = ref<Organisation[]>([])
 const loading = ref(false)
+const confirmDelete = ref(defaultDeleteState)
 const defualtState: TerminalForm = {
   serialNo: '',
   terminalId: '',
   profileId: '',
   iswTid: null,
   iswUniqueId: null,
+  brand:  null,
+  deviceModel: null,
 }
 let form = ref<TerminalForm>({ ...defualtState })
 const open = ref(false);
+const brandCustom = ref<boolean>(false);
+const search = ref<string>('');
 
 const rules = computed(() => ({
   _id: {},
@@ -317,14 +390,16 @@ const rules = computed(() => ({
   profileId: { required },
   iswTid: { minLength: minLength(8) },
   iswUniqueId: { requiredIf: requiredIf(() => form.value.iswTid !== null || (form.value.iswTid || '')?.length > 0) },
+  brand:  { required },
+  deviceModel: { required },
 }))
 
-const $v = useVuelidate<TerminalForm>(rules, form, { $autoDirty: true, })
-
+const $v = useVuelidate<TerminalForm>(rules, form, { $autoDirty: true, });
 const fetchData = async () => {
   try {
     const { data } = await $axios.get('/dashboard/terminals')
-    state.value = { ...state, ...data };
+    state.value = { ...state.value, data: data.data as PaginatedData<Terminal> };
+    console.log(state.value)
   } catch (error) {
     console.log(error)
   }
@@ -337,14 +412,58 @@ const editTerminal = (terminal: Terminal) => {
     terminalId: terminal.terminalId,
     iswTid: terminal.iswTid,
     iswUniqueId: terminal.iswUniqueId,
+    brand: terminal.brand || null,
+    deviceModel: terminal.deviceModel,
     _id: terminal._id,
   }
   open.value = true;
+  brandCustom.value = terminal.brand?.length? !terminalBrands.includes(terminal.brand) : false;
+}
+
+
+
+const deleteTerminal = async ( confirm: boolean) => {
+  if(!confirm) {
+    confirmDelete.value = {...confirmDelete.value, ... defaultDeleteState}
+    return;
+  };
+   try {
+    const { data } = await $axios.delete('/dashboard/terminals/'+confirmDelete.value.id)
+    notify({
+      text: "terminal Deleted",
+      title: "Item Deleted",
+      type: "success"
+    })
+    fetchData();
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+
+
+const confirmTerminalDelete = (terminal: Terminal) =>{
+  confirmDelete.value = {
+    ... confirmDelete.value,
+    open: true,
+    value: terminal.terminalId,
+    id: terminal._id || null,
+    message: `To delete this terminal confirm by typing: ${terminal.terminalId}`
+  }
 }
 
 const fetchProfilesData = async () => {
   try {
     const { data } = await $axios.get('/dashboard/profiles')
+    profiles.value = data.data;
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+const fetchOrganisationData = async () => {
+  try {
+    const { data } = await $axios.get('/dashboard/organisation/all')
     profiles.value = data.data;
   } catch (error) {
     console.log(error)
@@ -381,6 +500,10 @@ const formatExchangeTime = (value: string) => {
 watch(open, (value, prevValue) => {
   if (value) return;
   form.value = { ...defualtState };
+})
+
+watch(state, (value, prevValue)=>{
+  console.log(value, )
 })
 
 onMounted(() => {

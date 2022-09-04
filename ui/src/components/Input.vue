@@ -4,12 +4,12 @@
     <input
       v-if="!['checkbox','radio'].includes(type)"
       class="w-4/5 p-1 mt-2 border border-gray-200 rounded-md focus:outline-none focus:border-none focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
-      :type="type" :value="value" @input="updateValue" />
+      :type="type" :value="value" @input="updateValue" :placeholder="placeholder" />
     <input
       v-if="['checkbox','radio'].includes(type)"
       :checked="value"
       class="p-1 mt-2 border border-gray-200 rounded-md focus:outline-none focus:border-none focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
-      :type="type" :value="value" @input="updateValue" />  
+      :type="type" @input="updateValue" />  
     <p v-if="desciption" v-text="desciption"></p>
   </div>
 </template>
@@ -21,13 +21,14 @@ interface Props {
   value: any,
   type?: string,
   desciption?: string,
+  placeholder?: string,
 }
 
-const { title, value, type = 'text', desciption=null } = defineProps<Props>()
+const { title, value, type = 'text', desciption=null, placeholder = '' } = defineProps<Props>()
 
 const emit = defineEmits(['update:value'])
 
 const updateValue = (event: any) => {
-  emit('update:value', event.target.value)
+  emit('update:value', ['checkbox','radio'].includes(type)? event.target.checked : event.target.value)
 }
 </script>

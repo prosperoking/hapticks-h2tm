@@ -3,7 +3,7 @@ import Terminal from '../db/models/terminal.model';
 import logger from '../helpers/logger';
 import { performCardSocketTranaction, TransactionTypes } from '../helpers/cardsockethelper';
 import { ISOPayload, KIMONOPayload, Processor } from '../@types/types';
-import vasjournalsModel, { IJournal } from '../db/models/vasjournals.model';
+import vasjournalsModel, { IJournal } from '../db/models/transaction.model';
 import Utils from '../helpers/utils';
 import { ITerminal } from '../db/models/terminal.model';
 import { IPTSPProfile } from '../db/models/ptspProfile.model';
@@ -20,8 +20,11 @@ class IsoCardContoller {
 
     public async performKeyExchange(request: Request, response: Response) {
         try {
+            const appVersion = request.header('x-app-version')
             const terminal = await Terminal.findOne({
                 serialNo: request.header('x-serial-no'),
+                deviceModel: request.header('x-device-model')?.toUpperCase() || null,
+                brand: request.header('x-brand')?.toUpperCase() || null,
             }).populate({
                 path: "profile"
             });
@@ -52,9 +55,10 @@ class IsoCardContoller {
             terminal.encpinkey = data.encpinkey;
             terminal.encsesskey = data.encsesskey;
             terminal.clrmasterkey = data.clrmasterkey;
-            terminal.clrsesskey = data.clrmasterkey;
+            terminal.clrsesskey = data.clrsesskey;
             terminal.clrpinkey = data.clrpinkey;
             terminal.paramdownload = data.paramdownload;
+            terminal.appVersion = appVersion; 
 
             await terminal.save();
             return response.json(data);
@@ -71,11 +75,15 @@ class IsoCardContoller {
         try {
 
             const serial = request.header('x-serial-no');
-            const brand = request.header('x-brand') || null;
-            const deviceModel = request.header('x-device-model') || null;
+            const brand = request.header('x-brand') || '';
+            const deviceModel = request.header('x-device-model') || '';
             const appVersion = request.header('x-app-version') || null;
 
-            const terminal = await Terminal.findOne({ serialNo: serial }).populate({path: 'profile', select: "title isoHost isoPort isSSL"});
+            const terminal = await Terminal.findOne({ 
+                serialNo: serial,
+                deviceModel: request.header('x-device-model')?.toUpperCase() || null,
+                brand: request.header('x-brand')?.toUpperCase() || null,
+             }).populate({path: 'profile', select: "title isoHost isoPort isSSL"});
 
             if (!terminal) return response.status(404).json({ message: "Terminal not found" })
             terminal.brand = brand;
@@ -113,6 +121,7 @@ class IsoCardContoller {
                 ssl: String(isSSL),
                 port: isoPort
             };
+            console.log(messageType, patchedPayload);
             const socketResponse = await performCardSocketTranaction(messageType, patchedPayload);
             console.log("result: ", socketResponse)
             const { data } = socketResponse
@@ -127,7 +136,7 @@ class IsoCardContoller {
             return response.json({... socketResponse.data, ...{...socketResponse.data?.data || {}, }, });
         } catch (error) {
             console.log("Error: %s", error)
-            return response.status(400).json({message: "An error Occured"})
+            return response.status(400).json({status: false, data: null, message: "An error Occured"})
         }
     }
 

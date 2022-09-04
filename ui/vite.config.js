@@ -9,8 +9,12 @@ export default ({mode}) =>{
     server:{
       proxy:{
         '^/api/*': {
-          target:process.env.VITE_DEV_BASE_URL,
+          target:process.env.VITE_DEV_BASE_URL+"api",
           rewrite: (path) => path.replace(/^\/api/, '')
+        },
+        '^/admin/queue/*': {
+          target:process.env.VITE_DEV_BASE_URL+"admin",
+          rewrite: (path) => path.replace(/^\/admin/, '')
         }
       }
     },

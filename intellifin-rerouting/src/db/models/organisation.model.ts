@@ -1,4 +1,4 @@
-import { Schema, model, Document } from "mongoose";
+import { Schema, model, Document, PaginateModel } from "mongoose";
 import uniqueValidator from "mongoose-unique-validator";
 import paginate from 'mongoose-paginate-v2';
 import * as mongoose from 'mongoose';
@@ -34,10 +34,31 @@ orgSchema.virtual('terminals_count', {
     count: true,
 });
 
-// @ts-ignore
+orgSchema.virtual('users', {
+    ref: 'user',
+    localField: '_id',
+    foreignField: 'organisationId',
+});
+
+orgSchema.virtual('users_count', {
+    ref: 'user',
+    localField: '_id',
+    foreignField: 'organisationId',
+    count: true,
+});
+
+orgSchema.virtual('tranactions_count', {
+    ref: 'journal',
+    localField: '_id',
+    foreignField: 'organisationId',
+    count: true,
+});
+
+
+
 orgSchema.plugin(paginate);
 orgSchema.plugin(uniqueValidator);
 
 
-const OrganisationModel = mongoose.model<OrganisationProfile>("organisaionProfile", orgSchema);
+const OrganisationModel = mongoose.model<OrganisationProfile, PaginateModel<OrganisationProfile>>("organisaionProfile", orgSchema);
 export default OrganisationModel
