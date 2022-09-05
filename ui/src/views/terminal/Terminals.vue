@@ -30,7 +30,22 @@
     </div>
 
     <div class="px-4 py-4 -mx-4 overflow-x-auto sm:-mx-8 sm:px-8">
-      <div class="inline-block min-w-full overflow-hidden rounded-lg shadow">
+      <div :class="{'opacity-20 relative': loading}" class="inline-block min-w-full overflow-hidden rounded-lg shadow">
+        <div v-show="loading" class="fixed bg-gray-900 rounded top-1/2 left-1/2">
+          <svg version="1.1" id="L9" class="w-10 h-10 animate-spin " xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+            viewBox="0 0 100 100" enable-background="new 0 0 0 0" xml:space="preserve">
+              <path fill="#fff" d="M73,50c0-12.7-10.3-23-23-23S27,37.3,27,50 M30.9,50c0-10.5,8.5-19.1,19.1-19.1S69.1,39.5,69.1,50">
+                <animateTransform 
+                  attributeName="transform" 
+                  attributeType="XML" 
+                  type="rotate"
+                  dur="1s" 
+                  from="0 50 50"
+                  to="360 50 50" 
+                  repeatCount="indefinite" />
+              </path>
+          </svg>
+        </div>
         <table class="min-w-full leading-normal">
           <thead>
             <tr>
@@ -160,7 +175,7 @@
               Page {{ state.data.page }} of {{ state.data.totalPages }}
             </span>
             <span class="text-xs text-gray-900 xs:text-sm">Showing 1 to {{ state.data.limit }} of {{ state.data.totalDocs }}
-              transactions</span>
+              terminals</span>
           </div>
           <div class="inline-flex mt-2 xs:mt-0">
             <button :disabled="!state.data.hasPrevPage" @click="() => gotoPage(state.data?.prevPage || 1)"

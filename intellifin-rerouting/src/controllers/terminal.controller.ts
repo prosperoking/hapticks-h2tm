@@ -14,7 +14,7 @@ export default class ProfileController {
             if(q?.length) {
                 filter = {
                     $or:[
-                        {terminalId: RegExp(`^${q}`,'i')},
+                        { terminalId: RegExp(`^${q}`,'i') },
                         { serialNo: RegExp(`^${q}`,'i') },
                         { brand: RegExp(`^${q}`,'i') },
                         { deviceModel: RegExp(`^${q}`,'i') },
