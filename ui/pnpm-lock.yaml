@@ -27,6 +27,7 @@ specifiers:
   typescript: ^4.5.5
   vite: ^2.8.4
   vue: ^3.2.31
+  vue-reactive-clipboard: ^0.0.4
   vue-router: ^4.0.12
   vue-tsc: ^0.40.13
 
@@ -48,6 +49,7 @@ dependencies:
   pinia: 2.0.14_yiky6a7nq42a76m3cgtakyoff4
   solid: link:@heroicons/vue/solid
   vue: 3.2.31
+  vue-reactive-clipboard: 0.0.4_vue@3.2.31
   vue-router: 4.0.12_vue@3.2.31
 
 devDependencies:
@@ -1283,6 +1285,21 @@ packages:
       fsevents: 2.3.2
     dev: true
 
+  /vue-demi/0.11.4_vue@3.2.31:
+    resolution: {integrity: sha512-/3xFwzSykLW2HiiLie43a+FFgNOcokbBJ+fzvFXd0r2T8MYohqvphUyDQ8lbAwzQ3Dlcrb1c9ykifGkhSIAk6A==}
+    engines: {node: '>=12'}
+    hasBin: true
+    requiresBuild: true
+    peerDependencies:
+      '@vue/composition-api': ^1.0.0-rc.1
+      vue: ^3.0.0-0 || ^2.6.0
+    peerDependenciesMeta:
+      '@vue/composition-api':
+        optional: true
+    dependencies:
+      vue: 3.2.31
+    dev: false
+
   /vue-demi/0.12.5_vue@3.2.31:
     resolution: {integrity: sha512-BREuTgTYlUr0zw0EZn3hnhC3I6gPWv+Kwh4MCih6QcAeaTlaIX0DwOVN0wHej7hSvDPecz4jygy/idsgKfW58Q==}
     engines: {node: '>=12'}
@@ -1296,6 +1313,19 @@ packages:
         optional: true
     dependencies:
       vue: 3.2.31
+    dev: false
+
+  /vue-reactive-clipboard/0.0.4_vue@3.2.31:
+    resolution: {integrity: sha512-9yDaTbOsKsvv8jndTfYuQHLFTNbw9wrCB+iKmNZaYA5Xh40td5FfOoWEFWCXkM7Ny3B8luPlDMLxbNngp6/UAA==}
+    peerDependencies:
+      '@vue/composition-api': ^1.0.0-rc.2
+      vue: ^2.6.12 || >=3.0.0
+    peerDependenciesMeta:
+      '@vue/composition-api':
+        optional: true
+    dependencies:
+      vue: 3.2.31
+      vue-demi: 0.11.4_vue@3.2.31
     dev: false
 
   /vue-router/4.0.12_vue@3.2.31:

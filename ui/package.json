@@ -24,6 +24,7 @@
     "pinia": "^2.0.14",
     "solid": "link:@heroicons/vue/solid",
     "vue": "^3.2.31",
+    "vue-reactive-clipboard": "^0.0.4",
     "vue-router": "^4.0.12"
   },
   "devDependencies": {

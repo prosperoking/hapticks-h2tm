@@ -268,6 +268,7 @@
 
 <script setup lang="ts">
 import { ref, inject, reactive, onMounted, computed, watch } from "vue";
+import {useClipboard} from 'vue-reactive-clipboard';
 // @ts-ignore
 import Input from '../components/Input.vue'
 
@@ -294,6 +295,8 @@ interface Form  {
   url: string | null,
   organisationId: string | null,
 }
+
+const {text, copyText} = useClipboard();
 
 const request: AxiosInstance = inject('$axios')!;
 const state: OrganisationState = reactive<OrganisationState>({
@@ -359,15 +362,23 @@ const maskSecret = (val:string)=>{
 }
 
 const copySecret = async (val:string) =>{
-  if(!navigator.clipboard) {
-    // todo: fallback to old way of coping text
+  try {
+    // @ts-ignore
+    ! await navigator.permissions.query({name:'clipboard-write'})
+    await navigator.clipboard.writeText(val);
+  } catch (error) {
+    const input = document.createElement('input')
+    input.value = val
+    document.body.appendChild(input)
+    input.select()
+    document.execCommand('copy')
+    document.body.removeChild(input)
+  } finally{
+    notify({
+      title: "Success",
+      text: "Copied"
+    })
   }
-
-  await navigator.clipboard.writeText(val);
-  notify({
-    title: "Success",
-    text: "Copied"
-  })
 }
 
 const editWebHook = (hook: Webhook)=>{
