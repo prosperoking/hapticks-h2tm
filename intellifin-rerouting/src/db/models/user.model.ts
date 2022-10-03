@@ -17,7 +17,8 @@ export interface IUserData extends Document {
     password: string,
     fullname: string,
     rememberToken?: string,
-    organisation_id?: OrganisationProfile,
+    organisation_id?: any,
+    organisation?: OrganisationProfile,
     role: string,
     imageUrl?: string,
     permissions: string[],
@@ -53,7 +54,6 @@ const UserSchema = new Schema<IUserData>({
     organisation_id: {
         default: null,
         type: SchemaTypes.ObjectId,
-        ref: OrganisationModel
     },
     role: {
         type: SchemaTypes.String,

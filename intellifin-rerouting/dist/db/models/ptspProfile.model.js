@@ -75,7 +75,8 @@ const ptspProfileSchema = new mongoose.Schema({
         default: null,
     }
 }, {
-    timestamps: true, toJSON: {
+    timestamps: true,
+    toJSON: {
         virtuals: true
     }
 });
@@ -84,6 +85,12 @@ ptspProfileSchema.virtual('terminals', {
     localField: '_id',
     foreignField: 'profileId',
 });
+ptspProfileSchema.virtual('organisation', {
+    ref: 'organisationProfile',
+    localField: 'organisationId',
+    foreignField: '_id',
+    justOne: true,
+});
 ptspProfileSchema.virtual('terminals_count', {
     ref: 'terminal',
     localField: '_id',
@@ -91,9 +98,10 @@ ptspProfileSchema.virtual('terminals_count', {
     count: true,
 });
 ptspProfileSchema.virtual('webhook', {
-    ref: 'webhook',
-    localField: '_id',
-    foreignField: 'webhookId',
+    ref: 'webhooklistener',
+    localField: 'webhookId',
+    foreignField: '_id',
+    justOne: true,
 });
 // @ts-ignore
 ptspProfileSchema.plugin(mongoose_paginate_v2_1.default);

@@ -14,7 +14,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserRole = void 0;
 const mongoose_1 = require("mongoose");
-const organisation_model_1 = __importDefault(require("./organisation.model"));
 const argon2_1 = __importDefault(require("argon2"));
 const crypto_1 = __importDefault(require("crypto"));
 var UserRole;
@@ -48,7 +47,6 @@ const UserSchema = new mongoose_1.Schema({
     organisation_id: {
         default: null,
         type: mongoose_1.SchemaTypes.ObjectId,
-        ref: organisation_model_1.default
     },
     role: {
         type: mongoose_1.SchemaTypes.String,

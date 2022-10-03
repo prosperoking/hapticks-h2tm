@@ -9,6 +9,8 @@ import Profiles from "./views/profiles/Profiles.vue";
 import Terminals from "./views/terminal/Terminals.vue";
 import UploadTerminal from "./views/terminal/UploadTerminals.vue";
 import Organisations from "./views/Organisations.vue";
+import WebhookListeners from "./views/WebhookListeners.vue";
+import Webhooks from "./views/WebHooks.vue";
 import Login from "./views/Login.vue";
 import Modal from "./views/Modal.vue";
 import Card from "./views/Card.vue";
@@ -58,6 +60,16 @@ const routes: RouteRecordRaw[] = [
     path: "/bulk-upload", 
     name: "bulk-upload", 
     component: UploadTerminal 
+  },
+  {
+    path: "/webhook/listeners",
+    name: "webhook-listeners",
+    component: WebhookListeners,
+  },
+  {
+    path: "/webhooks/:id?",
+    name: "webhooks",
+    component: Webhooks,
   },
   {
     path: "/cards",

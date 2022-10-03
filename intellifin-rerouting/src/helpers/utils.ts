@@ -159,7 +159,7 @@ class Utils {
         let filesPath = path.join(`mw-logs/${moment().format("YYYY-MM-DD")}`, terminalId + `-logfile.log`);
         let pathDir = path.dirname(filesPath);
         if (fs.existsSync(pathDir) == false) {
-            console.log("fikle  not exists create", pathDir);
+            console.log("file  not exists create", pathDir);
 
             fs.mkdirSync(pathDir)
         } else {

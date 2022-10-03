@@ -45,10 +45,12 @@ export default class DashboardController {
     public async transactions(request: Request, response: Response) {
         try {
             const date = moment().format("YYYY-MM-DD")
+            // @ts-ignore
+            const organisationFilter = request.user?.organisation_id? { organisationId: request.user?.organisation_id} : {};
             const transactions = await vasjournalsModel.paginate({
                 ...DashboardController.filterGen(request.query),
-                // @ts-ignore
-                organisationId: request.user?.organisation_id ?? null,
+                
+                ...organisationFilter
             },{
                 sort: {_id: -1},
                 limit: Number(request.query.limit || 50),

@@ -30,13 +30,14 @@ export const useUserStore = defineStore('auth', {
 
         async logoutUser() {
             const router = useRouter();
-            console.log(router);
             if(!this.user) {
+                this.clearState();
                 return router.replace({name: "Login"})
             }
 
             try {
                 await appHttp?.get('/dashboard/auth/logout');
+                this.clearState();
                 router.replace({name: "Login"})
             } catch (error) {
                 console.log("failed",error);

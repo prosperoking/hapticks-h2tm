@@ -16,9 +16,26 @@ export default class ProfileController {
 
     public async index(request: Request, response: Response) {
         try {
-            const data = await PTSPProfileModel.find({},).populate('terminals_count');
-
-            response.json({data, count: data.length})
+            const {q,limit,page} = request.query;
+            let filter = {}
+            if(q?.length) {
+                filter = {
+                    $or:[
+                        { title: RegExp(`^${q}`,'i') },
+                        { host: RegExp(`^${q}`,'i') },
+                    ]
+                };
+            };
+            const data = await PTSPProfileModel.paginate(filter,{
+                limit: Number.parseInt(`${limit}`) || 30,
+                page: Number.parseInt(`${page}`) || 1,
+                populate:[
+                    {path: 'terminals_count'},
+                    {path: 'organisation', select: 'name'},
+                    {path: 'webhook', select: 'name'},
+                ],
+            });
+            response.json(data)
         } catch (error) {
             console.log(error)
             response.status(400).json({message: error.message})
@@ -43,6 +60,8 @@ export default class ProfileController {
                 "iswMid",
                 "iswInstitutionCode",
                 "iswDestinationAccount",
+                "organisationId",
+                "webhookId"
             ]));
 
 

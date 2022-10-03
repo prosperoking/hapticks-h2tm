@@ -47,7 +47,7 @@ orgSchema.virtual('users_count', {
     count: true,
 });
 
-orgSchema.virtual('tranactions_count', {
+orgSchema.virtual('transactions_count', {
     ref: 'journal',
     localField: '_id',
     foreignField: 'organisationId',
@@ -60,5 +60,5 @@ orgSchema.plugin(paginate);
 orgSchema.plugin(uniqueValidator);
 
 
-const OrganisationModel = mongoose.model<OrganisationProfile, PaginateModel<OrganisationProfile>>("organisaionProfile", orgSchema);
+const OrganisationModel = mongoose.model<OrganisationProfile, PaginateModel<OrganisationProfile>>("organisationProfile", orgSchema);
 export default OrganisationModel

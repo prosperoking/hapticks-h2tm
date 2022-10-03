@@ -83,7 +83,7 @@ JournalsSchema.virtual('terminal', {
 })
 
 JournalsSchema.virtual('organisation', {
-    ref: 'organisaionProfile',
+    ref: 'organisationProfile',
     localField: 'organisationId',
     foreignField: '_id',
 })

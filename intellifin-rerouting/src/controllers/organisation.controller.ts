@@ -6,18 +6,20 @@ import OrganisationModel from '../db/models/organisation.model';
 
 export async function getOrganisations(req: Request, res: Response) {
     try {
-        const transactions = await OrganisationModel.paginate({
+        const organisations = await OrganisationModel.paginate({
             ...filterGen(req.query),
         },{
             sort: {name: -1},
             limit: Number(req.query.limit || 50),
             page: Number(req.query.page || 1),
             populate: [
-                {path: 'user_count' },
+                { path: 'users_count' },
+                { path: 'terminals_count' },
+                { path: 'transactions_count' },
             ]
         });
 
-        return res.json(transactions)
+        return res.json(organisations)
     } catch (error) {
         logger.error(error.message);
         res.status(400).json({
@@ -29,7 +31,7 @@ export async function getOrganisations(req: Request, res: Response) {
 export async function getAllOrganisations(req: Request, res: Response) {
     try {
 
-        const data = await OrganisationModel.find(filterGen(req.query));
+        const data = await OrganisationModel.find(filterGen(req.query)).select('name');
 
         return res.json({data})
     } catch (error) {

@@ -74,7 +74,7 @@ JournalsSchema.virtual('terminal', {
     foreignField: 'terminalId',
 });
 JournalsSchema.virtual('organisation', {
-    ref: 'organisaionProfile',
+    ref: 'organisationProfile',
     localField: 'organisationId',
     foreignField: '_id',
 });

@@ -16,6 +16,7 @@ const index_1 = require("./index");
 const schema_1 = require("express-validator/src/middlewares/schema");
 const ptspProfile_model_1 = __importDefault(require("../db/models/ptspProfile.model"));
 const organisation_model_1 = __importDefault(require("../db/models/organisation.model"));
+const webhook_model_1 = __importDefault(require("../db/models/webhook.model"));
 const profileUpdateValidator = (0, index_1.createValidatedRequest)((0, schema_1.checkSchema)({
     id: {
         in: ['params'],
@@ -59,16 +60,20 @@ const profileUpdateValidator = (0, index_1.createValidatedRequest)((0, schema_1.
     iswDestinationAccount: {
         in: ['body'],
         trim: true,
+        optional: true,
     },
     iswInstitutionCode: {
         in: ['body'],
         trim: true,
+        optional: true,
     },
     iswMid: {
         in: ['body'],
         trim: true,
+        optional: true,
         isLength: {
             errorMessage: "invalid MID",
+            if: (value) => value === null || value === void 0 ? void 0 : value.length,
             options: {
                 min: 15,
                 max: 15
@@ -85,22 +90,32 @@ const profileUpdateValidator = (0, index_1.createValidatedRequest)((0, schema_1.
     },
     organisationId: {
         in: ['body'],
+        optional: true,
         custom: {
             options: (value, { req, location, path }) => __awaiter(void 0, void 0, void 0, function* () {
-                try {
-                    console.log("Param ID: ", value);
-                    if (!organisation_model_1.default.findById(value))
-                        return false;
-                    return true;
-                }
-                catch (error) {
-                    return false;
-                }
+                if (!(value === null || value === void 0 ? void 0 : value.length))
+                    return;
+                if (!(yield organisation_model_1.default.findById(value)))
+                    return Promise.reject();
             }),
             errorMessage: "Organisation not Found",
             bail: true,
         }
     },
+    webhookId: {
+        in: ['body'],
+        optional: true,
+        custom: {
+            options: (value, { req, location, path }) => __awaiter(void 0, void 0, void 0, function* () {
+                if (!(value === null || value === void 0 ? void 0 : value.length))
+                    return;
+                if (!(yield webhook_model_1.default.findById(value)))
+                    return Promise.reject();
+            }),
+            errorMessage: "Webhook not found",
+            bail: true,
+        }
+    }
 }));
 exports.default = profileUpdateValidator;
 //# sourceMappingURL=profileUpdate.validator.js.map

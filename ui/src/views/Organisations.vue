@@ -45,21 +45,21 @@
             
               <th
                 class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
-                Info
+                Name
               </th>
              
               <th
                 class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
-                MERCHANT INFO
+                Users
               </th>
               <th
                 class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
-                PROCESSOR
+                Transactions
               </th>
 
               <th
                 class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
-                Date
+                Terminals
               </th>
               <th class="px-6 py-3 border-b border-gray-200 bg-gray-50"></th>
             </tr>
@@ -73,26 +73,12 @@
                   <div class="flex items-center">
                     <div class="ml-2">
                       <div class="text-sm font-medium leading-5 text-gray-500">
-                        TID: 
+                        
                          <span
                     class="inline-flex px-2 text-xs font-semibold leading-5 text-green-800 bg-green-100 rounded-full">
-                    {{ u.terminalId}}</span>
+                    {{ u.name}}</span>
                       </div>
-                      <div class="text-sm font-medium leading-5 text-gray-500">
-                        Stan: {{ u.STAN }}
-                      </div>
-                      <div class="text-sm font-medium leading-5 text-gray-500">
-                        RRN: {{ u.rrn }}
-                      </div>
-                      <div class="text-sm font-medium leading-5 text-gray-500">
-                       Amount: {{ currencyFormatter(u.amount / 100) }}
-                      </div>
-                      <div class="text-sm leading-5 text-gray-500">
-                        Response Code: {{ u.responseCode }}
-                      </div>
-                      <div class="text-sm leading-5 text-gray-500">
-                        {{ u.responseDescription }}
-                      </div>
+                      
                     </div>
                   </div>
                 </td>
@@ -100,30 +86,22 @@
 
                 <td class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
                   <div class="text-sm leading-5 text-gray-900">
-                    {{ u.merchantName }}
+                    {{ u.users_count }}
                   </div>
-                  <div class="text-sm leading-5 text-gray-500">
-                    {{ u.merchantAddress }}
-                  </div>
-                  <div class="text-sm leading-5 text-gray-500">
-                    {{ u.merchantId }}
-                  </div>
+                  
                 </td>
 
                 <td class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
-                  <span
-                    class="inline-flex px-2 text-xs font-semibold leading-5 text-green-800 bg-green-100 rounded-full">{{
-                        u.processor
-                    }}</span>
+                  {{ u.transactions_count }}
                 </td>
 
                 <td class="px-6 py-4 text-sm leading-5 text-gray-500 border-b border-gray-200 whitespace-nowrap">
-                  {{ dateFormatter(u.transactionTime) }}
+                  {{u.terminals_count}}
                 </td>
 
                 <td
                   class="px-6 py-4 text-sm font-medium leading-5 text-right border-b border-gray-200 whitespace-nowrap">
-                  <a href="#" class="text-indigo-600 hover:text-indigo-900">print</a>
+                  
                 </td>
               </tr>
             </template>
@@ -237,17 +215,18 @@ import { ref, inject, reactive, onMounted, computed } from "vue";
 // @ts-ignore
 import Input from '../components/Input.vue'
 
-import axios, { AxiosInstance } from "axios"
-import { Transaction, PaginatedData } from '../@types/types';
+import axios, { AxiosError, AxiosInstance } from "axios"
+import { Transaction, PaginatedData, Organisation } from '../@types/types';
 import { currencyFormatter, dateFormatter } from '../utils/Formatters';
 import debounce from 'lodash/debounce'
 import useVuelidate from "@vuelidate/core";
 import { required, ipAddress, numeric, minLength, maxLength, requiredIf } from "@vuelidate/validators"
+import { notify } from "@kyvg/vue3-notification";
 
 interface OrganisationState {
   loading: boolean,
   q: string,
-  organisations: PaginatedData<Transaction>
+  organisations: PaginatedData<Organisation>
 }
 
 interface User {
@@ -261,6 +240,7 @@ interface User {
 
 interface Form  {
   name?: string | null,
+  _id?: string,
 }
 
 const request: AxiosInstance | undefined = inject('$axios');
@@ -281,6 +261,7 @@ const state: OrganisationState = reactive<OrganisationState>({
 const open = ref<boolean>(false);
 
 const form = ref<Form>({
+  _id: undefined,
   name: null,
 })
 
@@ -289,6 +270,15 @@ const rules = computed(() => ({
   name: { required, minLength: minLength(5), },
 }))
 
+let defaultDeleteState: { [key: string]: any, id: string | null } = {
+  open: false,
+  title: "Do you really want to delete his TID?",
+  value: '',
+  id: null,
+}
+
+const confirmDelete = ref(defaultDeleteState)
+
 const $v = useVuelidate<Form>(rules, form, { $autoDirty: true, })
 
 
@@ -296,6 +286,7 @@ const gotoPage = (page: number)=>{
   state.organisations.page = page;
   getOrganisations();
 }
+
 const getOrganisations = async () => {
   try {
     state.loading = true;
@@ -316,7 +307,76 @@ const getOrganisations = async () => {
   }
 }
 
-const saveOrganisation = async () => {}
+const saveOrganisation = async () => {
+  try {
+    const {data} = form.value?._id?.length? await request!.put<Organisation>('/dashboard/organisations',form.value): await request!.post<Organisation>('/dashboard/organisations',form.value);
+    getOrganisations();
+    notify({
+      title: "Success",
+      type: "success",
+      text: "Organisation Saved successful!",
+    });
+  } catch (error: any) {
+    let message = error.message
+    if (error.isAxiosError) {
+      message = error.response.data.message;
+    }
+    notify({
+      title: "Error",
+      type: "danger",
+      text: message,
+    });
+  } finally {
+    state.loading = false;
+  }
+}
+
+const editOrganisation = (organisation: Organisation) => {
+  form.value = {
+    name: organisation.name,
+    _id: organisation._id,
+  }
+  open.value = true;
+}
+
+
+
+const deleteOrganisation = async (confirm: boolean) => {
+  if (!confirm) {
+    confirmDelete.value = { ...confirmDelete.value, ...defaultDeleteState }
+    return;
+  };
+  state.loading = true;
+  try {
+    const { data } = await request!.delete('/dashboard/terminals/' + confirmDelete.value.id)
+    notify({
+      text: "Orgnainsation Deleted",
+      title: "Item Deleted",
+      type: "success"
+    })
+    getOrganisations();
+  } catch (error:any) {
+    let message = error.message;
+    if(error.isAxiosError) {
+      message = error.response.data.message;
+    }
+  }finally {
+    state.loading = false;
+  }
+}
+
+
+
+
+const confirmOrganisationDelete = (organisation: Organisation) => {
+  confirmDelete.value = {
+    ...confirmDelete.value,
+    open: true,
+    value: organisation._id,
+    id: organisation._id || null,
+    message: `To delete this Organisation confirm by typing: ${organisation.name}. N/B This will fail if organisation has performed a transaction.`
+  }
+}
 
 onMounted(() => {
   getOrganisations()

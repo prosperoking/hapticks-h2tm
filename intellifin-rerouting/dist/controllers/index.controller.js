@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.OrganisationController = exports.profileController = exports.terminalController = exports.dashboardController = exports.isoCardController = exports.routingContoller = exports.authController = exports.vasTransactionController = void 0;
+exports.WebHookController = exports.OrganisationController = exports.profileController = exports.terminalController = exports.dashboardController = exports.isoCardController = exports.routingContoller = exports.authController = exports.vasTransactionController = void 0;
 const transaction_controller_1 = __importDefault(require("./transaction.controller"));
 const auth_controller_1 = __importDefault(require("./auth.controller"));
 const routing_controller_1 = __importDefault(require("./routing.controller"));
@@ -36,6 +36,8 @@ const profiles_controller_1 = __importDefault(require("./profiles.controller"));
 const terminal_controller_1 = __importDefault(require("./terminal.controller"));
 const OrganisationController = __importStar(require("./organisation.controller"));
 exports.OrganisationController = OrganisationController;
+const WebHookController = __importStar(require("./webhook.controller"));
+exports.WebHookController = WebHookController;
 const vasTransactionController = new transaction_controller_1.default();
 exports.vasTransactionController = vasTransactionController;
 const authController = new auth_controller_1.default();

@@ -17,6 +17,7 @@ const cardsockethelper_1 = require("../helpers/cardsockethelper");
 const types_1 = require("../@types/types");
 const transaction_model_1 = __importDefault(require("../db/models/transaction.model"));
 const utils_1 = __importDefault(require("../helpers/utils"));
+const queue_1 = require("../queue/queue");
 class IsoCardContoller {
     performKeyExchange(request, response) {
         var _a, _b;
@@ -111,14 +112,15 @@ class IsoCardContoller {
                 const { componentKey1, isoHost, isoPort, isSSL } = terminal.profile;
                 const messageType = IsoCardContoller.getMessageType(terminal, Number(body.field4));
                 const patchedPayload = messageType === cardsockethelper_1.TransactionTypes.ISW_KIMONO ? IsoCardContoller.patchISWPayload(body, terminal.profile, terminal) : Object.assign(Object.assign({}, body), { component: componentKey1, ip: isoHost, ssl: String(isSSL), port: isoPort });
-                console.log(messageType, patchedPayload);
                 const socketResponse = yield (0, cardsockethelper_1.performCardSocketTranaction)(messageType, patchedPayload);
-                console.log("result: ", socketResponse);
                 const { data } = socketResponse;
-                console.log(data);
                 const responseData = data.data || data;
                 const journalPayload = messageType === cardsockethelper_1.TransactionTypes.ISO_TRANSACTION ? IsoCardContoller.createNIBBSJournal(responseData, body) : IsoCardContoller.createISWJournal(responseData, body, terminal);
-                transaction_model_1.default.create(journalPayload).catch(err => {
+                terminal.appVersion = appVersion;
+                terminal.save();
+                transaction_model_1.default.create(Object.assign(Object.assign({}, journalPayload), { organisationId: terminal.organisationId }))
+                    .then(data => IsoCardContoller.processWebHook(data, terminal))
+                    .catch(err => {
                     console.error("Error: %s \r\n Unable to save transaction: %s", err.message, JSON.stringify(journalPayload));
                 });
                 return response.json(Object.assign(Object.assign({}, socketResponse.data), Object.assign({}, ((_a = socketResponse.data) === null || _a === void 0 ? void 0 : _a.data) || {})));
@@ -180,6 +182,18 @@ class IsoCardContoller {
             isCompleted: true,
             processor: types_1.Processor.KIMONO,
         };
+    }
+    static processWebHook(transaction, terminal) {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log("Webhook Id", terminal.profile.webhookId);
+            if (!terminal.profile.webhookId)
+                return;
+            queue_1.webhookQueue.add('sendNotification', {
+                tranactionId: transaction._id,
+                webhookId: terminal.profile.webhookId,
+                organisationId: terminal.organisationId
+            });
+        });
     }
 }
 exports.default = IsoCardContoller;

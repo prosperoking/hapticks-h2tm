@@ -7,10 +7,10 @@ type HandlerSchema = ValidationChain[] & { run: (req: Request) => Promise<Result
 type Handler = (req: Request) => Promise<ResultWithContext[]>
 export function createValidatedRequest(validator: HandlerSchema | Handler): RequestHandler[] {
     const handleRequest = (req: Request,res: Response,next: NextFunction)=>{
-        const errors = validationResult(req);
-        if(!errors.isEmpty()) {
+        const result = validationResult(req);
+        if(!result.isEmpty()) {
             return res.status(412).json({
-                errors,
+                errors: result.array().reduce((acc,err)=>({...acc,[err.param]:[...(acc[err.param]||[]), err.msg]}),{}),
                 message: "Invalid Data"
             });
         }

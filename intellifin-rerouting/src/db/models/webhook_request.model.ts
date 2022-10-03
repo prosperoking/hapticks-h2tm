@@ -1,8 +1,9 @@
-import { Schema, model, SchemaTypes, Document } from 'mongoose';
-import * as paginate from 'mongoose-paginate-v2';
+import { Schema, model, SchemaTypes, Document, PaginateModel } from 'mongoose';
+import paginate from 'mongoose-paginate-v2';
 import * as mongoose from 'mongoose';
+import { Webhook, Organisation } from '../../../../ui/src/@types/types';
 
-export interface IWebhookRequest extends Document {
+export interface IWebhookRequestData extends Document {
     webhookId: string | any,
     payload: object,
     terminalId: string,
@@ -11,12 +12,18 @@ export interface IWebhookRequest extends Document {
     responseType: string,
     responseCode: number,
     isRetry: boolean,
+    verifyString: string,
+    verifySignature: string,
     status: string,
     journalId: string | any,
+    webhook?: Webhook,
+    organisation?: Organisation
 
 }
 
-const webhookRequestSchema = new mongoose.Schema<IWebhookRequest>({
+export interface IWebhookRequest extends Document, IWebhookRequestData{}
+
+const webhookRequestSchema = new mongoose.Schema<IWebhookRequestData>({
     webhookId: {
         type: SchemaTypes.ObjectId,
         required: true,
@@ -57,7 +64,16 @@ const webhookRequestSchema = new mongoose.Schema<IWebhookRequest>({
     organisationId: {
         type: SchemaTypes.ObjectId,
         default: null,
+    },
+    verifyString: {
+        type: String,
+        default: null,
+    },
+    verifySignature: {
+        type: String,
+        default: null,
     }
+
 
 },{
     timestamps: {
@@ -80,12 +96,12 @@ webhookRequestSchema.virtual('webhook',{
 
 
 webhookRequestSchema.virtual('organisation',{
-    ref: 'organisation',
+    ref: 'organisationProfile',
     localField: '_id',
     foreignField: 'organisationId',
 })
 
-// @ts-ignore
+
 webhookRequestSchema.plugin(paginate)
 
-export default mongoose.model<IWebhookRequest>('webhookRequest', webhookRequestSchema)
+export default mongoose.model<IWebhookRequest, PaginateModel<IWebhookRequest>>('webhookRequest', webhookRequestSchema)

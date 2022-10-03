@@ -5,12 +5,12 @@ import { performCardSocketTranaction, TransactionTypes } from '../helpers/cardso
 import {pick} from "lodash"
 import PTSPProfileModel from '../db/models/ptspProfile.model';
 import { keyExchange } from '../queue/queue';
-export default class ProfileController {
+export default class TerminalController {
     public async index(request: Request, response: Response) {
         try {
 
-            const {q,limit,page} = request.query;
-            let filter = {}
+            const {q,limit,page, organisation} = request.query;
+            let filter:{[key:string]: any} = {}
             if(q?.length) {
                 filter = {
                     $or:[
@@ -21,9 +21,14 @@ export default class ProfileController {
                     ]
                 };
             };
+            // @ts-ignore
+            const orgId = !request.user.organisaitonId ? organisation : request.user.organisationId;
+            if(orgId?.length) filter.organisationId = orgId;
+            console.log('filter: ', filter, orgId, organisation )
             const data = await Terminal.paginate(filter,{
                 populate: [
-                    {path: 'profile', select:'title iswSwitchAmount'}
+                    {path: 'profile', select:'title iswSwitchAmount'},
+                    {path: 'organisation', select:'name'}
                 ],
                 limit: Number.parseInt(`${limit}`) || 30,
                 page: Number.parseInt(`${page}`) || 1,
@@ -99,9 +104,16 @@ export default class ProfileController {
 
     public async bulkUpload(request: Request, response: Response) {
         try {
-            
+            let {terminals, profileId, organisationId} = request.body;
+            let data = await Terminal.insertMany(terminals.map(terminal=>({
+                ...terminal,
+                profileId,
+                organisationId,
+            })))
+            return response.json({
+                data
+            })
         } catch (error) {
-
             logger.error(error)
             response.status(400).json({message: "Import failed"})
         }

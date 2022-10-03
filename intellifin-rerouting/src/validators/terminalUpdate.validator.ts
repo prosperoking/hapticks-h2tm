@@ -10,7 +10,7 @@ const terminalUpdateValidator = createValidatedRequest(checkSchema({
         custom: {
             options: async (value: string, {req, location, path}) =>{
                 try {
-                    if(!Termninal.findById(value)) return false;
+                    if(! await Termninal.findById(value)) return Promise.reject();
                     return true;
                 } catch (error) {
                     return false;
@@ -27,7 +27,7 @@ const terminalUpdateValidator = createValidatedRequest(checkSchema({
         custom: {
             options: async (terminalId: string, {req, location, path}) =>{
                 try {
-                    if(!Termninal.findOne({serialNo: terminalId})) return false;
+                    if(! await Termninal.findOne({terminalId: terminalId})) return false;
                     return true;
                 } catch (error) {
                     return false;
@@ -43,7 +43,7 @@ const terminalUpdateValidator = createValidatedRequest(checkSchema({
         custom: {
             options: async (serialNo: string, {req, location, path}) =>{
                 try {
-                    if(Termninal.findOne({serialNo})) return false;
+                    if(await Termninal.findOne({serialNo})) return false;
                     return true;
                 } catch (error) {
                     return false;
@@ -52,7 +52,7 @@ const terminalUpdateValidator = createValidatedRequest(checkSchema({
             errorMessage: "Terminal not Found",
         }
     },
-    brand: {
+    branld: {
         in: ['body'],
         trim: true,
         notEmpty: true
@@ -72,10 +72,10 @@ const terminalUpdateValidator = createValidatedRequest(checkSchema({
             options: async (value: string, {req, location, path}) =>{
                 try {
                     console.log("Param ID: ",value,)
-                    if(!OrganisationModel.findById(value)) return false;
+                    if(! await OrganisationModel.findById(value)) return Promise.reject();
                     return true;
                 } catch (error) {
-                    return false;
+                    return Promise.reject();
                 }
             },
             errorMessage: "Organisation not Found",
@@ -88,10 +88,10 @@ const terminalUpdateValidator = createValidatedRequest(checkSchema({
             options: async (value: string, {req, location, path}) =>{
                 try {
                     console.log("Param ID: ",value,)
-                    if(!PTSPProfileModel.findById(value)) return false;
+                    if(! await PTSPProfileModel.findById(value)) return Promise.reject();
                     return true;
                 } catch (error) {
-                    return false;
+                    return Promise.reject();
                 }
             },
             errorMessage: "Profile not Found",

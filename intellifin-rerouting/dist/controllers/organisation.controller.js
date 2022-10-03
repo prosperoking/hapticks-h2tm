@@ -18,15 +18,17 @@ const organisation_model_1 = __importDefault(require("../db/models/organisation.
 function getOrganisations(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const transactions = yield organisation_model_1.default.paginate(Object.assign({}, filterGen(req.query)), {
+            const organisations = yield organisation_model_1.default.paginate(Object.assign({}, filterGen(req.query)), {
                 sort: { name: -1 },
                 limit: Number(req.query.limit || 50),
                 page: Number(req.query.page || 1),
                 populate: [
-                    { path: 'user_count' },
+                    { path: 'users_count' },
+                    { path: 'terminals_count' },
+                    { path: 'transactions_count' },
                 ]
             });
-            return res.json(transactions);
+            return res.json(organisations);
         }
         catch (error) {
             logger_1.default.error(error.message);
@@ -40,7 +42,7 @@ exports.getOrganisations = getOrganisations;
 function getAllOrganisations(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const data = yield organisation_model_1.default.find(filterGen(req.query));
+            const data = yield organisation_model_1.default.find(filterGen(req.query)).select('name');
             return res.json({ data });
         }
         catch (error) {

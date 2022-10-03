@@ -137,6 +137,12 @@ terminalSchema.virtual('profile', {
     foreignField: '_id',
     justOne: true,
 });
+terminalSchema.virtual('organisation', {
+    ref: 'organisationProfile',
+    localField: 'organisationId',
+    foreignField: '_id',
+    justOne: true,
+});
 terminalSchema.virtual('parsedParams').get(function () {
     var _a;
     if (!((_a = this.paramdownload) === null || _a === void 0 ? void 0 : _a.length)) {
@@ -163,7 +169,6 @@ terminalSchema.virtual('parsedParams').get(function () {
     }
     return data;
 });
-// @ts-ignore
 terminalSchema.plugin(mongoose_paginate_v2_1.default);
 const Termninal = mongoose.model('terminal', terminalSchema);
 exports.default = Termninal;

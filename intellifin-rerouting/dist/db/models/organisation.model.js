@@ -62,7 +62,7 @@ orgSchema.virtual('users_count', {
     foreignField: 'organisationId',
     count: true,
 });
-orgSchema.virtual('tranactions_count', {
+orgSchema.virtual('transactions_count', {
     ref: 'journal',
     localField: '_id',
     foreignField: 'organisationId',
@@ -70,6 +70,6 @@ orgSchema.virtual('tranactions_count', {
 });
 orgSchema.plugin(mongoose_paginate_v2_1.default);
 orgSchema.plugin(mongoose_unique_validator_1.default);
-const OrganisationModel = mongoose.model("organisaionProfile", orgSchema);
+const OrganisationModel = mongoose.model("organisationProfile", orgSchema);
 exports.default = OrganisationModel;
 //# sourceMappingURL=organisation.model.js.map

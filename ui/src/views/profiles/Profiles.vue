@@ -12,7 +12,7 @@
           </svg>
         </span>
 
-        <input placeholder="Search"
+        <input v-model="query" placeholder="Search"
           class="flex w-full py-2 pl-8 pr-6 text-sm text-gray-700 placeholder-gray-400 bg-white border border-b border-gray-400 rounded appearance-none focus:bg-white focus:placeholder-gray-600 focus:text-gray-700 focus:outline-none" />
       </div>
       </div>
@@ -50,9 +50,9 @@
             </tr>
           </thead>
           <tbody>
-            <template v-if="state.count">
+            <template v-if="state.totalDocs">
 
-              <tr v-for="(profile) in state.data" :key="profile._id">
+              <tr v-for="(profile) in state.docs" :key="profile._id">
                 <td class="px-5 py-5 text-sm bg-white border-b border-gray-200">
                   <div class="flex items-center">
                     <div class="ml-3">
@@ -67,6 +67,9 @@
                   <p class="text-gray-900 whitespace-nowrap">Is SSL: {{ profile?.isSSL? "Yes":"No" }}</p>
                   <p class="text-gray-900 whitespace-nowrap">
                     Switch Amount: {{  !Boolean(profile.iswSwitchAmount) ? 'None': currencyFormatter(profile.iswSwitchAmount) }}
+                  </p>
+                  <p v-if="profile?.webhook" class="text-gray-900 whitespace-nowrap">
+                    Webhook: {{profile.webhook?.name}}
                   </p>
                 </td>
                 <td class="px-5 py-5 text-sm bg-white border-b border-gray-200">
@@ -103,15 +106,15 @@
             </template>
           </tbody>
         </table>
-        <div v-if="state.count > state.perPage"
+        <div v-if="state.totalPages > 1"
           class="flex flex-col items-center px-5 py-5 bg-white border-t xs:flex-row xs:justify-between">
           <span class="text-xs text-gray-900 xs:text-sm">Showing 1 to 4 of 50 Entries</span>
 
           <div class="inline-flex mt-2 xs:mt-0">
-            <button class="px-4 py-2 text-sm font-semibold text-gray-800 bg-gray-300 rounded-l hover:bg-gray-400">
+            <button @click="gotoPage(state.prevPage)" class="px-4 py-2 text-sm font-semibold text-gray-800 bg-gray-300 rounded-l hover:bg-gray-400">
               Prev
             </button>
-            <button class="px-4 py-2 text-sm font-semibold text-gray-800 bg-gray-300 rounded-r hover:bg-gray-400">
+            <button @click="gotoPage(state.nextPage)" class="px-4 py-2 text-sm font-semibold text-gray-800 bg-gray-300 rounded-r hover:bg-gray-400">
               Next
             </button>
           </div>
@@ -175,7 +178,7 @@
               <Input title="Title" v-model:value="form.title" />
             </div>
             <div>
-              <Input title="Component Key 1" v-model:value="form.componentKey1" />
+              <Input title="Component Key" v-model:value="form.componentKey1" />
             </div>
             <div>
               <Input title="Host IP" v-model:value="form.isoHost" />
@@ -199,6 +202,17 @@
             <div>
               <Input title="ISW Destination Account" v-model:value="form.iswDestinationAccount" type="number" />
             </div>
+
+            <div class="flex space-x-4">
+              <div class="w-1/2">
+                <WebhookSelect placeholder="Pick Webhook" v-model="form.webhookId" />
+              </div>
+
+              <div class="w-1/2">
+                <OrganisactionSelect placeholder="Pick organisation" v-model="form.organisationId" />
+              </div>
+            </div>
+
           </div>
           <div>
             <p v-for="error of $v.$errors" :key="error.$uid">
@@ -232,10 +246,17 @@
 import { reactive, inject, onMounted, ref, watch,computed } from 'vue';
 import {notify} from "@kyvg/vue3-notification"
 import {Axios} from 'axios';
+// @ts-ignore
 import Input from '../../components/Input.vue'
 import { currencyFormatter, dateFormatter } from '../../utils/Formatters';
 import useVuelidate from "@vuelidate/core";
 import {required, ipAddress, numeric, minValue, requiredIf} from "@vuelidate/validators"
+import { Organisation, PaginatedData, Webhook } from '../../@types/types';
+import useDebouncedRef from '../../utils/DebounceRef';
+// @ts-ignore
+import WebhookSelect from '../../components/WebhookSelect.vue';
+// @ts-ignore
+import OrganisactionSelect from '../../components/OrganisactionSelect.vue';
 
 interface Profile {
   _id?: string,
@@ -250,19 +271,26 @@ interface Profile {
   iswInstitutionCode?: string,
   iswDestinationAccount?: string,
   iswMid?: string | null,
+  webhookId: string | null,
+  organisationId: string | null,
+  webhook?: Webhook,
+  organisation?: Organisation,
 }
 
-interface State {
-  data: Profile[],
-  count: number,
-  perPage: number
-}
+
 
 
 // @ts-ignore: Unreachable code error
 const $axios:Axios = inject('$axios')
 
-let state = ref<State>({ data: [], count: 0, perPage: 15 })
+let state = ref<PaginatedData<Profile>>({ 
+  docs: [],     
+  totalDocs: 0,
+  limit: 30,
+  page: 1,
+  totalPages: 1, 
+})
+let organisations = ref<Organisation[]>([]);
 const loading = ref(false)
 const defualtState = {
   title: '',
@@ -275,16 +303,19 @@ const defualtState = {
   iswInstitutionCode: '',
   iswDestinationAccount: '',
   iswMid: null,
+  webhookId: null,
+  organisationId: null,
 }
-let form = ref<Profile>({...defualtState})
+
+let form = ref<Profile>({... defualtState})
 const open = ref(false);
+const query = useDebouncedRef<string>('', 300);
 const rules = computed(()=>({
   title: {required},
   isoHost: {required, ipAddress},
   isoPort: {required, numeric},
   isSSL: {required},
   componentKey1: {required},
-  // componentKey2: {required},
   iswSwitchAmount: {minValue: minValue(0)},
   iswMid: { requiredIf: requiredIf(()=>Boolean(form.value.iswSwitchAmount) ) }
 }))
@@ -292,9 +323,15 @@ const $v = useVuelidate<Profile>(rules, form, { $autoDirty: true,  })
 
 const fetchData = async () =>{
   try {
-    const {data} =await $axios.get('/dashboard/profiles')
-    console.log(data,state.value.count)
-    state.value = {...state, ...data};
+    const {limit, page} = state.value;
+    const {data} =await $axios.get('/dashboard/profiles',{
+     params:{
+      limit,
+      page,
+      q: query.value,
+     }
+    })
+    state.value = { ...data};
   } catch (error: any) {
     console.log(error)
     notify({
@@ -305,11 +342,31 @@ const fetchData = async () =>{
   }
 }
 
+const fetchOrganisations = async () =>{
+  try {
+    const {data} =await $axios.get<Organisation[]>('/dashboard/organisations/all')
+    organisations.value = data;
+  } catch (error: any) {
+    console.log(error)
+    notify({
+      title: "Error",
+      type: "error",
+      text: error?.message
+    })
+  }
+}
+
+const gotoPage = (page?: number)=>{
+  state.value.page = page!;
+  fetchData();
+}
 const editProfile = (value: Profile)=>{
   open.value = true;
   form.value = {
     ...form.value ,
     ... value,
+    organisationId: value.organisationId,
+    webhookId: value.webhookId,
     _id: value._id,
   }
 }
@@ -346,7 +403,11 @@ watch(open,(value, prevValue)=>{
   form.value = {...defualtState};
 })
 
+watch(query,(value,prev)=>{
+  fetchData();
+})
+
 onMounted(()=>{
-  fetchData()
+  fetchData();
 })
 </script>

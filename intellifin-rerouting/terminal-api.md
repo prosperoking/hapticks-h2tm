@@ -81,7 +81,6 @@ x-app-version: 2.0.1
 ```
 
 > NB: Account can be Savings, Default or Current
-
 >Response
 
 ```json
@@ -157,3 +156,4 @@ x-app-version: 2.0.1
 
 ```json
 {"resp":"00","auth":"005814","icc":"910A", "meaning": "APPROVED...."}
+```

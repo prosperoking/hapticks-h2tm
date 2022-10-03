@@ -1,18 +1,20 @@
-import { Schema, model, SchemaTypes } from 'mongoose';
+import { Schema, model, SchemaTypes, PaginateModel } from 'mongoose';
 import { encrypt, decrypt } from '../../helpers/crypt';
-import * as paginate from 'mongoose-paginate-v2';
+import paginate from 'mongoose-paginate-v2';
 import * as mongoose from 'mongoose';
+import PTSPProfileModel from './ptspProfile.model';
 
-export interface IWebhook extends Document {
+export interface IWebhookData {
     _id?:  string| any,
-    organisation_id?: string | any,
+    organisationId?: string | any,
     name: string,
     url: string,
-    headers: string,
+    secret: string,
 }
+export interface IWebhook extends IWebhookData, Document{}
 
-const webhookSchema = new mongoose.Schema<IWebhook>({
-    organisation_id:{
+const webhookSchema = new mongoose.Schema<IWebhookData>({
+    organisationId:{
         type: SchemaTypes.ObjectId,
         default: null,
     },
@@ -25,20 +27,48 @@ const webhookSchema = new mongoose.Schema<IWebhook>({
         type: String,
         required: true,
     },
-    headers: {
+    secret: {
         type: String,
-        set: value=> value?.length? encrypt(JSON.stringify(value)): null,
-        get: value=> value?.length? JSON.stringify(decrypt(value)): null,
+        set: value=> value?.length? encrypt(value): null,
+        get: value=> value?.length? decrypt(value): null,
         default: null,
     }
 },{
     timestamps: {
         createdAt: true,
         updatedAt: true,
+    },
+    toJSON:{
+        getters: true
     }
+},);
+
+webhookSchema.virtual('organisation', {
+    ref: 'organisationProfile',
+    localField: 'organisationId',
+    foreignField: '_id',
 })
 
-// @ts-ignore
+webhookSchema.virtual('request_count',{
+    ref: 'webhookRequest',
+    localField: '_id',
+    foreignField: 'webhookId',
+    count: true,
+});
+
+
+webhookSchema.post('remove',function(data){
+    PTSPProfileModel.updateMany({
+        webhookId: data.id,
+    },{
+        $set:{
+            webhookId: null,
+        }
+    }).then((result)=>{
+        console.log("CLeared Webhook Setting: ",result);
+    })
+})
+
 webhookSchema.plugin(paginate);
 
-export default mongoose.model<IWebhook>('webhook', webhookSchema);
+export default mongoose.model<IWebhook, PaginateModel<IWebhook>>('webhooklistener', webhookSchema);

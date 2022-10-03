@@ -60,9 +60,9 @@ class DashboardController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const date = (0, moment_1.default)().format("YYYY-MM-DD");
-                const transactions = yield transaction_model_1.default.paginate(Object.assign(Object.assign({}, DashboardController.filterGen(request.query)), { 
-                    // @ts-ignore
-                    organisationId: (_b = (_a = request.user) === null || _a === void 0 ? void 0 : _a.organisation_id) !== null && _b !== void 0 ? _b : null }), {
+                // @ts-ignore
+                const organisationFilter = ((_a = request.user) === null || _a === void 0 ? void 0 : _a.organisation_id) ? { organisationId: (_b = request.user) === null || _b === void 0 ? void 0 : _b.organisation_id } : {};
+                const transactions = yield transaction_model_1.default.paginate(Object.assign(Object.assign({}, DashboardController.filterGen(request.query)), organisationFilter), {
                     sort: { _id: -1 },
                     limit: Number(request.query.limit || 50),
                     page: Number(request.query.page || 1),

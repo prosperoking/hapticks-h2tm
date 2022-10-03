@@ -6,6 +6,7 @@ import DashboardController from './dashboard.controller';
 import ProfileController from './profiles.controller';
 import TerminalController from './terminal.controller';
 import * as OrganisationController from './organisation.controller'
+import * as WebHookController from './webhook.controller'
 
 
 const vasTransactionController = new VasTransactionController();
@@ -25,5 +26,6 @@ export {
     dashboardController,
     terminalController,
     profileController,
-    OrganisationController
+    OrganisationController,
+    WebHookController,
 }

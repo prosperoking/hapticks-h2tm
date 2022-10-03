@@ -24,6 +24,9 @@ export type Transaction = {
     isCompleted:          boolean;
     cardExpiration?:      string;
     handlerResponseTime?: string;
+    organisation?: Organisation;
+    createdAt?: string,
+    updatedAt?: string,
 }
 
 export enum Processor {
@@ -49,6 +52,7 @@ export interface User {
     fullname: string,
     organisation_id: string,
     permissions: string[],
+
 }
 
 export interface PaginatedData<T> {
@@ -65,9 +69,45 @@ export interface PaginatedData<T> {
 }
 
 export interface Organisation {
-    _id?: string | null,
+    _id?: string,
     name: string,
-    terminal_count?: number,
-    tranaction_count?: number,
+    terminals_count?: number,
+    transactions_count?: number,
     users_count?: number,
+    createdAt?: string,
+    updatedAt?: string,
+}
+
+export interface Webhook {
+    _id?: string,
+    name: string,
+    url: string,
+    organisation?: Organisation,
+    orgnaisationId: string,
+    secret: string,
+    request_count?: number,
+    createdAt?: string,
+    updatedAt?: string,
+}
+
+export interface WebhookRequest {
+    _id?: string,
+    id?: string,
+    webhookId: string | any,
+    payload: {[key:string]:any},
+    terminalId: string,
+    organisationId?: string | any,
+    merchantName: string,
+    responseBody: string,
+    responseType: string,
+    responseCode: number,
+    isRetry: boolean,
+    status: string,
+    journalId: string | any,
+    webhook?: Webhook,
+    organisation?: Organisation,
+    verifyString: string,
+    verifySignature: string,
+    createdAt?: string,
+    updatedAt?: string,
 }

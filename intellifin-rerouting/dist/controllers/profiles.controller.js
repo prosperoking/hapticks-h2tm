@@ -30,8 +30,27 @@ class ProfileController {
     index(request, response) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const data = yield ptspProfile_model_1.default.find({}).populate('terminals_count');
-                response.json({ data, count: data.length });
+                const { q, limit, page } = request.query;
+                let filter = {};
+                if (q === null || q === void 0 ? void 0 : q.length) {
+                    filter = {
+                        $or: [
+                            { title: RegExp(`^${q}`, 'i') },
+                            { host: RegExp(`^${q}`, 'i') },
+                        ]
+                    };
+                }
+                ;
+                const data = yield ptspProfile_model_1.default.paginate(filter, {
+                    limit: Number.parseInt(`${limit}`) || 30,
+                    page: Number.parseInt(`${page}`) || 1,
+                    populate: [
+                        { path: 'terminals_count' },
+                        { path: 'organisation', select: 'name' },
+                        { path: 'webhook', select: 'name' },
+                    ],
+                });
+                response.json(data);
             }
             catch (error) {
                 console.log(error);
@@ -58,6 +77,8 @@ class ProfileController {
                     "iswMid",
                     "iswInstitutionCode",
                     "iswDestinationAccount",
+                    "organisationId",
+                    "webhookId"
                 ]));
                 response.json({ status: true, data });
             }

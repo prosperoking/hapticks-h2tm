@@ -16,6 +16,8 @@
 </template>
 
 <script setup lang="ts">
+// @ts-ignore
 import Sidebar from "./Sidebar.vue";
+// @ts-ignore
 import Header from "./Header.vue";
 </script>

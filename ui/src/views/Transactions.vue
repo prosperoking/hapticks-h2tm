@@ -1,11 +1,12 @@
 <template>
 
   <h3 class="space-x-3 text-3xl font-medium text-gray-700">
-   <span>Transactions: {{ state.transactions.totalDocs }}</span> 
+    <span>Transactions: {{ state.transactions.totalDocs }}</span>
     <small class="text-sm text-blue-500" v-if="state.loading">Loading ...</small>
   </h3>
   <div class="flex items-center justify-between mt-6">
     <div class="w-2/12">
+      <div>Filter</div>
       <div class="relative block w-full mt-2 sm:mt-0">
         <span class="absolute inset-y-0 left-0 flex items-center pl-2">
           <svg viewBox="0 0 24 24" class="w-4 h-4 text-gray-500 fill-current">
@@ -14,35 +15,35 @@
           </svg>
         </span>
 
-        <input placeholder="Search"
-          v-model="state.q"
+        <input placeholder="Search" v-model="state.q"
           @change="()=>state.q.length > 3 ? debounce(getTransactions, 400): null"
           class="flex w-full py-2 pl-8 pr-6 text-sm text-gray-700 placeholder-gray-400 bg-white border border-b border-gray-400 rounded appearance-none focus:bg-white focus:placeholder-gray-600 focus:text-gray-700 focus:outline-none" />
       </div>
     </div>
     <div class="w-2/12">
-      <div>Start Date</div>
       <div class="relative block w-full mt-2 sm:mt-0">
-        
-
-        <input placeholder="Search"
-          type="date"
-          v-model="state.startDate"
+        <label>Start Date</label>
+        <input placeholder="Search" type="date" v-model="state.startDate"
           class="flex w-full py-2 pl-8 pr-6 text-sm text-gray-700 placeholder-gray-400 bg-white border border-b border-gray-400 rounded appearance-none focus:bg-white focus:placeholder-gray-600 focus:text-gray-700 focus:outline-none" />
       </div>
+
     </div>
     <div class="w-2/12">
-      <div>End Date</div>
       <div class="relative block w-full mt-2 sm:mt-0">
-        <input
-          type="date"
+        <label>End Date</label>
+        <input v-model="state.endDate" type="date"
           class="flex w-full py-2 pl-8 pr-6 text-sm text-gray-700 placeholder-gray-400 bg-white border border-b border-gray-400 rounded appearance-none focus:bg-white focus:placeholder-gray-600 focus:text-gray-700 focus:outline-none" />
       </div>
+
     </div>
     <div class="space-x-2">
       <button @click="getTransactions"
         class="px-6 py-2 font-medium tracking-wide text-white bg-indigo-600 rounded-md hover:bg-indigo-500 focus:outline-none">
-        search 
+        search
+      </button>
+      <button
+        class="px-6 py-2 font-medium tracking-wide text-white bg-gray-600 rounded-md hover:bg-gray-500 focus:outline-none">
+        export
       </button>
     </div>
   </div>
@@ -55,12 +56,15 @@
         <table class="min-w-full">
           <thead>
             <tr>
-            
+
               <th
                 class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
                 Info
               </th>
-             
+              <th
+                class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
+                Orgnisation
+              </th>
               <th
                 class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
                 MERCHANT INFO
@@ -81,15 +85,15 @@
           <tbody class="bg-white">
             <template v-if="state.transactions?.totalDocs">
               <tr v-for="(u, index) in state.transactions.docs" :key="index">
-               
-                <td class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
-                  <div class="flex items-center">
+
+                <td class="px-6 py-4 border-b border-gray-200 whitespace-nowrap w-52">
+                  <div class="flex items-center w-36">
                     <div class="ml-2">
                       <div class="text-sm font-medium leading-5 text-gray-500">
-                        TID: 
-                         <span
-                    class="inline-flex px-2 text-xs font-semibold leading-5 text-green-800 bg-green-100 rounded-full">
-                    {{ u.terminalId}}</span>
+                        TID:
+                        <span
+                          class="inline-flex px-2 text-xs font-semibold leading-5 text-green-800 bg-green-100 rounded-full">
+                          {{ u.terminalId}}</span>
                       </div>
                       <div class="text-sm font-medium leading-5 text-gray-500">
                         Stan: {{ u.STAN }}
@@ -98,18 +102,32 @@
                         RRN: {{ u.rrn }}
                       </div>
                       <div class="text-sm font-medium leading-5 text-gray-500">
-                       Amount: {{ currencyFormatter(u.amount / 100) }}
+                        Amount: {{ currencyFormatter(u.amount / 100) }}
                       </div>
                       <div class="text-sm leading-5 text-gray-500">
-                        Response Code: {{ u.responseCode }}
+                        <span class="inline-flex font-semibold leading-5  rounded-full">
+                          PAN:
+                        </span> {{ u.PAN }}
                       </div>
                       <div class="text-sm leading-5 text-gray-500">
-                        {{ u.responseDescription }}
+                        <span class="inline-flexfont-semibold leading-5  rounded-full">
+                          Response Code:
+                        </span> {{ u.responseCode }}
+                      </div>
+                      <div class="text-sm leading-5 text-gray-500">
+                        <span class="inline-flex font-semibold leading-5  rounded-full">
+                          Meaning:
+                        </span> {{ u.responseDescription }}
                       </div>
                     </div>
                   </div>
                 </td>
-               
+                <td class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
+                  <div class="text-sm leading-5 text-gray-900">
+                    {{ u.organisation?.name }}
+                  </div>
+
+                </td>
 
                 <td class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
                   <div class="text-sm leading-5 text-gray-900">
@@ -126,7 +144,7 @@
                 <td class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
                   <span
                     class="inline-flex px-2 text-xs font-semibold leading-5 text-green-800 bg-green-100 rounded-full">{{
-                        u.processor
+                    u.processor
                     }}</span>
                 </td>
 
@@ -151,36 +169,27 @@
             </template>
           </tbody>
         </table>
-         <div
-              v-if="state.transactions?.totalPages > 1"
-              class="flex flex-col items-center px-5 py-5 bg-white border-t xs:flex-row xs:justify-between"
-            >
-           <div class="space-x-10">
-             <span class="text-xs text-gray-900 xs:text-sm">
-                Page {{ state.transactions.page }} of {{ state.transactions.totalPages }}
+        <div v-if="state.transactions?.totalPages > 1"
+          class="flex flex-col items-center px-5 py-5 bg-white border-t xs:flex-row xs:justify-between">
+          <div class="space-x-10">
+            <span class="text-xs text-gray-900 xs:text-sm">
+              Page {{ state.transactions.page }} of {{ state.transactions.totalPages }}
             </span>
-              <span class="text-xs text-gray-900 xs:text-sm"
-                >Showing 1 to {{state.transactions.limit}} of {{state.transactions.totalDocs}} transactions</span
-              >
-           </div>
+            <span class="text-xs text-gray-900 xs:text-sm">Showing 1 to {{state.transactions.limit}} of
+              {{state.transactions.totalDocs}} transactions</span>
+          </div>
 
-              <div class="inline-flex mt-2 xs:mt-0">
-                <button
-                  :disabled="!state.transactions.hasPrevPage"
-                  @click="()=>gotoPage(state.transactions?.prevPage || 1)"
-                  class="px-4 py-2 text-sm font-semibold text-gray-800 bg-gray-300 rounded-l disabled:opacity-30 hover:bg-gray-400"
-                >
-                  Prev
-                </button>
-                <button
-                  :disabled="!state.transactions.hasNextPage"
-                  @click="()=>gotoPage(state.transactions.nextPage || 1)"
-                  class="px-4 py-2 text-sm font-semibold text-gray-800 bg-gray-300 rounded-r disabled:opacity-20 hover:bg-gray-400"
-                >
-                  Next
-                </button>
-              </div>
-            </div>
+          <div class="inline-flex mt-2 xs:mt-0">
+            <button :disabled="!state.transactions.hasPrevPage" @click="()=>gotoPage(state.transactions?.prevPage || 1)"
+              class="px-4 py-2 text-sm font-semibold text-gray-800 bg-gray-300 rounded-l disabled:opacity-30 hover:bg-gray-400">
+              Prev
+            </button>
+            <button :disabled="!state.transactions.hasNextPage" @click="()=>gotoPage(state.transactions.nextPage || 1)"
+              class="px-4 py-2 text-sm font-semibold text-gray-800 bg-gray-300 rounded-r disabled:opacity-20 hover:bg-gray-400">
+              Next
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -190,15 +199,18 @@
 <script setup lang="ts">
 import { ref, inject, reactive, onMounted } from "vue";
 import axios, { AxiosInstance } from "axios"
-import { Transaction, PaginatedData } from '../@types/types';
+import { Transaction, PaginatedData, Organisation } from '../@types/types';
 import { currencyFormatter, dateFormatter } from '../utils/Formatters';
 import debounce from 'lodash/debounce'
+import { notify } from "@kyvg/vue3-notification";
 
 interface TransactionState {
   loading: boolean,
   q: string,
   startDate?: string | null,
   endDate?: string | null,
+  organisation: string | null,
+  organisations: Organisation[],
   transactions: PaginatedData<Transaction>
 }
 
@@ -217,6 +229,8 @@ const state: TransactionState = reactive<TransactionState>({
   q: '',
   startDate: null,
   endDate: null,
+  organisation: null,
+  organisations: [],
   transactions: {
     docs: [],
     totalDocs: 0,
@@ -226,31 +240,62 @@ const state: TransactionState = reactive<TransactionState>({
   },
 })
 
-const gotoPage = (page: number)=>{
+const gotoPage = (page: number) => {
   state.transactions.page = page;
   getTransactions();
+}
+
+const search = () => {
+  state.transactions.page = 1;
+  getTransactions()
 }
 const getTransactions = async () => {
   try {
     state.loading = true;
     const { page, limit } = state.transactions;
-    const params = { page, limit, q: state.q }
+    const { startDate, endDate, organisation } = state;
+    const params = { page, limit, q: state.q, startDate, endDate, organisation }
     // @ts-ignore: Unreachable code error
     const { data } = await request?.get('/dashboard/transactions', {
       params
     });
     state.transactions = data;
   } catch (error: any) {
-
+    let message = error.message
     if (error.isAxiosError) {
-
+      message = error.response.data.message;
     }
+    notify({
+      title: "Error",
+      type: "danger",
+      text: message,
+    });
+  } finally {
+    state.loading = false;
+  }
+}
+
+const getOrganisations = async () => {
+  try {
+    const { data } = await request!.get<Organisation[]>('/dashboard/organisations/all',);
+    state.organisations = data;
+  } catch (error: any) {
+    let message = error.message
+    if (error.isAxiosError) {
+      message = error.response.data.message;
+    }
+    notify({
+      title: "Error",
+      type: "danger",
+      text: message,
+    });
   } finally {
     state.loading = false;
   }
 }
 
 onMounted(() => {
-  getTransactions()
+  getTransactions();
+  getOrganisations();
 })
 </script>

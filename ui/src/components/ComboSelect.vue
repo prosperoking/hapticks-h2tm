@@ -1,14 +1,14 @@
 <template>
-  <div class="w-72">
-    
-    <Combobox v-model="selected" :class="{'pointer-events-none': data?.length < 1 || busy }" >
-      <div class="relative mt-1">
+  <div>
+    <Combobox v-model="selected" :class="{'pointer-events-none': data?.length < 1 || busy }" class="">
+      <div class="mt-1 relative">
         <div
-          class="relative w-full overflow-hidden text-left bg-white rounded-lg shadow-md cursor-default focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm"
+          class="relative w-full overflow-hidden text-left bg-white border border-gray-400 rounded cursor-default focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-blue-300 sm:text-sm"
         >
           <ComboboxInput
             class="w-full py-2 pl-3 pr-10 text-sm leading-5 text-gray-900 border-none focus:ring-0"
             :displayValue="getDisplay"
+            :placeholder="placeholder"
             @change="query = $event.target.value"
           />
           <ComboboxButton
@@ -24,7 +24,7 @@
           leaveTo="opacity-0"
           @after-leave="query = ''"
         >
-        {{JSON.stringify(data.length)}}
+        
           <ComboboxOptions
             class="absolute w-full py-1 mt-1 overflow-auto text-base bg-white rounded-md shadow-lg max-h-60 ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
           >
@@ -32,10 +32,10 @@
                 v-if="busy"
                 class="relative px-4 py-2 text-gray-700 cursor-default select-none"
                 >
-                please wait
+                please wait ...
             </div>
             <div
-              v-if="data.length === 0"
+              v-if="data.length === 0 && query === ''"
               class="relative px-4 py-2 text-gray-700 cursor-default select-none"
             >
               Nothing found.
@@ -57,9 +57,9 @@
             >
             
               <li
-                class="relative py-2 pl-10 cursor-default select-none pr-4s"
+                class="relative py-2 pl-10 cursor-pointer select-none pr-4s"
                 :class="{
-                  'bg-teal-600 text-white': active,
+                  'text-gray-600 font-bold': active,
                   'text-gray-900': !active,
                 }"
               >
@@ -72,7 +72,7 @@
                 <span
                   v-if="selected"
                   class="absolute inset-y-0 left-0 flex items-center pl-3"
-                  :class="{ 'text-white': active, 'text-teal-600': !active }"
+                  :class="{ 'text-white': active, 'text-blue-600': !active }"
                 >
                   <CheckIcon class="w-5 h-5" aria-hidden="true" />
                 </span>
@@ -105,32 +105,33 @@ type Option = {
 
 interface Props {
     options: Array<Option> | ((q:string)=>Promise<Array<Option>>),
-    valueKey?: string,
-    titleKey?: string,
-    value?: any,
+    valueKey: string,
+    titleKey: string,
+    modelValue?: any,
+    placeholder?: string
 }
 
-const { options, valueKey, titleKey} = withDefaults(defineProps<Props>(),{
+const props = withDefaults(defineProps<Props>(),{
     //@ts-ignore
     options: [],
     valueKey: 'value',
-    titleKey: 'title'
+    titleKey: 'title',
+    modelValue: undefined
 });
 
-let selected = ref('')
+let selected = ref(props.modelValue)
 let query = ref('')
 let asyncOptions = ref<Array<Option>>([]);
 let busy = ref(false);
 
-const emitter = defineEmits(['update:value'])
+const emit = defineEmits(['update:modelValue'])
 
 const fetchAsyncData = async (filter?: string)=>{
-    if (typeof options !== 'function') return options;
+    if (typeof props.options !== 'function') return props.options;
 
     try {
         busy.value = true;
-        let data = await options(filter || '');
-        console.log(data);
+        let data = await props.options(filter || '');
         asyncOptions.value = [...data] || [];
     } catch (error) {
         console.log(error)
@@ -141,20 +142,20 @@ const fetchAsyncData = async (filter?: string)=>{
 }
 
 watch(query, debounce((value)=>{
-    if(typeof options === 'function') {
+    if(typeof props.options === 'function') {
         fetchAsyncData(value);
     }
 }, 600))
-watch(selected, (val)=> emitter('update:value',val),);
+
+watch(selected, (val)=> emit('update:modelValue',val),);
 
 let data = computed<Option[]>(() =>{
-    if(typeof options === 'function') {
-      console.log("async options", asyncOptions);
-        return asyncOptions;
+    if(typeof props.options === 'function') {
+        return asyncOptions.value;
     }
 
-    const dataToUse = typeof options === 'function' ? asyncOptions : options;
-    return query.value === '' || typeof options === 'function'
+    const dataToUse = typeof props.options === 'function' ? asyncOptions : props.options;
+    return query.value === '' || typeof props.options === 'function'
     ? dataToUse
     // @ts-ignore
     : dataToUse.filter((item: Array<Option>) =>
@@ -167,12 +168,13 @@ let data = computed<Option[]>(() =>{
 })
 
 const getDisplay = (value: any)=> {
- if(data instanceof Array === false) return
-  // @ts-ignore
- return (data.value || []).find(item=>item[valueKey] === value)[titleKey]
+ if(data.value instanceof Array === false || !value === undefined || value?.length < 1) return
+ 
+ return (data.value || []).find(item=>item[props.valueKey] === value)?.[props.titleKey]
 }
 
 onMounted(()=>{
   fetchAsyncData();
+  // selected.value = props.modelValue;
 })
 </script>

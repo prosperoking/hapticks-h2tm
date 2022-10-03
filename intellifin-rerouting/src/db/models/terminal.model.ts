@@ -22,7 +22,7 @@ export interface ITerminal {
     createdAt: Date,
     updatedAt: Date,
     profile?: IPTSPProfile,
-    organisationId?: OrganisationProfile,
+    organisationId?: ObjectId,
     iswTid?: string,
     iswUniqueId?: string,
     parsedParams?: {
@@ -36,8 +36,10 @@ export interface ITerminal {
         timeout: string,
     },
     deviceModel?: string,
+    organisation?: OrganisationProfile,
 }
 
+interface ITerminalDocument extends Document, ITerminal {}
 
 const terminalSchema = new mongoose.Schema<ITerminal>({
     serialNo: {
@@ -148,6 +150,13 @@ terminalSchema.virtual('profile',{
     justOne: true,
 })
 
+terminalSchema.virtual('organisation',{
+    ref: 'organisationProfile',
+    localField: 'organisationId',
+    foreignField: '_id',
+    justOne: true,
+})
+
 terminalSchema.virtual('parsedParams').get(function(){
     if(!this.paramdownload?.length) {
         return null;
@@ -176,9 +185,9 @@ terminalSchema.virtual('parsedParams').get(function(){
     return data;
 });
 
-// @ts-ignore
+
 terminalSchema.plugin(paginate)
 
-const Termninal = mongoose.model<ITerminal, PaginateModel<ITerminal>>('terminal', terminalSchema);
+const Termninal = mongoose.model<ITerminalDocument, PaginateModel<ITerminalDocument>>('terminal', terminalSchema);
 
 export default Termninal;

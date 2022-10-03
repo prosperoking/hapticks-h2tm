@@ -4,10 +4,10 @@ exports.createValidatedRequest = void 0;
 const express_validator_1 = require("express-validator");
 function createValidatedRequest(validator) {
     const handleRequest = (req, res, next) => {
-        const errors = (0, express_validator_1.validationResult)(req);
-        if (!errors.isEmpty()) {
+        const result = (0, express_validator_1.validationResult)(req);
+        if (!result.isEmpty()) {
             return res.status(412).json({
-                errors,
+                errors: result.array().reduce((acc, err) => (Object.assign(Object.assign({}, acc), { [err.param]: [...(acc[err.param] || []), err.msg] })), {}),
                 message: "Invalid Data"
             });
         }

@@ -23,8 +23,8 @@ const terminalUpdateValidator = (0, index_1.createValidatedRequest)((0, schema_1
         custom: {
             options: (value, { req, location, path }) => __awaiter(void 0, void 0, void 0, function* () {
                 try {
-                    if (!terminal_model_1.default.findById(value))
-                        return false;
+                    if (!(yield terminal_model_1.default.findById(value)))
+                        return Promise.reject();
                     return true;
                 }
                 catch (error) {
@@ -42,7 +42,7 @@ const terminalUpdateValidator = (0, index_1.createValidatedRequest)((0, schema_1
         custom: {
             options: (terminalId, { req, location, path }) => __awaiter(void 0, void 0, void 0, function* () {
                 try {
-                    if (!terminal_model_1.default.findOne({ serialNo: terminalId }))
+                    if (!(yield terminal_model_1.default.findOne({ terminalId: terminalId })))
                         return false;
                     return true;
                 }
@@ -60,7 +60,7 @@ const terminalUpdateValidator = (0, index_1.createValidatedRequest)((0, schema_1
         custom: {
             options: (serialNo, { req, location, path }) => __awaiter(void 0, void 0, void 0, function* () {
                 try {
-                    if (terminal_model_1.default.findOne({ serialNo }))
+                    if (yield terminal_model_1.default.findOne({ serialNo }))
                         return false;
                     return true;
                 }
@@ -71,7 +71,7 @@ const terminalUpdateValidator = (0, index_1.createValidatedRequest)((0, schema_1
             errorMessage: "Terminal not Found",
         }
     },
-    brand: {
+    branld: {
         in: ['body'],
         trim: true,
         notEmpty: true
@@ -91,12 +91,12 @@ const terminalUpdateValidator = (0, index_1.createValidatedRequest)((0, schema_1
             options: (value, { req, location, path }) => __awaiter(void 0, void 0, void 0, function* () {
                 try {
                     console.log("Param ID: ", value);
-                    if (!organisation_model_1.default.findById(value))
-                        return false;
+                    if (!(yield organisation_model_1.default.findById(value)))
+                        return Promise.reject();
                     return true;
                 }
                 catch (error) {
-                    return false;
+                    return Promise.reject();
                 }
             }),
             errorMessage: "Organisation not Found",
@@ -109,12 +109,12 @@ const terminalUpdateValidator = (0, index_1.createValidatedRequest)((0, schema_1
             options: (value, { req, location, path }) => __awaiter(void 0, void 0, void 0, function* () {
                 try {
                     console.log("Param ID: ", value);
-                    if (!ptspProfile_model_1.default.findById(value))
-                        return false;
+                    if (!(yield ptspProfile_model_1.default.findById(value)))
+                        return Promise.reject();
                     return true;
                 }
                 catch (error) {
-                    return false;
+                    return Promise.reject();
                 }
             }),
             errorMessage: "Profile not Found",

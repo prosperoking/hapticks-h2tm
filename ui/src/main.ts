@@ -11,13 +11,17 @@ import DashboardLayout from './components/DashboardLayout.vue';
 import EmptyLayout from './components/EmptyLayout.vue';
 
 const app = createApp(App);
-
+const pinia = createPinia()
 app.use(Notifications)
 
 app.component('default-layout', DashboardLayout);
 app.component('empty-layout', EmptyLayout);
 
 app.use(router);
-app.use(AxiosPlugin)
-app.use(createPinia())
+app.use(pinia)
+app.use(AxiosPlugin,{
+    router,
+    pinia
+})
+
 app.mount('#app');

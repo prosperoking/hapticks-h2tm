@@ -22,9 +22,12 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = require("mongoose");
-const paginate = __importStar(require("mongoose-paginate-v2"));
+const mongoose_paginate_v2_1 = __importDefault(require("mongoose-paginate-v2"));
 const mongoose = __importStar(require("mongoose"));
 const webhookRequestSchema = new mongoose.Schema({
     webhookId: {
@@ -66,6 +69,14 @@ const webhookRequestSchema = new mongoose.Schema({
     organisationId: {
         type: mongoose_1.SchemaTypes.ObjectId,
         default: null,
+    },
+    verifyString: {
+        type: String,
+        default: null,
+    },
+    verifySignature: {
+        type: String,
+        default: null,
     }
 }, {
     timestamps: {
@@ -84,11 +95,10 @@ webhookRequestSchema.virtual('webhook', {
     foreignField: 'webhookId',
 });
 webhookRequestSchema.virtual('organisation', {
-    ref: 'organisation',
+    ref: 'organisationProfile',
     localField: '_id',
     foreignField: 'organisationId',
 });
-// @ts-ignore
-webhookRequestSchema.plugin(paginate);
+webhookRequestSchema.plugin(mongoose_paginate_v2_1.default);
 exports.default = mongoose.model('webhookRequest', webhookRequestSchema);
 //# sourceMappingURL=webhook_request.model.js.map

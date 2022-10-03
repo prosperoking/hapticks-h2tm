@@ -16,6 +16,9 @@
             class="flex w-full py-2 pl-8 pr-6 text-sm text-gray-700 placeholder-gray-400 bg-white border border-b border-gray-400 rounded appearance-none focus:bg-white focus:placeholder-gray-600 focus:text-gray-700 focus:outline-none" />
         </div>
       </div>
+      <div>
+          <OrganisactionSelect v-model="organisation" />
+      </div>
       <div class="space-x-2">
         <button @click="open = true"
           class="px-6 py-2 mt-3 font-medium tracking-wide text-white bg-indigo-600 rounded-md hover:bg-indigo-500 focus:outline-none">
@@ -50,8 +53,8 @@
           <thead>
             <tr>
               <th
-                class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-600 uppercase bg-gray-100 border-b-2 border-gray-200">
-                TerminalID
+                class="flex items-center px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-600 uppercase bg-gray-100 border-b-2 border-gray-200">
+               <Input v-model:value="selected" type="checkbox" class="inline-flex mr-2" /> TerminalID
               </th>
               <th
                 class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-600 uppercase bg-gray-100 border-b-2 border-gray-200">
@@ -81,6 +84,7 @@
               <tr v-for="(terminal) in state.data.docs" :key="terminal._id">
                 <td class="px-5 py-5 text-sm bg-white border-b border-gray-200">
                   <div class="flex items-center">
+                    <Input type="checkbox" :checked="false" :value="terminal.terminalId" class="inline-flex mr-2" />
                     <div class="ml-3">
                       <p class="text-gray-900 whitespace-nowrap">
                         {{ terminal.terminalId }}
@@ -124,7 +128,13 @@
                           terminal?.parsedParams.exchangeTime)
                       }}</span>
                     </p>
+                    
                   </template>
+                  <p v-if="terminal?.organisation">
+                      Organisation: <span class="font-bold">
+                        {{ terminal?.organisation.name}}
+                      </span>
+                    </p>
                   <template v-if="terminal?.profile?.iswSwitchAmount">
                     <p class=" whitespace-nowrap">
                       ISW TID: <span class="font-bold">{{ terminal.iswTid }}</span>
@@ -191,7 +201,7 @@
       </div>
     </div>
   </div>
-  <div :class="`modal ${!open && 'opacity-0 pointer-events-none'
+  <div v-if="open" :class="`modal ${!open && 'opacity-0 pointer-events-none'
   } z-50 fixed w-full h-full top-0 left-0 flex items-center justify-center`">
     <div class="absolute w-full h-full bg-gray-900 opacity-50 modal-overlay"></div>
 
@@ -210,7 +220,7 @@
       <div class="px-6 py-4 text-left modal-content">
         <!--Title-->
         <div class="flex items-center justify-between pb-3">
-          <p class="text-2xl font-bold">Add Profile</p>
+          <p class="text-2xl font-bold">{{form._id? 'Update':'Add'}} Terminal</p>
           <div class="z-50 cursor-pointer modal-close" @click="open = false">
             <svg class="text-black fill-current" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
               viewBox="0 0 18 18">
@@ -231,6 +241,12 @@
                 <option value="">Select</option>
                 <option v-for="profile in profiles" :value="profile._id" :key="profile._id">{{ profile.title }}</option>
               </select>
+            </div>
+          </div>
+          <div>
+            <div class="flex items-baseline mb-2 space-x-2">
+              <label class="w-1/5 text-sm font-bold text-gray-700" for="emailAddress">Organisation:</label>
+              <OrganisactionSelect v-model="form.organisationId" />
             </div>
           </div>
           <div>
@@ -302,7 +318,10 @@ import { reactive, inject, onMounted, ref, watch, computed } from 'vue';
 import { Axios } from 'axios';
 // @ts-ignore
 import Input from '../../components/Input.vue'
+// @ts-ignore
 import ConfirmDialog from '../../components/ConfirmDialog.vue'
+// @ts-ignore
+import OrganisactionSelect from '../../components/OrganisactionSelect.vue'
 import useVuelidate from "@vuelidate/core";
 import { notify } from "@kyvg/vue3-notification"
 import { required, ipAddress, numeric, minLength, maxLength, requiredIf } from "@vuelidate/validators"
@@ -320,6 +339,7 @@ interface Profile {
   componentKey2: string,
   iswSwitchAmount: number,
   terminals_count?: number,
+  
 }
 
 
@@ -340,6 +360,8 @@ interface Terminal {
   profile?: Profile,
   iswTid?: string,
   iswUniqueId?: string,
+  organisationId?: string,
+  organisation?: Organisation,
   brand?: string,
   deviceModel?: string,
   appVersion?: string,
@@ -364,6 +386,7 @@ interface TerminalForm {
   iswUniqueId?: string | null,
   brand?: string | null,
   deviceModel?: string | null,
+  organisationId?: string | null,
 }
 
 interface State {
@@ -389,12 +412,13 @@ let state = ref<State>({
 let page = ref<number>(1);
 let defaultDeleteState: { [key: string]: any, id: string | null } = {
   open: false,
-  title: "Do you really want to delete his TID?",
+  title: "Do you really want to delete this TID?",
   value: '',
   id: null,
 }
 let profiles = ref<Profile[]>([])
 let organisations = ref<Organisation[]>([])
+let selected = ref<string[]>([]);
 const loading = ref(false)
 const confirmDelete = ref(defaultDeleteState)
 const defualtState: TerminalForm = {
@@ -405,11 +429,13 @@ const defualtState: TerminalForm = {
   iswUniqueId: null,
   brand: null,
   deviceModel: null,
+  organisationId: null,
 }
 let form = ref<TerminalForm>({ ...defualtState })
 const open = ref(false);
 const brandCustom = ref<boolean>(false);
-const search = useDebouncedRef<string>('', 400);
+const search = useDebouncedRef<string>('', 500);
+const organisation = ref(null);
 
 const rules = computed(() => ({
   _id: {},
@@ -427,7 +453,12 @@ const fetchData = async () => {
   try {
     loading.value = true;
     const { limit } = state.value.data;
-    const params = { page: page.value, limit, q: search.value }
+    const params = { 
+      page: page.value, 
+      limit, 
+      q: search.value, 
+      organisation: organisation.value 
+    }
     const { data } = await $axios.get('/dashboard/terminals', {
       params
     })
@@ -447,6 +478,7 @@ const editTerminal = (terminal: Terminal) => {
     iswTid: terminal.iswTid,
     iswUniqueId: terminal.iswUniqueId,
     brand: terminal.brand || null,
+    organisationId: terminal.organisationId,
     deviceModel: terminal.deviceModel,
     _id: terminal._id,
   }
@@ -493,21 +525,17 @@ const confirmTerminalDelete = (terminal: Terminal) => {
 
 const fetchProfilesData = async () => {
   try {
-    const { data } = await $axios.get('/dashboard/profiles')
-    profiles.value = data.data;
+    const { data } = await $axios.get<PaginatedData<Profile>>('/dashboard/profiles',{
+      params:{
+        limit: 500,
+      }
+    })
+    profiles.value = data.docs;
   } catch (error) {
     console.log(error)
   }
 }
 
-const fetchOrganisationData = async () => {
-  try {
-    const { data } = await $axios.get('/dashboard/organisation/all')
-    profiles.value = data.data;
-  } catch (error) {
-    console.log(error)
-  }
-}
 
 const saveProfileForm = async () => {
   loading.value = true;
@@ -542,13 +570,13 @@ watch(open, (value, prevValue) => {
 })
 
 watch(search, (value, prevValue) => {
-  console.log(value, prevValue, value?.length && value !== prevValue)
   if ( value === prevValue) return;
   fetchData();
 })
 
-watch(state, (value, prevValue) => {
-  console.log(value,)
+watch(organisation, (value, prevValue) => {
+  if ( value === prevValue) return;
+  fetchData();
 })
 
 onMounted(() => {

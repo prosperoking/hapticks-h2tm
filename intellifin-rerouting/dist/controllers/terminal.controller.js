@@ -18,11 +18,11 @@ const cardsockethelper_1 = require("../helpers/cardsockethelper");
 const lodash_1 = require("lodash");
 const ptspProfile_model_1 = __importDefault(require("../db/models/ptspProfile.model"));
 const queue_1 = require("../queue/queue");
-class ProfileController {
+class TerminalController {
     index(request, response) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const { q, limit, page } = request.query;
+                const { q, limit, page, organisation } = request.query;
                 let filter = {};
                 if (q === null || q === void 0 ? void 0 : q.length) {
                     filter = {
@@ -35,9 +35,15 @@ class ProfileController {
                     };
                 }
                 ;
+                // @ts-ignore
+                const orgId = !request.user.organisaitonId ? organisation : request.user.organisationId;
+                if (orgId === null || orgId === void 0 ? void 0 : orgId.length)
+                    filter.organisationId = orgId;
+                console.log('filter: ', filter, orgId, organisation);
                 const data = yield terminal_model_1.default.paginate(filter, {
                     populate: [
-                        { path: 'profile', select: 'title iswSwitchAmount' }
+                        { path: 'profile', select: 'title iswSwitchAmount' },
+                        { path: 'organisation', select: 'name' }
                     ],
                     limit: Number.parseInt(`${limit}`) || 30,
                     page: Number.parseInt(`${page}`) || 1,
@@ -113,6 +119,12 @@ class ProfileController {
     bulkUpload(request, response) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                let { terminals, profileId, organisationId } = request.body;
+                let data = yield terminal_model_1.default.insertMany(terminals.map(terminal => (Object.assign(Object.assign({}, terminal), { profileId,
+                    organisationId }))));
+                return response.json({
+                    data
+                });
             }
             catch (error) {
                 logger_1.default.error(error);
@@ -154,5 +166,5 @@ class ProfileController {
         });
     }
 }
-exports.default = ProfileController;
+exports.default = TerminalController;
 //# sourceMappingURL=terminal.controller.js.map

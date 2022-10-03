@@ -7,6 +7,8 @@ import vasjournalsModel, { IJournal } from '../db/models/transaction.model';
 import Utils from '../helpers/utils';
 import { ITerminal } from '../db/models/terminal.model';
 import { IPTSPProfile } from '../db/models/ptspProfile.model';
+import { webhookQueue } from '../queue/queue';
+import { IJournalDocument } from '../db/models/transaction.model';
 
 export interface CardPurchaseResponse {
     resp: string,
@@ -121,15 +123,16 @@ class IsoCardContoller {
                 ssl: String(isSSL),
                 port: isoPort
             };
-            console.log(messageType, patchedPayload);
             const socketResponse = await performCardSocketTranaction(messageType, patchedPayload);
-            console.log("result: ", socketResponse)
             const { data } = socketResponse
-            console.log(data);
             const responseData = data.data || data;
             const journalPayload = messageType === TransactionTypes.ISO_TRANSACTION ? IsoCardContoller.createNIBBSJournal(responseData, body) : IsoCardContoller.createISWJournal(responseData, body, terminal);
-
-            vasjournalsModel.create(journalPayload).catch(err => {
+            terminal.appVersion = appVersion;
+            terminal.save();
+            
+            vasjournalsModel.create({ ...journalPayload, organisationId: terminal.organisationId})
+            .then(data=> IsoCardContoller.processWebHook(data, terminal))
+            .catch(err => {
                 console.error("Error: %s \r\n Unable to save transaction: %s", err.message, JSON.stringify(journalPayload))
             });
 
@@ -202,6 +205,16 @@ class IsoCardContoller {
             isCompleted: true,
             processor: Processor.KIMONO,
         }
+    }
+
+    private static async processWebHook(transaction: IJournalDocument, terminal: ITerminal) {
+        console.log("Webhook Id", terminal.profile.webhookId)
+        if(!terminal.profile.webhookId) return;
+        webhookQueue.add('sendNotification',{
+            tranactionId: transaction._id,
+            webhookId: terminal.profile.webhookId,
+            organisationId: terminal.organisationId
+        })
     }
 }
 
