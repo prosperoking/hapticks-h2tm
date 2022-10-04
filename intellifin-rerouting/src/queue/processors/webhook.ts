@@ -31,7 +31,7 @@ async (job: Job) => {
     const journal = await TransactionModel.findById(data.tranactionId);
     const webhook = await WebhookModel.findById(data.webhookId);
     const organisation = await OrganisationModel.findById(data.organisationId);
-    if(!webhook || !journal || !organisation) return;
+    if(!webhook || !journal) return;
     const payloadObject = {
          MTI: journal.MTI,
          amount: journal.amount / 100,
@@ -70,12 +70,12 @@ async (job: Job) => {
         journalId: journal.id,
         payload: payloadObject,
         webhookId: webhook.id,
-        organisationId: organisation.id,
+        organisationId: data.organisationId,
         responseCode: response.status,
         responseType: response.headers['content-type'],
         responseBody: response.headers['content-type'] === 'application/json'? JSON.stringify(response.data): response.data,
         status: response.status === 200 ? 'success': 'fail',
-        isRetry: data.retry? true:false,
+        isRetry: data.retry ??  false,
         terminalId: journal.terminalId,
         verifyString,
         verifySignature: signature,

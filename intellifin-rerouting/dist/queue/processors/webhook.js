@@ -28,11 +28,12 @@ const connection = {
     password: config.redis.password,
 };
 exports.webhookWorker = new bullmq_1.Worker('webhook', (job) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     const data = job.data;
     const journal = yield transaction_model_1.default.findById(data.tranactionId);
     const webhook = yield webhook_model_1.default.findById(data.webhookId);
     const organisation = yield organisation_model_1.default.findById(data.organisationId);
-    if (!webhook || !journal || !organisation)
+    if (!webhook || !journal)
         return;
     const payloadObject = {
         MTI: journal.MTI,
@@ -71,12 +72,12 @@ exports.webhookWorker = new bullmq_1.Worker('webhook', (job) => __awaiter(void 0
         journalId: journal.id,
         payload: payloadObject,
         webhookId: webhook.id,
-        organisationId: organisation.id,
+        organisationId: data.organisationId,
         responseCode: response.status,
         responseType: response.headers['content-type'],
         responseBody: response.headers['content-type'] === 'application/json' ? JSON.stringify(response.data) : response.data,
         status: response.status === 200 ? 'success' : 'fail',
-        isRetry: data.retry ? true : false,
+        isRetry: (_a = data.retry) !== null && _a !== void 0 ? _a : false,
         terminalId: journal.terminalId,
         verifyString,
         verifySignature: signature,
