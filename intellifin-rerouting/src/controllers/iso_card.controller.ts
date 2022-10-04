@@ -136,7 +136,7 @@ class IsoCardContoller {
                 console.error("Error: %s \r\n Unable to save transaction: %s", err.message, JSON.stringify(journalPayload))
             });
 
-            return response.json({... socketResponse.data, ...{...socketResponse.data?.data || {}, }, });
+            return response.json({... socketResponse, ...{...socketResponse.data?.data || {}, },data: responseData });
         } catch (error) {
             console.log("Error: %s", error)
             return response.status(400).json({status: false, data: null, message: "An error Occured"})
