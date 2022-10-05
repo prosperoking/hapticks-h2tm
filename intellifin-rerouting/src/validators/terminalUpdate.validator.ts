@@ -52,7 +52,7 @@ const terminalUpdateValidator = createValidatedRequest(checkSchema({
             errorMessage: "Terminal not Found",
         }
     },
-    branld: {
+    brand: {
         in: ['body'],
         trim: true,
         notEmpty: true
@@ -68,11 +68,11 @@ const terminalUpdateValidator = createValidatedRequest(checkSchema({
     },
     organisationId: {
         in: ['body'],
+        optional: true,
         custom: {
             options: async (value: string, {req, location, path}) =>{
                 try {
-                    console.log("Param ID: ",value,)
-                    if(! await OrganisationModel.findById(value)) return Promise.reject();
+                    if(value.length && ! await OrganisationModel.findById(value)) return Promise.reject();
                     return true;
                 } catch (error) {
                     return Promise.reject();

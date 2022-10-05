@@ -71,7 +71,7 @@ const terminalUpdateValidator = (0, index_1.createValidatedRequest)((0, schema_1
             errorMessage: "Terminal not Found",
         }
     },
-    branld: {
+    brand: {
         in: ['body'],
         trim: true,
         notEmpty: true
@@ -87,11 +87,11 @@ const terminalUpdateValidator = (0, index_1.createValidatedRequest)((0, schema_1
     },
     organisationId: {
         in: ['body'],
+        optional: true,
         custom: {
             options: (value, { req, location, path }) => __awaiter(void 0, void 0, void 0, function* () {
                 try {
-                    console.log("Param ID: ", value);
-                    if (!(yield organisation_model_1.default.findById(value)))
+                    if (value.length && !(yield organisation_model_1.default.findById(value)))
                         return Promise.reject();
                     return true;
                 }
