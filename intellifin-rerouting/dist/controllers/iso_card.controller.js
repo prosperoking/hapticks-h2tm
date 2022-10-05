@@ -123,7 +123,7 @@ class IsoCardContoller {
                     .catch(err => {
                     console.error("Error: %s \r\n Unable to save transaction: %s", err.message, JSON.stringify(journalPayload));
                 });
-                return response.json(Object.assign(Object.assign(Object.assign({}, socketResponse), Object.assign({}, ((_a = socketResponse.data) === null || _a === void 0 ? void 0 : _a.data) || {})), { data: responseData }));
+                return response.json(Object.assign(Object.assign(Object.assign(Object.assign({}, socketResponse), Object.assign({}, ((_a = socketResponse.data) === null || _a === void 0 ? void 0 : _a.data) || {})), { data: responseData }), responseData));
             }
             catch (error) {
                 console.log("Error: %s", error);
