@@ -44,10 +44,11 @@ const terminalCreateValidator = createValidatedRequest(checkSchema({
     organisationId: {
         in: ['body'],
         optional: true,
+        isMongoId: true,
         custom: {
             options: async (value: string, {req, location, path}) =>{
                 if(!value?.length) return;
-                
+
                 if(! await OrganisationModel.findById(value)) return Promise.reject();
             },
             errorMessage: "Organisation not Found",
