@@ -59,7 +59,6 @@ const terminalCreateValidator = (0, index_1.createValidatedRequest)((0, schema_1
     organisationId: {
         in: ['body'],
         optional: true,
-        isMongoId: true,
         custom: {
             options: (value, { req, location, path }) => __awaiter(void 0, void 0, void 0, function* () {
                 if (!(value === null || value === void 0 ? void 0 : value.length))
