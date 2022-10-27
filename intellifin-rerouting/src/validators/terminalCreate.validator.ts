@@ -46,6 +46,8 @@ const terminalCreateValidator = createValidatedRequest(checkSchema({
         optional: true,
         custom: {
             options: async (value: string, {req, location, path}) =>{
+                if(!value?.length) return;
+                
                 if(! await OrganisationModel.findById(value)) return Promise.reject();
             },
             errorMessage: "Organisation not Found",

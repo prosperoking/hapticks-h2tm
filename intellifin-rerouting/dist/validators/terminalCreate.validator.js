@@ -61,6 +61,8 @@ const terminalCreateValidator = (0, index_1.createValidatedRequest)((0, schema_1
         optional: true,
         custom: {
             options: (value, { req, location, path }) => __awaiter(void 0, void 0, void 0, function* () {
+                if (!(value === null || value === void 0 ? void 0 : value.length))
+                    return;
                 if (!(yield organisation_model_1.default.findById(value)))
                     return Promise.reject();
             }),
