@@ -36,9 +36,11 @@ const ptspProfileSchema = new mongoose.Schema({
     },
     isoHost: {
         type: String,
+        default: null,
     },
     isoPort: {
         type: String,
+        default: null,
     },
     isSSL: {
         type: Boolean,
@@ -46,9 +48,11 @@ const ptspProfileSchema = new mongoose.Schema({
     },
     componentKey1: {
         type: String,
+        default: null
     },
     componentKey2: {
         type: String,
+        default: null,
     },
     iswSwitchAmount: {
         type: Number,
@@ -73,6 +77,10 @@ const ptspProfileSchema = new mongoose.Schema({
     webhookId: {
         type: mongoose_1.SchemaTypes.ObjectId,
         default: null,
+    },
+    isInteliffin: {
+        type: mongoose_1.SchemaTypes.Boolean,
+        default: false,
     }
 }, {
     timestamps: true,

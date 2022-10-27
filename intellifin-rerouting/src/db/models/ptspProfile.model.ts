@@ -15,6 +15,7 @@ export interface IPTSPProfileData {
     iswDestinationAccount?: string,
     organisationId?: string | any,
     webhookId?: string | any,
+    isInteliffin: boolean,
 }
 
 export interface IPTSPProfile extends Document, IPTSPProfileData { }
@@ -26,9 +27,11 @@ const ptspProfileSchema = new mongoose.Schema<IPTSPProfileData>({
     },
     isoHost: {
         type: String,
+        default: null,
     },
     isoPort: {
         type: String,
+        default: null,
     },
     isSSL: {
         type: Boolean,
@@ -36,9 +39,11 @@ const ptspProfileSchema = new mongoose.Schema<IPTSPProfileData>({
     },
     componentKey1: {
         type: String,
+        default: null
     },
     componentKey2: {
         type: String,
+        default: null,
     },
     iswSwitchAmount: {
         type: Number,
@@ -63,6 +68,10 @@ const ptspProfileSchema = new mongoose.Schema<IPTSPProfileData>({
     webhookId: {
         type: SchemaTypes.ObjectId,
         default: null,
+    },
+    isInteliffin: {
+        type: SchemaTypes.Boolean,
+        default: false,
     }
 }, {
     timestamps: true, 

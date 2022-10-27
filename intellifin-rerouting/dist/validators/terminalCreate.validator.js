@@ -24,14 +24,8 @@ const terminalCreateValidator = (0, index_1.createValidatedRequest)((0, schema_1
         notEmpty: true,
         custom: {
             options: (terminalId, { req, location, path }) => __awaiter(void 0, void 0, void 0, function* () {
-                try {
-                    if (!terminal_model_1.default.findOne({ serialNo: terminalId }))
-                        return false;
-                    return true;
-                }
-                catch (error) {
-                    return false;
-                }
+                if (yield terminal_model_1.default.findOne({ terminalId: terminalId }))
+                    return Promise.reject();
             }),
             errorMessage: "Terminal",
         }
@@ -42,14 +36,8 @@ const terminalCreateValidator = (0, index_1.createValidatedRequest)((0, schema_1
         notEmpty: true,
         custom: {
             options: (serialNo, { req, location, path }) => __awaiter(void 0, void 0, void 0, function* () {
-                try {
-                    if (terminal_model_1.default.findOne({ serialNo }))
-                        return false;
-                    return true;
-                }
-                catch (error) {
-                    return false;
-                }
+                if (yield terminal_model_1.default.findOne({ serialNo }))
+                    return Promise.reject();
             }),
             errorMessage: "Terminal not Found",
         }
@@ -73,14 +61,8 @@ const terminalCreateValidator = (0, index_1.createValidatedRequest)((0, schema_1
         optional: true,
         custom: {
             options: (value, { req, location, path }) => __awaiter(void 0, void 0, void 0, function* () {
-                try {
-                    if (!organisation_model_1.default.findById(value))
-                        return false;
-                    return true;
-                }
-                catch (error) {
-                    return false;
-                }
+                if (!(yield organisation_model_1.default.findById(value)))
+                    return Promise.reject();
             }),
             errorMessage: "Organisation not Found",
             bail: true,
@@ -91,14 +73,8 @@ const terminalCreateValidator = (0, index_1.createValidatedRequest)((0, schema_1
         notEmpty: true,
         custom: {
             options: (value, { req, location, path }) => __awaiter(void 0, void 0, void 0, function* () {
-                try {
-                    if (!ptspProfile_model_1.default.findById(value))
-                        return false;
-                    return true;
-                }
-                catch (error) {
-                    return false;
-                }
+                if (!(yield ptspProfile_model_1.default.findById(value)))
+                    return Promise.reject();
             }),
             errorMessage: "Profile not Found",
             bail: true,

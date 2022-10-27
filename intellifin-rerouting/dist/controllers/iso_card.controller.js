@@ -131,6 +131,15 @@ class IsoCardContoller {
             }
         });
     }
+    static hanldeIntellifin(type, payload) {
+        return __awaiter(this, void 0, void 0, function* () {
+        });
+    }
+    static handleOtherTransaction(type, payload) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield (0, cardsockethelper_1.performCardSocketTranaction)(type, payload);
+        });
+    }
     static patchISWPayload(data, profile, terminal) {
         return Object.assign(Object.assign({}, data), { destInstitutionCode: profile.iswInstitutionCode, destAccountNumber: profile.iswDestinationAccount, merchantLocation: (terminal === null || terminal === void 0 ? void 0 : terminal.parsedParams.merchantNameLocation) || "HAPTICKSDATA LTD LA LANG", tid: terminal.iswTid, mid: profile.iswMid, uniqueId: terminal.iswUniqueId, amount: data.field4 || data.amount || 0, totalamount: data.field4 || data.amount || 0 });
     }

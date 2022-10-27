@@ -11,12 +11,7 @@ const terminalCreateValidator = createValidatedRequest(checkSchema({
         notEmpty: true,
         custom: {
             options: async (terminalId: string, {req, location, path}) =>{
-                try {
-                    if(!Termninal.findOne({serialNo: terminalId})) return false;
-                    return true;
-                } catch (error) {
-                    return false;
-                }
+                if(await Termninal.findOne({terminalId: terminalId})) return Promise.reject();
             },
             errorMessage: "Terminal",
         }
@@ -27,12 +22,7 @@ const terminalCreateValidator = createValidatedRequest(checkSchema({
         notEmpty: true,
         custom: {
             options: async (serialNo: string, {req, location, path}) =>{
-                try {
-                    if(Termninal.findOne({serialNo})) return false;
-                    return true;
-                } catch (error) {
-                    return false;
-                }
+                if(await Termninal.findOne({serialNo})) return Promise.reject();
             },
             errorMessage: "Terminal not Found",
         }
@@ -56,12 +46,7 @@ const terminalCreateValidator = createValidatedRequest(checkSchema({
         optional: true,
         custom: {
             options: async (value: string, {req, location, path}) =>{
-                try {
-                    if(!OrganisationModel.findById(value)) return false;
-                    return true;
-                } catch (error) {
-                    return false;
-                }
+                if(! await OrganisationModel.findById(value)) return Promise.reject();
             },
             errorMessage: "Organisation not Found",
             bail: true,
@@ -72,12 +57,7 @@ const terminalCreateValidator = createValidatedRequest(checkSchema({
         notEmpty: true,
         custom: {
             options: async (value: string, {req, location, path}) =>{
-                try {
-                    if(!PTSPProfileModel.findById(value)) return false;
-                    return true;
-                } catch (error) {
-                    return false;
-                }
+                if(! await PTSPProfileModel.findById(value)) return Promise.reject();
             },
             errorMessage: "Profile not Found",
             bail: true,

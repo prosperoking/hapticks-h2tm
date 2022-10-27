@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import Terminal from '../db/models/terminal.model';
 import logger from '../helpers/logger';
-import { performCardSocketTranaction, TransactionTypes } from '../helpers/cardsockethelper';
+import { performCardSocketTranaction, TransactionTypes, CardSocketResponse } from '../helpers/cardsockethelper';
 import { ISOPayload, KIMONOPayload, Processor } from '../@types/types';
 import vasjournalsModel, { IJournal } from '../db/models/transaction.model';
 import Utils from '../helpers/utils';
@@ -141,6 +141,14 @@ class IsoCardContoller {
             console.log("Error: %s", error)
             return response.status(400).json({status: false, data: null, message: "An error Occured"})
         }
+    }
+
+    private static async hanldeIntellifin(type: TransactionTypes, payload: any) {
+
+    }
+
+    private static async handleOtherTransaction(type: TransactionTypes, payload: any): Promise<CardSocketResponse> {
+        return await performCardSocketTranaction(type, payload);
     }
 
     private static patchISWPayload(data: any, profile: IPTSPProfile, terminal: ITerminal): object {
