@@ -6,6 +6,7 @@ import organisationValidator from '../validators/organisation.validator';
 import webHookValidator from '../validators/webhook.validator';
 import terminalBulkUploadValidator from '../validators/terminalBulkUpload.validator';
 import webHookUpdateValidator from '../validators/webhookUpdate.validator';
+import terminalCreateValidator from '../validators/terminalCreate.validator';
 
 import {
     authController,
@@ -47,7 +48,7 @@ router.get('/terminals', terminalController.index)
 router.post('/terminals',
 [
     adminOnly,
-    ... terminalUpdateValidator,
+    ... terminalCreateValidator,
 ], terminalController.create)
 router.post('/terminals/bulk-upload',
 [

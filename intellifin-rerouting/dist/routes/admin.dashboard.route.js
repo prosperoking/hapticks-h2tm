@@ -11,6 +11,7 @@ const organisation_validator_1 = __importDefault(require("../validators/organisa
 const webhook_validator_1 = __importDefault(require("../validators/webhook.validator"));
 const terminalBulkUpload_validator_1 = __importDefault(require("../validators/terminalBulkUpload.validator"));
 const webhookUpdate_validator_1 = __importDefault(require("../validators/webhookUpdate.validator"));
+const terminalCreate_validator_1 = __importDefault(require("../validators/terminalCreate.validator"));
 const index_controller_1 = require("../controllers/index.controller");
 const router = express_1.default.Router();
 const adminOnly = (0, index_1.authMiddleware)(['admin']);
@@ -38,7 +39,7 @@ router.put('/profiles/:id', [
 router.get('/terminals', index_controller_1.terminalController.index);
 router.post('/terminals', [
     adminOnly,
-    ...terminalUpdate_validator_1.default,
+    ...terminalCreate_validator_1.default,
 ], index_controller_1.terminalController.create);
 router.post('/terminals/bulk-upload', [
     adminOnly,
