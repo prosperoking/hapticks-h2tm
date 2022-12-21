@@ -3,9 +3,9 @@
 ## Profile download
 
 ```http
-GET /api/v1/card/perform-key-exchange HTTP/1.1
+GET /api/v1/card/terminal-info HTTP/1.1
 Host: 165.227.166.27:5010
-x-serial: 00052000387
+x-serial-no: 00052000387
 x-brand: PAX
 x-device-model: s90
 x-app-version: 2.0.1
@@ -70,7 +70,7 @@ x-device-model: s90
 x-app-version: 2.0.1
 ```
 
->Request
+> Request
 
 ```json
 {"transaction":"KIMONO", "tid": "", "mid": "", "sn": "", "account": "Default", "clrpin": "clear pin key for pinblock", 
@@ -81,7 +81,7 @@ x-app-version: 2.0.1
 ```
 
 > NB: Account can be Savings, Default or Current
->Response
+> Response
 
 ```json
 {"resp":"00","auth":"005814","icc":"910A", "meaning": "APPROVED...."}
@@ -149,10 +149,9 @@ x-app-version: 2.0.1
     "field2": "5327320103164361",
     "field4": "000000350000"
 }
-
 ```
 
->Response
+> Response
 
 ```json
 {"resp":"00","auth":"005814","icc":"910A", "meaning": "APPROVED...."}

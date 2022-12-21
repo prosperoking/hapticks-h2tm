@@ -11,6 +11,7 @@ import UploadTerminal from "./views/terminal/UploadTerminals.vue";
 import Organisations from "./views/Organisations.vue";
 import WebhookListeners from "./views/WebhookListeners.vue";
 import Webhooks from "./views/WebHooks.vue";
+import Users from "./views/Users.vue";
 import Login from "./views/Login.vue";
 import Modal from "./views/Modal.vue";
 import Card from "./views/Card.vue";
@@ -70,6 +71,11 @@ const routes: RouteRecordRaw[] = [
     path: "/webhooks/:id?",
     name: "webhooks",
     component: Webhooks,
+  },
+  {
+    path: "/users",
+    name: "users",
+    component: Users,
   },
   {
     path: "/cards",

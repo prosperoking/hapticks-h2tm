@@ -298,6 +298,7 @@ const defualtState = {
   isoPort: '',
   isSSL: false,
   componentKey1: '',
+  type: 'generic',
   componentKey2: '',
   iswSwitchAmount: 0,
   iswInstitutionCode: '',
@@ -306,6 +307,8 @@ const defualtState = {
   webhookId: null,
   organisationId: null,
 }
+
+const confirmType = (value: string) => ['generic','intelifin'].includes(value) || 'Invalid type'
 
 let form = ref<Profile>({... defualtState})
 const open = ref(false);
@@ -316,6 +319,7 @@ const rules = computed(()=>({
   isoPort: {required, numeric},
   isSSL: {required},
   componentKey1: {required},
+  type: {confirmType},
   iswSwitchAmount: {minValue: minValue(0)},
   iswMid: { requiredIf: requiredIf(()=>Boolean(form.value.iswSwitchAmount) ) }
 }))

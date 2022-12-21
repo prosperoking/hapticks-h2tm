@@ -5,10 +5,12 @@ import { performCardSocketTranaction, TransactionTypes, CardSocketResponse } fro
 import { ISOPayload, KIMONOPayload, Processor } from '../@types/types';
 import vasjournalsModel, { IJournal } from '../db/models/transaction.model';
 import Utils from '../helpers/utils';
-import { ITerminal } from '../db/models/terminal.model';
+import { ITerminal, ITerminalDocument } from '../db/models/terminal.model';
 import { IPTSPProfile } from '../db/models/ptspProfile.model';
 import { webhookQueue } from '../queue/queue';
 import { IJournalDocument } from '../db/models/transaction.model';
+import Inteliffin from '../services/inteliffin';
+import { Document } from 'mongoose';
 
 export interface CardPurchaseResponse {
     resp: string,
@@ -16,6 +18,10 @@ export interface CardPurchaseResponse {
     icc: string,
     meaning: string,
 }
+
+type TerminalDocument = Document<unknown, any, ITerminalDocument> & ITerminalDocument & Required<{
+    _id: string;
+}>
 
 
 class IsoCardContoller {
@@ -37,8 +43,12 @@ class IsoCardContoller {
                     message: "Unknown terminal"
                 })
             }
+            terminal.appVersion = appVersion; // update app version
 
-            const { componentKey1, isoHost, isoPort, isSSL } = terminal.profile
+            const { componentKey1, isoHost, isoPort, isSSL, type  } = terminal.profile
+            
+            if (type === 'intelifin')  return this.handleIntelifinKeyExchange(terminal, response);
+
 
             const result = await performCardSocketTranaction(TransactionTypes.KEY_EXCHANGE, {
                 tid: terminal.terminalId,
@@ -60,13 +70,87 @@ class IsoCardContoller {
             terminal.clrsesskey = data.clrsesskey;
             terminal.clrpinkey = data.clrpinkey;
             terminal.paramdownload = data.paramdownload;
-            terminal.appVersion = appVersion; 
+            
 
             await terminal.save();
             return response.json(data);
         } catch (error) {
             console.log(error);
             return response.status(400).json({
+                status: false,
+                message: "An error occurred"
+            })
+        }
+    }
+    private async handleIntelifinKeyExchange(terminal: TerminalDocument, response: Response) {
+        const { isoHost, isoPort, isSSL } = terminal.profile
+        
+        
+        try {
+            const data = await Inteliffin.create({ ip: isoHost, port: isoPort })
+                        .getPrepInfo({
+                            terminalid: terminal.terminalId,
+                            serialno: terminal.serialNo,
+                        });
+            
+            if (data.response !== '00') {
+                return response.status(400).json({
+                    status: false,
+                    message: "Unable to Perform Key Exchange"
+                })
+            }
+
+            const { 
+                pin_key, 
+                callhome, 
+                country_code, 
+                currency_code,  
+                datetime,
+                merchant_address,
+                merchant_category_code,
+                merchantid,
+                timeout,
+                terminalid,
+            } = data;
+
+            terminal.encmasterkey = data.pin_key;
+            terminal.encpinkey = data.pin_key;
+            terminal.encsesskey = data.pin_key;
+            terminal.clrmasterkey = data.pin_key;
+            terminal.clrsesskey = data.pin_key;
+            terminal.clrpinkey = data.pin_key;
+            terminal.paramdownload = [
+                ["020",datetime.length,datetime],
+                ["030",merchantid.length, merchantid],
+                ["040",timeout.length, timeout],
+                ["050", currency_code.length, currency_code,],
+                ["060", country_code.length, country_code],
+                ["070",callhome.length,callhome],
+                ["080",merchant_category_code.length, merchant_category_code],
+                ["520",merchant_address.length, merchant_address],
+            ].map(a=>a.join('')).join('');
+            
+            await terminal.save();
+            return response.json({
+                encpinkey: pin_key,
+                encsesskey: pin_key,
+                clrpinkey: pin_key,
+                clrsesskey: pin_key,
+                encmasterkey: pin_key,
+                paramdownload: terminal.paramdownload,
+                tid: terminal.terminalId,
+                clrmasterkey: pin_key,
+            });
+
+        } catch (error) {
+            if(error.isAxiosError) {
+                return response.status(400).json({
+                    status: false,
+                    message: error.response.data.message
+                })
+            }
+
+            return response.status(400).json({ 
                 status: false,
                 message: "An error occurred"
             })
@@ -105,15 +189,20 @@ class IsoCardContoller {
         try {
             const serial = request.header('x-serial-no');
             const brand = request.header('x-brand');
+            const deviceModel = request.header('x-device-model') || '';
             const appVersion = request.header('x-app-version');
 
-            const terminal = await Terminal.findOne({ serialNo: serial })
-                                            .populate({path: 'profile',});
+            const terminal = await Terminal.findOne({ 
+                serialNo: serial, 
+                deviceModel: deviceModel?.toUpperCase() || null, 
+                brand: brand?.toUpperCase() || null 
+            })
+            .populate({path: 'profile',});
 
             const { body } = request
 
             if (!terminal || terminal.terminalId !== body.tid) return response.status(404).json({ message: "Terminal not found/ Provisioned" });
-            const { componentKey1, isoHost, isoPort, isSSL } = terminal.profile;
+            const { componentKey1, isoHost, isoPort, isSSL, type } = terminal.profile;
 
             const messageType = IsoCardContoller.getMessageType(terminal, Number(body.field4))
             const patchedPayload = messageType === TransactionTypes.ISW_KIMONO ? IsoCardContoller.patchISWPayload(body, terminal.profile, terminal): {

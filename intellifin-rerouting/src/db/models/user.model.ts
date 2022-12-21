@@ -1,8 +1,9 @@
-import { Schema, model, SchemaTypes } from "mongoose";
+import { Schema, model, SchemaTypes, PaginateModel } from "mongoose";
 import { OrganisationProfile } from './organisation.model';
 import OrganisationModel from './organisation.model';
 import argon2 from 'argon2';
 import crypto from "crypto"
+import paginate from 'mongoose-paginate-v2';
 
 export enum UserRole {
     ADMIN = 'admin',
@@ -87,6 +88,8 @@ UserSchema.pre("save", async function () {
     this.password = await argon2.hash(this.password);
 })
 
-const User = model<IUserData>('user', UserSchema);
+UserSchema.plugin(paginate);
+
+const User = model<IUserData, PaginateModel<IUserData>>('user', UserSchema);
 
 export default User;

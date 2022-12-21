@@ -11,6 +11,7 @@ export interface IPTSPProfileData {
     iswSwitchAmount: Number,
     terminals_count?: number,
     iswMid?: string,
+    type: 'generic' | 'intelifin'
     iswInstitutionCode?: string,
     iswDestinationAccount?: string,
     organisationId?: string | any,
@@ -60,6 +61,10 @@ const ptspProfileSchema = new mongoose.Schema<IPTSPProfileData>({
     iswDestinationAccount: {
         type: String,
         default: null,
+    },
+    type: {
+        type: String,
+        default: 'generic',
     },
     organisationId: {
         type: SchemaTypes.ObjectId,

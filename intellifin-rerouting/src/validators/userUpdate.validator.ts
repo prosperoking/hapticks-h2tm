@@ -1,6 +1,6 @@
 import { createValidatedRequest } from './index';
 import { checkSchema } from 'express-validator/src/middlewares/schema';
-import PTSPProfileModel from '../db/models/ptspProfile.model';
+import UserModel from '../db/models/user.model';
 import OrganisationModel from '../db/models/organisation.model';
 import webhookModel from '../db/models/webhook.model';
 
@@ -10,7 +10,7 @@ const profileUpdateValidator = createValidatedRequest(checkSchema({
         custom: {
             options: async (value: string, {req, location, path}) =>{
                 try {
-                    if(!PTSPProfileModel.findById(value)) return false;
+                    if(!UserModel.findById(value)) return false;
                     return true;
                 } catch (error) {
                     return false;
@@ -19,7 +19,7 @@ const profileUpdateValidator = createValidatedRequest(checkSchema({
             errorMessage: "Terminal not Found"
         }
     },
-    componentKey1: {
+    username: {
         in: ['body'],
         trim: true,
         optional: {
@@ -28,24 +28,27 @@ const profileUpdateValidator = createValidatedRequest(checkSchema({
             }
         },
     },
-    isoHost: {
+    password: {
         in: ['body'],
         trim: true,
-        isIP: true,
+        optional: {
+            options:{
+                nullable: true
+            }
+        },
     },
-    isoPort: {
+    email: {
         in: ['body'],
         trim: true,
         isPort: true,
     },
-    isSSl: {
+    updatePassword: {
         in: ['body'],
         toBoolean: true,
     },
-    iswDestinationAccount: {
+    fullname: {
         in: ['body'],
         trim: true,
-        optional: true,
     },
     iswInstitutionCode: {
         in: ['body'],
@@ -69,10 +72,6 @@ const profileUpdateValidator = createValidatedRequest(checkSchema({
         in: ['body'],
         trim: true,
     },
-    title: {
-        in: ['body'],
-        trim: true,
-    },
     organisationId: {
         in: ['body'],
         optional: true,
@@ -85,23 +84,6 @@ const profileUpdateValidator = createValidatedRequest(checkSchema({
             bail: true,
         }
     },
-    isInteliffin: {
-        in: ['body'],
-        optional: true,
-        toBoolean: true,
-    },
-    webhookId: {
-        in: ['body'],
-        optional: true,
-        custom: {
-            options: async (value: string, {req, location, path}) =>{
-                if(!value?.length) return;
-                if(!await webhookModel.findById(value)) return Promise.reject();
-            },
-            errorMessage: "Webhook not found",
-            bail: true,
-        }
-    }
 }),);
 
 export default profileUpdateValidator;

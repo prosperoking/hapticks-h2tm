@@ -39,7 +39,7 @@ export interface ITerminal {
     organisation?: OrganisationProfile,
 }
 
-interface ITerminalDocument extends Document, ITerminal {}
+export interface ITerminalDocument extends Document, ITerminal {}
 
 const terminalSchema = new mongoose.Schema<ITerminal>({
     serialNo: {

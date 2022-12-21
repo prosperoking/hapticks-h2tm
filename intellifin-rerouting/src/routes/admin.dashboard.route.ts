@@ -56,6 +56,7 @@ router.post('/terminals/bulk-upload',
     ... terminalBulkUploadValidator,
 ], terminalController.bulkUpload)
 router.put('/terminals/:id', [adminOnly, ... terminalUpdateValidator ], terminalController.update)
+router.put('/terminals/trigger-keyexchange/:id', [adminOnly ], terminalController.triggerKeyExchange)
 router.delete('/terminals/:id', adminOnly, terminalController.destroy)
 
 
