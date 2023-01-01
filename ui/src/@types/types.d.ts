@@ -52,7 +52,7 @@ export interface User {
     fullname: string,
     organisation_id: string,
     permissions: string[],
-
+    organisation?: Organisation,
 }
 
 export interface PaginatedData<T> {

@@ -12,7 +12,10 @@ import crypto from "crypto";
 import argon2 from 'argon2';
 import { IUserData } from '../db/models/user.model';
 import {RequestHandler} from 'express';
-
+import *  as _ from 'lodash'
+import { AppConfig } from '../config/config';
+import Config from '../config/config';
+import { encrypt, decrypt } from '../helpers/crypt';
 
 passport.use(new LocalStrategy.Strategy(function (username, password, done) {
     User.findOne({
@@ -36,18 +39,18 @@ passport.use(new LocalStrategy.Strategy(function (username, password, done) {
 
 passport.use(new RememeberMeStrategy.Strategy(
     function (token, done) {
-        User.findOne({ rememberToken: token }).populate('organisation')
+        User.findOne({ rememberToken: decrypt(token) }).populate('organisation')
             .then(user => {
+                console.log("user: ", user)
                 if (!user) return done(null, false);
                 done(null,user);
             }).catch(err => done(err))
     },
-
     function (user, done) {
-        const token = crypto.randomUUID();
-        User.updateOne({ _id: user.id, }, { rememberToken: Buffer.from(token).toString('base64') })
+        const rememberToken = Buffer.from(crypto.randomUUID()).toString('base64');
+        User.updateOne({ _id: user.id, }, { rememberToken })
             .then(() => {
-                done(null, token);
+                done(null, rememberToken );
             })
             .catch(err => done(err))
     }
@@ -72,7 +75,7 @@ export default function applyAuthSetup(app: Application) {
         maxAge: 60 * 60 * 1000,
         secret: process.env.APP_SECRET
     }));
-    // app.use(session({  }))
+    app.use(session({ secret: process.env.APP_SECRET}))
     app.use(passport.initialize());
     app.use(passport.session())
     app.use(passport.authenticate('remember-me'))
@@ -90,12 +93,15 @@ export default function applyAuthSetup(app: Application) {
         }, (req, res) => {
             // 
 
-            if (req.body.rember_me) {
+            if (req.body.rememberMe) {
                 const token = crypto.randomUUID();
+                const clear = Buffer.from(token).toString('base64');
                 const id: string = (req.user as any).id
-                User.updateOne({ _id: id, }, { rememberToken: Buffer.from(token).toString('base64') }).exec()
+                User.updateOne({ _id: id, }, { rememberToken: clear }).exec()
+                res.cookie('remember_me', clear, { path: '/', httpOnly: true, maxAge: 604800000 }); // 7 days
             }
             const {username, email,fullname, role, permissions} = req.user as IUserData
+            
             res.json({
                 message: "Successful",
                 user: {
@@ -109,18 +115,41 @@ export default function applyAuthSetup(app: Application) {
         })
 }
 
-export const authMiddleware: (roles?:string[])=> RequestHandler = (roles:string[]=[]) => (req,res, next)=>{
-    if(!req.user) {
-        return res.status(401).json({
-            message: "Not Authenticated"
-        });
-    }
-    // Todo: handle permissions
-    // @ts-ignore
-    if(roles.length && !(roles || []).includes(req.user?.role)) {
+export const authMiddleware: (roles?:string[], permissions?: string[])=> RequestHandler = (roles =[], permissions = [])=>{
+    return (req,res, next)=>{
+        console.log("auth ", roles, permissions)
+        if(!req.user) {
+            return res.status(401).json({
+                message: "Not Authenticated"
+            });
+        }
+        const config = (new Config()).getConfig('');
+        
+        if(
+            // @ts-ignore
+            config.ADMIN_EMAILS.includes(req.user?.email) || 
+            (!roles.length && !permissions.length)
+        ) {
+            return next();
+        }
+
+
+        // @ts-ignore
+        if(permissions.length && _.difference(permissions, req.user?.permissions).length == 0 ) {
+            return next();
+        }
+        // @ts-ignore
+        console.log(req.user?.role)
+        // @ts-ignore
+        if(roles.length && roles.includes(req.user?.role)) {
+            return next();
+        }
+
+        
+        
+
         return res.status(403).json({
-            message: "Your not authorized to view this page"
+            message: "You do not have enough rights to perform this action"
         });
     }
-    next();
 };

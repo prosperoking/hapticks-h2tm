@@ -15,8 +15,10 @@ const terminalCreate_validator_1 = __importDefault(require("../validators/termin
 const index_controller_1 = require("../controllers/index.controller");
 const router = express_1.default.Router();
 const adminOnly = (0, index_1.authMiddleware)(['admin']);
+const hasRoleOrPermissions = (roles, permissions) => (0, index_1.authMiddleware)(roles, permissions);
+const hasPermissions = (permissions = []) => (0, index_1.authMiddleware)([], permissions);
 router.get('/', index_controller_1.dashboardController.index);
-router.get('/transactions', index_controller_1.dashboardController.transactions);
+router.get('/transactions', hasRoleOrPermissions(['admin'], ['transactions.list']), index_controller_1.dashboardController.transactions);
 router.get('/organisations', adminOnly, index_controller_1.OrganisationController.getOrganisations);
 router.get('/organisations/all', adminOnly, index_controller_1.OrganisationController.getAllOrganisations);
 router.post('/organisations', [
@@ -36,6 +38,9 @@ router.put('/profiles/:id', [
     adminOnly,
     ...profileUpdate_validator_1.default
 ], index_controller_1.profileController.edit);
+router.delete('/profiles/:id', [
+    adminOnly,
+], index_controller_1.profileController.delete);
 router.get('/terminals', index_controller_1.terminalController.index);
 router.post('/terminals', [
     adminOnly,
@@ -46,6 +51,7 @@ router.post('/terminals/bulk-upload', [
     ...terminalBulkUpload_validator_1.default,
 ], index_controller_1.terminalController.bulkUpload);
 router.put('/terminals/:id', [adminOnly, ...terminalUpdate_validator_1.default], index_controller_1.terminalController.update);
+router.get('/terminals/trigger-keyexchange/:id', [adminOnly], index_controller_1.terminalController.triggerKeyExchange);
 router.delete('/terminals/:id', adminOnly, index_controller_1.terminalController.destroy);
 router.get('/webhook', index_controller_1.WebHookController.getWebhooks);
 router.post('/webhook', [
@@ -63,6 +69,9 @@ router.delete('/webhook/:id', adminOnly, index_controller_1.WebHookController.de
 router.get('/webhook-requests', [adminOnly], index_controller_1.WebHookController.webhookRequests);
 router.get('/webhook-requests/retry/:id', [adminOnly], index_controller_1.WebHookController.retryWebhook);
 router.get('/auth/user', index_controller_1.authController.getUserInfo);
-router.get('/auth/logout', index_controller_1.authController.logout);
+router.post('/auth/logout', index_controller_1.authController.logout);
+router.get('/users', adminOnly, index_controller_1.UserController.index);
+router.get('/users/permissions', adminOnly, index_controller_1.UserController.getAllPermissions);
+router.post('/users', hasRoleOrPermissions(['admin'], ['users.create']), index_controller_1.UserController.addUser);
 exports.default = router;
 //# sourceMappingURL=admin.dashboard.route.js.map

@@ -1,6 +1,6 @@
 <template>
   <div class="mt-8">
-    <h3 class="text-3xl font-medium text-gray-700">Terminals</h3>
+    <h3 class="text-3xl font-medium text-gray-700">Users</h3>
 
     <div class="flex items-center justify-between mt-6">
       <div class="w-5/12">
@@ -22,18 +22,14 @@
       <div class="space-x-2">
         <button @click="open = true"
           class="px-6 py-2 mt-3 font-medium tracking-wide text-white bg-indigo-600 rounded-md hover:bg-indigo-500 focus:outline-none">
-          Add Terminal
+          Add User
         </button>
-
-        <router-link :to="{ name: 'bulk-upload' }">
-          upload csv
-        </router-link>
-
       </div>
     </div>
 
     <div class="px-4 py-4 -mx-4 overflow-x-auto sm:-mx-8 sm:px-8">
-      <div :class="{ 'opacity-20 relative': loading }" class="inline-block min-w-full overflow-hidden rounded-lg shadow">
+      <div :class="{ 'opacity-20 relative': loading }"
+        class="inline-block min-w-full overflow-hidden rounded-lg shadow">
         <div v-show="loading" class="fixed bg-gray-900 rounded top-1/2 left-1/2">
           <svg version="1.1" id="L9" class="w-10 h-10 animate-spin " xmlns="http://www.w3.org/2000/svg"
             xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 100 100"
@@ -48,25 +44,25 @@
         <table class="min-w-full leading-normal">
           <thead>
             <tr>
-              <th
+              <!-- <th
                 class="flex items-center px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-600 uppercase bg-gray-100 border-b-2 border-gray-200">
-                <Input v-model:value="selected" type="checkbox" class="inline-flex mr-2" /> TerminalID
+                <Input v-model:value="selected" type="checkbox" class="inline-flex mr-2" />
+              </th> -->
+              <th
+                class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-600 uppercase bg-gray-100 border-b-2 border-gray-200">
+                Name
               </th>
               <th
                 class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-600 uppercase bg-gray-100 border-b-2 border-gray-200">
-                Serial No
+                Organisation
               </th>
               <th
                 class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-600 uppercase bg-gray-100 border-b-2 border-gray-200">
-                Device Info
+                Role
               </th>
               <th
                 class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-600 uppercase bg-gray-100 border-b-2 border-gray-200">
-                Profile
-              </th>
-              <th
-                class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-600 uppercase bg-gray-100 border-b-2 border-gray-200">
-                Info
+                Permissions
               </th>
               <th
                 class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-600 uppercase bg-gray-100 border-b-2 border-gray-200">
@@ -76,92 +72,53 @@
           </thead>
           <tbody>
             <template v-if="state.data.totalDocs">
-
-              <tr v-for="(terminal) in state.data.docs" :key="terminal._id">
+              <tr v-for="(user) in state.data.docs" :key="user._id">
+                <!-- <td class="px-5 py-5 text-sm bg-white border-b border-gray-200">
+                  <div class="flex items-center">
+                    <Input type="checkbox" :checked="false" :value="user._id" class="inline-flex mr-2" />
+                  </div>
+                </td> -->
                 <td class="px-5 py-5 text-sm bg-white border-b border-gray-200">
                   <div class="flex items-center">
-                    <Input type="checkbox" :checked="false" :value="terminal.terminalId" class="inline-flex mr-2" />
                     <div class="ml-3">
                       <p class="text-gray-900 whitespace-nowrap">
-                        {{ terminal.terminalId }}
+                        {{ user.fullname }}
+                      </p>
+                      <p class="text-gray-600 whitespace-nowrap">
+                        {{ user.username }}
+                      </p>
+                      <p class="text-blue-900 whitespace-nowrap">
+                        <a :href="`mailto:${user.email}`">{{ user.email }}</a>
                       </p>
                     </div>
                   </div>
                 </td>
                 <td class="px-5 py-5 text-sm bg-white border-b border-gray-200">
-                  <p class="text-gray-900 whitespace-nowrap">{{ terminal.serialNo }}</p>
-                  <!-- <p class="text-gray-900 whitespace-nowrap">Is SSL: {{ profile?.isSSL? "Yes":"No" }}</p>
                   <p class="text-gray-900 whitespace-nowrap">
-                    Switch Amount: {{ profile.iswSwitchAmount>0 || profile.iswSwitchAmount === null? 'None': profile.iswSwitchAmount }}
-                  </p> -->
-                </td>
-                <td class="px-5 py-5 text-sm bg-white border-b border-gray-200">
-                  <p class="text-gray-900 whitespace-nowrap">Brand: <span class="text-xs text-gray-700">{{
-                      terminal?.brand
-                  }}</span> </p>
-                  <p class="text-gray-900 whitespace-nowrap">Model: <span class="text-xs text-gray-700">{{
-                      terminal?.deviceModel
-                  }}</span></p>
-                  <p class="text-gray-900 whitespace-nowrap">
-                    App version: <span class="text-xs text-gray-700">{{ terminal.appVersion }}</span>
+                    {{ user.organisation?.name }}
                   </p>
                 </td>
                 <td class="px-5 py-5 text-sm bg-white border-b border-gray-200">
                   <p class="text-gray-900 whitespace-nowrap">
-                    {{ terminal.profile?.title }}
+                    {{ user.role }}
                   </p>
                 </td>
-                <td class="px-5 py-5 text-sm text-gray-600 bg-white border-b border-gray-200">
-                  <template v-if="terminal.parsedParams != null">
-                    <p class=" whitespace-nowrap">
-                      MID: <span class="font-bold">{{ terminal?.parsedParams?.mid }}</span>
-                    </p>
-                    <p class="whitespace-nowrap">
-                      Name: <span class="font-bold">{{ terminal?.parsedParams?.merchantNameLocation }}</span>
-                    </p>
-                    <p>
-                      Last Key Exchange: <span class="font-bold">{{ formatExchangeTime(
-                          terminal?.parsedParams.exchangeTime)
-                      }}</span>
-                    </p>
 
-
-                  </template>
-                  <p v-if="terminal?.organisation">
-                    Organisation: <span class="font-bold">
-                      {{ terminal?.organisation.name }}
-                    </span>
-                  </p>
-                  <template v-if="terminal?.profile?.iswSwitchAmount">
-                    <p class=" whitespace-nowrap">
-                      ISW TID: <span class="font-bold">{{ terminal.iswTid }}</span>
-                    </p>
-                    <p class="whitespace-nowrap">
-                      ISW UNIQUEID: <span class="font-bold">{{ terminal.iswUniqueId }}</span>
-                    </p>
-                  </template>
-                </td>
                 <td class="px-5 py-5 text-sm bg-white border-b border-gray-200">
-                  <button 
-                  :title='terminal?.parsedParams?.exchangeTime.length ? "Refresh Keys" : "Perform keyExchange" ' 
-                  class="text-green-500 hover:text-green-600" 
-                  :class="{'animate animate-pulse': busyIds.includes(terminal._id!)}"
-                  @click="performKeyExchange(terminal._id!)">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" view-box="0 0 24 24" stroke-width='1.5'
-                      stroke="currentColor" class="w-6 h-6">
-                      <path strokeLinecap="round" strokeLinejoin="round"
-                        d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
-                    </svg>
-                    
-                  </button>
-                  <button class="text-gray-500 hover:text-gray-600" @click="editTerminal(terminal)">
+                  <p class="text-gray-900 whitespace-nowrap">
+                    {{ user.permissions }}
+                  </p>
+                </td>
+
+                <td class="px-5 py-5 text-sm bg-white border-b border-gray-200">
+                  <button class="text-gray-500 hover:text-gray-600" @click="editUser(user)">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                       stroke="currentColor" class="w-5 h-5">
                       <path stroke-linecap="round" stroke-linejoin="round"
                         d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
                     </svg>
                   </button>
-                  <button class="text-red-500 hover:text-red-600" @click="confirmTerminalDelete(terminal)">
+                  <button class="text-red-500 hover:text-red-600" @click="confirmUserDelete(user)">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                       stroke="currentColor" class="w-5 h-5">
                       <path stroke-linecap="round" stroke-linejoin="round"
@@ -187,6 +144,7 @@
             </template>
           </tbody>
         </table>
+
         <div v-if="state.data.totalPages > 1"
           class="flex flex-col items-center px-5 py-5 bg-white border-t xs:flex-row xs:justify-between">
           <div class="space-x-10">
@@ -228,10 +186,10 @@
       </div>
 
       <!-- Add margin if you want to see some of the overlay behind the modal-->
-      <div class="px-6 py-4 text-left modal-content">
+      <div class=" text-left modal-content">
         <!--Title-->
-        <div class="flex items-center justify-between pb-3">
-          <p class="text-2xl font-bold">{{ form._id ? 'Update' : 'Add' }} Terminal</p>
+        <div class="flex px-6 py-4 items-center justify-between pb-3 border-b mb-4">
+          <p class="text-2xl text-gray-600">{{ form._id ? 'Update' : 'Add' }} User</p>
           <div class="z-50 cursor-pointer modal-close" @click="open = false">
             <svg class="text-black fill-current" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
               viewBox="0 0 18 18">
@@ -242,76 +200,82 @@
         </div>
 
         <!--Body-->
-        <div class="flex flex-col">
-          <div>
-            <div class="flex items-baseline mb-2 space-x-2">
-              <label class="w-1/5 text-sm font-bold text-gray-700" for="emailAddress">Profile:</label>
-              <select
-                class="w-4/5 p-1 mt-2 border border-gray-200 rounded-md focus:outline-none focus:border-none focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
-                v-model="form.profileId">
-                <option value="">Select</option>
-                <option v-for="profile in profiles" :value="profile._id" :key="profile._id">{{ profile.title }}</option>
-              </select>
-            </div>
-          </div>
+        <div class="flex flex-col px-6 py-4">
+
           <div>
             <div class="flex items-baseline mb-2 space-x-2">
               <label class="w-1/5 text-sm font-bold text-gray-700" for="emailAddress">Organisation:</label>
-              <OrganisactionSelect v-model="form.organisationId" />
+              <OrganisactionSelect v-model="form.organisation_id" />
             </div>
           </div>
           <div>
-            <div v-if="!brandCustom" class="flex items-baseline mb-2 space-x-2">
-              <label class="w-1/5 text-sm font-bold text-gray-700" for="emailAddress">Brand:</label>
-              <select
-                class="w-4/5 p-1 mt-2 border border-gray-200 rounded-md focus:outline-none focus:border-none focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
-                v-model="form.brand">
-                <option :value="null">Select Brand</option>
-                <option v-for="(brand, index) in terminalBrands" :value="brand" :key="index">{{ brand }}</option>
-              </select>
-
-            </div>
-
-            <Input v-else title="Brand" placeholder="Enter brand name" v-model:value="form.brand" />
+            <Input title="Full name" v-model:value="form.fullname" />
+          </div>
+          <div>
+            <Input title="Username" v-model:value="form.username" />
+          </div>
+          <div>
+            <Input title="Email" type="email" v-model:value="form.email" />
+          </div>
+          <template v-if="!form._id">
             <div>
-              <button class="text-xs text-gray-400 hover:underline hover:text:text-gray-500"
-                @click="brandCustom = !brandCustom">
-                {{ brandCustom ? 'Pick from options' : 'enter another' }}
-              </button>
+              <Input title="Password" type="password" v-model:value="form.password" />
             </div>
-          </div>
-          <div>
-            <Input title="Device Model" v-model:value="form.deviceModel" />
-          </div>
-          <div>
-            <Input title="Serial Number" v-model:value="form.serialNo" />
-          </div>
-          <div>
-            <Input title="Terminal Id" v-model:value="form.terminalId" />
-          </div>
-          <div>
-            <Input title="ISW Terminal Id" v-model:value="form.iswTid" />
-          </div>
-          <div>
-            <Input title="ISW Unique ID" v-model:value="form.iswUniqueId" />
-          </div>
+            <div>
+              <Input title="Confirim Password" type="password" v-model:value="form.password_confirm" />
+            </div>
 
+          </template>
+
+          <div class="flex flex-col w-full justify-start space-y-2">
+            <h3 class="h-3 mb-3 font-bold text-blue-500">Permissions</h3>
+            <Disclosure
+              as="div"
+              class="border border-gray-200 rounded"
+              v-for="(permission, title) of permissions" :key="title">
+              <DisclosureButton class="p-2 text-left flex w-full bg-blue-200 text-blue-600 uppercase">
+                {{ title }}
+              </DisclosureButton>
+              <DisclosurePanel class="text-gray-500 p-2">
+                <table class="w-full">
+                  <tr v-for="(item, index) in permission" :key="index">
+                    <td class="text-sm bg-white">
+                      <p class="text-gray-900 whitespace-nowrap">
+                        {{ item }}
+                      </p>
+                    </td>
+                    
+                    <td class="text-sm bg-white">
+                      <div class="flex items-center">
+                        <input
+        :value="`${title}.${item}`"
+                        v-model="form.permissions"
+        class="p-1 mt-2 border border-gray-200 rounded-md focus:outline-none focus:border-none focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
+        type="checkbox"  />
+                    </div>
+                      
+                    </td>
+                  </tr>
+                </table>
+              </DisclosurePanel>
+            </Disclosure>
+          </div>
 
 
         </div>
-        <div>
+        <div class="px-6 py-4">
           <p v-for="error of $v.$errors" :key="error.$uid">
             {{ error.$message }}
           </p>
         </div>
-
+        {{}}
         <!--Footer-->
-        <div class="flex justify-end pt-2">
+        <div class="flex justify-end px-6 py-4">
           <button :disabled="loading" @click="open = false"
             class="p-3 px-6 py-3 mr-2 text-indigo-500 bg-transparent rounded-lg disabled:pointer-events-none hover:bg-gray-100 hover:text-indigo-400 focus:outline-none">
             Close
           </button>
-          <button :disabled="loading || $v.$invalid" @click="saveProfileForm"
+          <button :disabled="loading || $v.$invalid" @click="saveUserForm"
             class="px-6 py-3 font-medium tracking-wide text-white bg-indigo-600 rounded-md disabled:opacity-25 disabled:pointer-events-none hover:bg-indigo-500 focus:outline-none">
             save
           </button>
@@ -321,25 +285,29 @@
   </div>
 
   <ConfirmDialog v-model:value="confirmDelete.open" :title="confirmDelete.title" :confirm="confirmDelete.value"
-    :message="confirmDelete.message" @accepted="deleteTerminal" />
+    :message="confirmDelete.message" @accepted="deleteUser" />
 </template>
-
+  
 <script lang="ts" setup>
 import { reactive, inject, onMounted, ref, watch, computed } from 'vue';
+import {
+    Disclosure,
+    DisclosureButton,
+    DisclosurePanel,
+  } from '@headlessui/vue'
 import { Axios } from 'axios';
 // @ts-ignore
-import Input from '../../components/Input.vue'
+import Input from '../components/Input.vue'
 // @ts-ignore
-import ConfirmDialog from '../../components/ConfirmDialog.vue'
+import ConfirmDialog from '../components/ConfirmDialog.vue'
 // @ts-ignore
-import OrganisactionSelect from '../../components/OrganisactionSelect.vue'
+import OrganisactionSelect from '../components/OrganisactionSelect.vue'
 import useVuelidate from "@vuelidate/core";
 import { notify } from "@kyvg/vue3-notification"
-import { required, ipAddress, numeric, minLength, maxLength, requiredIf } from "@vuelidate/validators"
+import { required, requiredIf } from "@vuelidate/validators"
 import { parse, format } from "date-fns"
-import { Organisation, PaginatedData } from '../../@types/types';
-import useDebouncedRef from '../../utils/DebounceRef';
-import { keyExchange } from '../../../../intellifin-rerouting/src/queue/queue';
+import { Organisation, PaginatedData, User } from '../@types/types';
+import useDebouncedRef from '../utils/DebounceRef';
 
 interface Profile {
   _id?: string,
@@ -356,62 +324,32 @@ interface Profile {
 
 
 
-interface Terminal {
-  _id?: string,
-  serialNo: string,
-  terminalId: string,
-  clrmasterkey?: string,
-  encmasterkey?: string,
-  encsesskey?: string,
-  clrsesskey?: string,
-  encpinkey?: string,
-  clrpinkey?: string,
-  profileId: string,
-  createdAt?: Date,
-  updatedAt?: Date,
-  profile?: Profile,
-  iswTid?: string,
-  iswUniqueId?: string,
-  organisationId?: string,
-  organisation?: Organisation,
-  brand?: string,
-  deviceModel?: string,
-  appVersion?: string,
-  parsedParams?: {
-    callHomeTimeout: string,
-    countryCode: string,
-    currencyCode: string,
-    exchangeTime: string,
-    mechantCategoryCode: string,
-    merchantNameLocation: string,
-    mid: string,
-    timeout: string,
-  }
-}
 
-interface TerminalForm {
+
+interface UserForm {
   _id?: string,
-  serialNo: string,
-  terminalId: string,
-  profileId: string,
-  iswTid?: string | null,
-  iswUniqueId?: string | null,
-  brand?: string | null,
-  deviceModel?: string | null,
-  organisationId?: string | null,
+  fullname: string,
+  username: string,
+  email: string,
+  password?: string,
+  password_confirm?: string,
+  role?: string | null,
+  permissions?: string[],
+  organisation_id?: string | null,
 }
 
 interface State {
-  data: PaginatedData<Terminal>,
+  data: PaginatedData<User>,
   count: number,
   perPage: number
 }
 
-const terminalBrands = ['HORIZONPAY', 'PAX', 'NEXGO', 'MOREFUN', 'MPOS', "AISINO"].sort();
+type Permissions = {
+  [key: string]: string[]
+}
 
 // @ts-ignore: Unreachable code error
 const $axios: Axios = inject('$axios')
-const busyIds = ref<string[]>([])
 
 let state = ref<State>({
   data: {
@@ -420,7 +358,9 @@ let state = ref<State>({
     limit: 30,
     page: 1,
     totalPages: 1,
-  }, count: 0, perPage: 15
+  },
+  count: 0,
+  perPage: 15,
 })
 let page = ref<number>(1);
 let defaultDeleteState: { [key: string]: any, id: string | null } = {
@@ -429,39 +369,47 @@ let defaultDeleteState: { [key: string]: any, id: string | null } = {
   value: '',
   id: null,
 }
-let profiles = ref<Profile[]>([])
 let organisations = ref<Organisation[]>([])
 let selected = ref<string[]>([]);
+let permissions = ref<Permissions>({});
 const loading = ref(false)
 const confirmDelete = ref(defaultDeleteState)
-const defualtState: TerminalForm = {
-  serialNo: '',
-  terminalId: '',
-  profileId: '',
-  iswTid: null,
-  iswUniqueId: null,
-  brand: null,
-  deviceModel: null,
-  organisationId: null,
+const defualtState: UserForm = {
+  _id: '',
+  fullname: '',
+  username: '',
+  email: '',
+  password: '',
+  role: null,
+  permissions: [],
+  organisation_id: null,
 }
-let form = ref<TerminalForm>({ ...defualtState })
+let form = ref<UserForm>({ ...defualtState })
 const open = ref(false);
 const brandCustom = ref<boolean>(false);
 const search = useDebouncedRef<string>('', 500);
 const organisation = ref(null);
 
+const parsedPermissions = computed<Permissions>(() => {
+  return Object.keys(permissions.value).reduce((acc, key) => {
+    return {
+      ...acc,
+      [key]: permissions.value[key].map((p: string) => `${key}.${p}`)
+    }
+  }, {})
+})
 const rules = computed(() => ({
   _id: {},
-  serialNo: { required },
-  terminalId: { required, minLength: minLength(8), maxLength: maxLength(8), },
-  profileId: { required },
-  iswTid: { minLength: minLength(8) },
-  iswUniqueId: { requiredIf: requiredIf(() => form.value.iswTid !== null || (form.value.iswTid || '')?.length > 0) },
-  brand: { required },
-  deviceModel: { required },
+  fullname: { required },
+  username: { required },
+  organisationId: {},
+  email: { email: true, required },
+  password: { requiredIf: requiredIf(() => !form.value._id), confirmed: (value: string) => value === form.value.password_confirm },
+  permissions: {},
 }))
 
-const $v = useVuelidate<TerminalForm>(rules, form, { $autoDirty: true, });
+
+const $v = useVuelidate<UserForm>(rules, form, { $autoDirty: true, });
 const fetchData = async () => {
   try {
     loading.value = true;
@@ -472,10 +420,10 @@ const fetchData = async () => {
       q: search.value,
       organisation: organisation.value
     }
-    const { data } = await $axios.get('/dashboard/terminals', {
+    const { data } = await $axios.get('/dashboard/users', {
       params
     })
-    state.value = { ...state.value, data: data.data as PaginatedData<Terminal> };
+    state.value = { ...state.value, data: data as PaginatedData<User> };
   } catch (error) {
     console.log(error)
   } finally {
@@ -483,33 +431,38 @@ const fetchData = async () => {
   }
 }
 
-const editTerminal = (terminal: Terminal) => {
+const fetchPermissons = async () => {
+  try {
+    const { data } = await $axios.get('/dashboard/users/permissions')
+    permissions.value = data.data as Permissions;
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+const editUser = (user: User) => {
   form.value = {
-    profileId: terminal.profileId,
-    serialNo: terminal.serialNo,
-    terminalId: terminal.terminalId,
-    iswTid: terminal.iswTid,
-    iswUniqueId: terminal.iswUniqueId,
-    brand: terminal.brand || null,
-    organisationId: terminal.organisationId,
-    deviceModel: terminal.deviceModel,
-    _id: terminal._id,
+    _id: user._id,
+    fullname: user.fullname,
+    username: user.username,
+    email: user.email,
+    permissions: user.permissions,
+    organisation_id: user.organisation_id,
   }
   open.value = true;
-  brandCustom.value = terminal.brand?.length ? !terminalBrands.includes(terminal.brand) : false;
 }
 
 
 
-const deleteTerminal = async (confirm: boolean) => {
+const deleteUser = async (confirm: boolean) => {
   if (!confirm) {
     confirmDelete.value = { ...confirmDelete.value, ...defaultDeleteState }
     return;
   };
   try {
-    const { data } = await $axios.delete('/dashboard/terminals/' + confirmDelete.value.id)
+    const { data } = await $axios.delete('/dashboard/users/' + confirmDelete.value.id)
     notify({
-      text: "terminal Deleted",
+      text: "User Deleted",
       title: "Item Deleted",
       type: "success"
     })
@@ -526,36 +479,24 @@ const gotoPage = (target: number) => {
 
 
 
-const confirmTerminalDelete = (terminal: Terminal) => {
+const confirmUserDelete = (user: User) => {
   confirmDelete.value = {
     ...confirmDelete.value,
     open: true,
-    value: terminal.terminalId,
-    id: terminal._id || null,
-    message: `To delete this terminal confirm by typing: ${terminal.terminalId}`
-  }
-}
-
-const fetchProfilesData = async () => {
-  try {
-    const { data } = await $axios.get<PaginatedData<Profile>>('/dashboard/profiles', {
-      params: {
-        limit: 500,
-      }
-    })
-    profiles.value = data.docs;
-  } catch (error) {
-    console.log(error)
+    value: user.username,
+    id: user._id || null,
+    message: `To delete this terminal confirm by typing: ${user.username}`
   }
 }
 
 
-const saveProfileForm = async () => {
+
+const saveUserForm = async () => {
   loading.value = true;
   try {
     const { data } = await (
-      form.value._id?.length ? $axios.put(`/dashboard/terminals/${form.value._id}`, form.value) :
-        $axios.post('/dashboard/terminals', form.value)
+      form.value._id?.length ? $axios.put(`/dashboard/users/${form.value._id}`, form.value) :
+        $axios.post('/dashboard/users', form.value)
     );
     open.value = false;
     fetchData()
@@ -568,30 +509,6 @@ const saveProfileForm = async () => {
 
   } finally {
     loading.value = false;
-  }
-}
-
-const performKeyExchange = async (id: string) => {
-  loading.value = true;
-  busyIds.value = [...busyIds.value, id];
-  try {
-    const { data } = await $axios.get(`/dashboard/terminals/trigger-keyexchange/${id}`);
-    open.value = false;
-    notify({
-      title: "Success",
-      type: "success",
-      text: "Key Exchange request dispached"
-    })
-  } catch (error: any) {
-    notify({
-      title: "Error",
-      type: "error",
-      text: error?.response.data.message || error.message
-    })
-
-  } finally {
-    loading.value = false;
-    busyIds.value = busyIds.value.filter((i) => i !== id);
   }
 }
 
@@ -617,7 +534,7 @@ watch(organisation, (value, prevValue) => {
 })
 
 onMounted(() => {
+  fetchPermissons();
   fetchData();
-  fetchProfilesData();
 })
 </script>

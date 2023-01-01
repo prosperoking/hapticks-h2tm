@@ -39,23 +39,66 @@ const profileUpdateValidator = (0, index_1.createValidatedRequest)((0, schema_1.
         trim: true,
         optional: {
             options: {
-                nullable: false
+                nullable: true
             }
         },
     },
     isoHost: {
         in: ['body'],
         trim: true,
+        customSanitizer: {
+            options: (value) => {
+                if (!(value === null || value === void 0 ? void 0 : value.length))
+                    return null;
+                return parseInt(value);
+            }
+        },
+        optional: {
+            options: {
+                nullable: true,
+            }
+        },
         isIP: true,
     },
     isoPort: {
         in: ['body'],
         trim: true,
+        customSanitizer: {
+            options: (value) => {
+                console.log("Port: ", value);
+                if (!(value === null || value === void 0 ? void 0 : value.length))
+                    return null;
+                return parseInt(value);
+            }
+        },
+        optional: {
+            options: {
+                nullable: true,
+            }
+        },
         isPort: true,
+    },
+    allowProcessorOverride: {
+        in: ['body'],
+        isBoolean: true,
+        customSanitizer: {
+            options: value => ['true', 'false', '1', '0'].includes(String(value)
+                .toLowerCase())
+        },
+        optional: {
+            options: {
+                nullable: true,
+            }
+        },
     },
     isSSl: {
         in: ['body'],
         toBoolean: true,
+        optional: {
+            options: {
+                nullable: true,
+            }
+        },
     },
     iswDestinationAccount: {
         in: ['body'],
@@ -100,6 +143,13 @@ const profileUpdateValidator = (0, index_1.createValidatedRequest)((0, schema_1.
             }),
             errorMessage: "Organisation not Found",
             bail: true,
+        }
+    },
+    type: {
+        in: ['body'],
+        matches: {
+            options: [/\b(?:generic|intelliffin)\b/],
+            errorMessage: "Invalid Profile type"
         }
     },
     webhookId: {

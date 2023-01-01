@@ -1,4 +1,27 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -14,6 +37,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.authMiddleware = void 0;
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
+const express_session_1 = __importDefault(require("express-session"));
 const cookie_session_1 = __importDefault(require("cookie-session"));
 const passport_1 = __importDefault(require("passport"));
 const passport_local_1 = __importDefault(require("passport-local"));
@@ -22,6 +46,9 @@ const user_model_1 = __importDefault(require("../db/models/user.model"));
 const logger_1 = __importDefault(require("../helpers/logger"));
 const crypto_1 = __importDefault(require("crypto"));
 const argon2_1 = __importDefault(require("argon2"));
+const _ = __importStar(require("lodash"));
+const config_1 = __importDefault(require("../config/config"));
+const crypt_1 = require("../helpers/crypt");
 passport_1.default.use(new passport_local_1.default.Strategy(function (username, password, done) {
     user_model_1.default.findOne({
         $or: [
@@ -41,17 +68,18 @@ passport_1.default.use(new passport_local_1.default.Strategy(function (username,
     });
 }));
 passport_1.default.use(new passport_remember_me_1.default.Strategy(function (token, done) {
-    user_model_1.default.findOne({ rememberToken: token }).populate('organisation')
+    user_model_1.default.findOne({ rememberToken: (0, crypt_1.decrypt)(token) }).populate('organisation')
         .then(user => {
+        console.log("user: ", user);
         if (!user)
             return done(null, false);
         done(null, user);
     }).catch(err => done(err));
 }, function (user, done) {
-    const token = crypto_1.default.randomUUID();
-    user_model_1.default.updateOne({ _id: user.id, }, { rememberToken: Buffer.from(token).toString('base64') })
+    const rememberToken = Buffer.from(crypto_1.default.randomUUID()).toString('base64');
+    user_model_1.default.updateOne({ _id: user.id, }, { rememberToken })
         .then(() => {
-        done(null, token);
+        done(null, rememberToken);
     })
         .catch(err => done(err));
 }));
@@ -72,7 +100,7 @@ function applyAuthSetup(app) {
         maxAge: 60 * 60 * 1000,
         secret: process.env.APP_SECRET
     }));
-    // app.use(session({  }))
+    app.use((0, express_session_1.default)({ secret: process.env.APP_SECRET }));
     app.use(passport_1.default.initialize());
     app.use(passport_1.default.session());
     app.use(passport_1.default.authenticate('remember-me'));
@@ -85,10 +113,12 @@ function applyAuthSetup(app) {
         next();
     }, (req, res) => {
         // 
-        if (req.body.rember_me) {
+        if (req.body.rememberMe) {
             const token = crypto_1.default.randomUUID();
+            const clear = Buffer.from(token).toString('base64');
             const id = req.user.id;
-            user_model_1.default.updateOne({ _id: id, }, { rememberToken: Buffer.from(token).toString('base64') }).exec();
+            user_model_1.default.updateOne({ _id: id, }, { rememberToken: clear }).exec();
+            res.cookie('remember_me', clear, { path: '/', httpOnly: true, maxAge: 604800000 }); // 7 days
         }
         const { username, email, fullname, role, permissions } = req.user;
         res.json({
@@ -104,21 +134,36 @@ function applyAuthSetup(app) {
     });
 }
 exports.default = applyAuthSetup;
-const authMiddleware = (roles = []) => (req, res, next) => {
-    var _a;
-    if (!req.user) {
-        return res.status(401).json({
-            message: "Not Authenticated"
-        });
-    }
-    // Todo: handle permissions
-    // @ts-ignore
-    if (roles.length && !(roles || []).includes((_a = req.user) === null || _a === void 0 ? void 0 : _a.role)) {
+const authMiddleware = (roles = [], permissions = []) => {
+    return (req, res, next) => {
+        var _a, _b, _c, _d;
+        console.log("auth ", roles, permissions);
+        if (!req.user) {
+            return res.status(401).json({
+                message: "Not Authenticated"
+            });
+        }
+        const config = (new config_1.default()).getConfig('');
+        if (
+        // @ts-ignore
+        config.ADMIN_EMAILS.includes((_a = req.user) === null || _a === void 0 ? void 0 : _a.email) ||
+            (!roles.length && !permissions.length)) {
+            return next();
+        }
+        // @ts-ignore
+        if (permissions.length && _.difference(permissions, (_b = req.user) === null || _b === void 0 ? void 0 : _b.permissions).length == 0) {
+            return next();
+        }
+        // @ts-ignore
+        console.log((_c = req.user) === null || _c === void 0 ? void 0 : _c.role);
+        // @ts-ignore
+        if (roles.length && roles.includes((_d = req.user) === null || _d === void 0 ? void 0 : _d.role)) {
+            return next();
+        }
         return res.status(403).json({
-            message: "Your not authorized to view this page"
+            message: "You do not have enough rights to perform this action"
         });
-    }
-    next();
+    };
 };
 exports.authMiddleware = authMiddleware;
 //# sourceMappingURL=index.js.map

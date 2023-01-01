@@ -7,6 +7,7 @@ import ProfileController from './profiles.controller';
 import TerminalController from './terminal.controller';
 import * as OrganisationController from './organisation.controller'
 import * as WebHookController from './webhook.controller'
+import * as UserController from './user.controller'
 
 
 const vasTransactionController = new VasTransactionController();
@@ -28,4 +29,5 @@ export {
     profileController,
     OrganisationController,
     WebHookController,
+    UserController
 }

@@ -47,9 +47,10 @@ export default class DashboardController {
             const date = moment().format("YYYY-MM-DD")
             // @ts-ignore
             const organisationFilter = request.user?.organisation_id? { organisationId: request.user?.organisation_id} : {};
+            console.log(request.query)
             const transactions = await vasjournalsModel.paginate({
                 ...DashboardController.filterGen(request.query),
-                
+
                 ...organisationFilter
             },{
                 sort: {_id: -1},
@@ -69,7 +70,8 @@ export default class DashboardController {
         }
     }
 
-    private static filterGen({q, organisation, startDate, endDate}: any) {
+    private static filterGen({q, organisation, startDate, endDate, processor}: any) {
+        console.log(processor)
         let query = {};
         if(q !== undefined) {
             query = {
@@ -82,10 +84,19 @@ export default class DashboardController {
                       rrn: RegExp(`^${q}`,'i'),  
                     },
                     {
-                        merchantName: {$regex: `${q}`},
-                    }
+                        merchantName: RegExp(`${q}`,'i'),
+                    },
+                    {
+                        merchantId: RegExp(`^${q}`,'i'),  
+                    },
                 ]
             }
+        }
+
+        if(processor !== undefined && 
+            ["kimono", "nibss"].includes(processor.toLowerCase())
+        ) {
+            query = {...query, processor: processor.toUpperCase()}
         }
 
         if(organisation !== undefined) {
@@ -117,7 +128,7 @@ export default class DashboardController {
                 ]
             }
         }
-
+        console.log("query: ",query)
         return query
     }
 }

@@ -13,7 +13,6 @@ export default class ProfileController {
         }
     }
 
-
     public async index(request: Request, response: Response) {
         try {
             const {q,limit,page} = request.query;
@@ -22,7 +21,8 @@ export default class ProfileController {
                 filter = {
                     $or:[
                         { title: RegExp(`^${q}`,'i') },
-                        { host: RegExp(`^${q}`,'i') },
+                        { isoHost: RegExp(`^${q}`,'i') },
+                        { type: RegExp(`^${q}`,'i') },
                     ]
                 };
             };
@@ -53,12 +53,14 @@ export default class ProfileController {
                 "isoHost",
                 "isoPort",
                 "isSSL",
+                "type",
                 "componentKey1",
                 "componentKey2",
                 "iswSwitchAmount",
                 "terminals_count",
                 "iswMid",
                 "iswInstitutionCode",
+                "allowProcessorOverride",
                 "iswDestinationAccount",
                 "organisationId",
                 "webhookId"
@@ -71,4 +73,18 @@ export default class ProfileController {
             response.status(400).json({message: error.message})
         }
     }
+
+    public async delete(request: Request, response: Response) {
+        try {
+            const profile = await PTSPProfileModel.findById(request.params?.id);
+
+            if(!profile) return response.status(404).json({message: "Profile not found"});
+
+            response.json({status: true,data: {_id: profile.id}, message: "Profile deleted successfully"})
+        } catch (error) {
+            console.log(error)
+            response.status(400).json({message: error.message})
+        }
+    }
+
 }

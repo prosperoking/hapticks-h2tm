@@ -17,6 +17,7 @@ const bullmq_1 = require("bullmq");
 const terminal_model_1 = __importDefault(require("../../db/models/terminal.model"));
 const cardsockethelper_1 = require("../../helpers/cardsockethelper");
 const config_1 = __importDefault(require("../../config/config"));
+const inteliffin_1 = __importDefault(require("../../services/inteliffin"));
 const config = (new config_1.default()).getConfig('');
 const connection = {
     host: config.redis.host,
@@ -28,6 +29,9 @@ exports.keyExchangeWorker = new bullmq_1.Worker('keyexchange', (job) => __awaite
     if (!terminal)
         throw Error("Terminal Not found");
     const profile = terminal.profile;
+    if (profile.isInteliffin) {
+        return handleIntelifinKeyExchange(terminal);
+    }
     let result = yield (0, cardsockethelper_1.performCardSocketTranaction)(cardsockethelper_1.TransactionTypes.KEY_EXCHANGE, {
         tid: terminal.terminalId,
         component: profile.componentKey1,
@@ -51,5 +55,51 @@ exports.keyExchangeWorker = new bullmq_1.Worker('keyexchange', (job) => __awaite
     autorun: false,
     connection,
 });
+function handleIntelifinKeyExchange(terminal) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const { isoHost, isoPort, isSSL } = terminal.profile;
+        try {
+            const data = yield inteliffin_1.default.getPrepInfo({
+                terminalid: terminal.terminalId,
+                serialno: terminal.serialNo,
+            });
+            if (data.response !== '00') {
+                return;
+            }
+            const { pin_key, callhome, country_code, currency_code, datetime, merchant_address, merchant_category_code, merchantid, timeout, } = data;
+            const padLeadingZeros = (num) => num.toString().padStart(2, '0');
+            terminal.encmasterkey = pin_key;
+            terminal.encpinkey = data.pin_key;
+            terminal.encsesskey = data.pin_key;
+            terminal.clrmasterkey = data.pin_key;
+            terminal.clrsesskey = data.pin_key;
+            terminal.clrpinkey = data.pin_key;
+            console.log([
+                ["020", padLeadingZeros(datetime.length), datetime],
+                ["030", padLeadingZeros(merchantid.length), merchantid],
+                ["040", padLeadingZeros(timeout.length), timeout],
+                ["050", padLeadingZeros(currency_code.length), currency_code,],
+                ["060", padLeadingZeros(country_code.length), country_code],
+                ["070", padLeadingZeros(callhome.length), callhome],
+                ["080", padLeadingZeros(merchant_category_code.length), merchant_category_code],
+                ["520", padLeadingZeros(merchant_address.length), merchant_address],
+            ]);
+            terminal.paramdownload = [
+                ["020", padLeadingZeros(datetime.length), datetime],
+                ["030", padLeadingZeros(merchantid.length), merchantid],
+                ["040", padLeadingZeros(timeout.length), timeout],
+                ["050", padLeadingZeros(currency_code.length), currency_code,],
+                ["060", padLeadingZeros(country_code.length), country_code],
+                ["070", padLeadingZeros(callhome.length), callhome],
+                ["080", padLeadingZeros(merchant_category_code.length), merchant_category_code],
+                ["520", padLeadingZeros(merchant_address.length), merchant_address],
+            ].map(a => a.join('')).join('');
+            yield terminal.save();
+        }
+        catch (error) {
+            throw error;
+        }
+    });
+}
 exports.default = exports.keyExchangeWorker;
 //# sourceMappingURL=keyexchange.js.map

@@ -14,11 +14,21 @@
               d="M10 4a6 6 0 100 12 6 6 0 000-12zm-8 6a8 8 0 1114.32 4.906l5.387 5.387a1 1 0 01-1.414 1.414l-5.387-5.387A8 8 0 012 10z" />
           </svg>
         </span>
-
-        <input placeholder="Search" v-model="state.q"
-          @change="()=>state.q.length > 3 ? debounce(getTransactions, 400): null"
+        <input placeholder="Search" v-model="filter"
           class="flex w-full py-2 pl-8 pr-6 text-sm text-gray-700 placeholder-gray-400 bg-white border border-b border-gray-400 rounded appearance-none focus:bg-white focus:placeholder-gray-600 focus:text-gray-700 focus:outline-none" />
       </div>
+    </div>
+    <div class="w-2/12">
+      <div class="relative block w-full mt-2 sm:mt-0">
+        <label>Processor</label>
+        <select v-model="state.processor"
+          class="flex w-full py-2 pl-8 pr-6 text-sm text-gray-700 placeholder-gray-400 bg-white border border-b border-gray-400 rounded appearance-none focus:bg-white focus:placeholder-gray-600 focus:text-gray-700 focus:outline-none">
+          <option value="all">All</option>
+          <option value="kimono">Kimono</option>
+          <option value="nibss">NIBSS</option>
+        </select>
+      </div>
+
     </div>
     <div class="w-2/12">
       <div class="relative block w-full mt-2 sm:mt-0">
@@ -197,12 +207,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, inject, reactive, onMounted } from "vue";
+import { ref, inject, reactive, onMounted, watch } from 'vue';
 import axios, { AxiosInstance } from "axios"
 import { Transaction, PaginatedData, Organisation } from '../@types/types';
 import { currencyFormatter, dateFormatter } from '../utils/Formatters';
 import debounce from 'lodash/debounce'
 import { notify } from "@kyvg/vue3-notification";
+import useDebouncedRef from '../utils/DebounceRef';
 
 interface TransactionState {
   loading: boolean,
@@ -211,7 +222,8 @@ interface TransactionState {
   endDate?: string | null,
   organisation: string | null,
   organisations: Organisation[],
-  transactions: PaginatedData<Transaction>
+  transactions: PaginatedData<Transaction>,
+  processor: 'kimono' | 'nibss' | 'all',
 }
 
 interface User {
@@ -224,6 +236,7 @@ interface User {
 }
 
 const request: AxiosInstance | undefined = inject('$axios');
+const filter = useDebouncedRef('', 500);
 const state: TransactionState = reactive<TransactionState>({
   loading: false,
   q: '',
@@ -231,6 +244,7 @@ const state: TransactionState = reactive<TransactionState>({
   endDate: null,
   organisation: null,
   organisations: [],
+  processor: 'all',
   transactions: {
     docs: [],
     totalDocs: 0,
@@ -253,8 +267,8 @@ const getTransactions = async () => {
   try {
     state.loading = true;
     const { page, limit } = state.transactions;
-    const { startDate, endDate, organisation } = state;
-    const params = { page, limit, q: state.q, startDate, endDate, organisation }
+    const { startDate, endDate, organisation, processor } = state;
+    const params = { page, limit, q: state.q, startDate, endDate, organisation, processor }
     // @ts-ignore: Unreachable code error
     const { data } = await request?.get('/dashboard/transactions', {
       params
@@ -293,6 +307,11 @@ const getOrganisations = async () => {
     state.loading = false;
   }
 }
+
+watch(filter, (value) => {
+  state.q = value;
+  search();
+})
 
 onMounted(() => {
   getTransactions();

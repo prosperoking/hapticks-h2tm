@@ -11,7 +11,8 @@ export interface IPTSPProfileData {
     iswSwitchAmount: Number,
     terminals_count?: number,
     iswMid?: string,
-    type: 'generic' | 'intelifin'
+    type: 'generic' | 'intelliffin',
+    allowProcessorOverride: boolean,
     iswInstitutionCode?: string,
     iswDestinationAccount?: string,
     organisationId?: string | any,
@@ -62,6 +63,10 @@ const ptspProfileSchema = new mongoose.Schema<IPTSPProfileData>({
         type: String,
         default: null,
     },
+    allowProcessorOverride: {
+        type: Boolean,
+        default: false,
+    },
     type: {
         type: String,
         default: 'generic',
@@ -73,10 +78,6 @@ const ptspProfileSchema = new mongoose.Schema<IPTSPProfileData>({
     webhookId: {
         type: SchemaTypes.ObjectId,
         default: null,
-    },
-    isInteliffin: {
-        type: SchemaTypes.Boolean,
-        default: false,
     }
 }, {
     timestamps: true, 
@@ -90,6 +91,10 @@ ptspProfileSchema.virtual('terminals', {
     localField: '_id',
     foreignField: 'profileId',
 });
+
+ptspProfileSchema.virtual('isInteliffin').get(function(){
+    return this.type === 'intelliffin';
+})
 
 ptspProfileSchema.virtual('organisation', {
     ref: 'organisationProfile',

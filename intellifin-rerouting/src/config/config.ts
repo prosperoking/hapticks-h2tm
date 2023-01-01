@@ -7,6 +7,7 @@ export interface AppConfig {
   DATABASE_HOSTNAME: string,
   DATABASE_PORT: string,
   DATABASE_NAME: string,
+  ADMIN_EMAILS: string[],
   enable_logging: boolean,
   options: {
     user: string,
@@ -33,6 +34,7 @@ export default class Config {
               DATABASE_HOSTNAME: process.env.DB_HOST,
               DATABASE_PORT: process.env.MDB_PORT,
               DATABASE_NAME: process.env.DB_NAME,
+              ADMIN_EMAILS: (process.env.ADMIN_EMAILS || '').replace(' ','').split(',') ,
               enable_logging: [1,'1','true',true].includes(process.env.DB_LOGGING),
               options: {
                 user: process.env.DB_USERNAME || '',
@@ -51,7 +53,7 @@ export default class Config {
             };
         }
 
-        public getConfig(env: string) {
+        public getConfig(env: string): AppConfig {
             return this.configObject;
         }
 }

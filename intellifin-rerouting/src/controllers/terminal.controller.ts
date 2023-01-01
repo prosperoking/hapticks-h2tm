@@ -55,26 +55,7 @@ export default class TerminalController {
     }
 
 
-    public async triggerKeyExchange(request: Request, response: Response) {
-        try {
-            let terminal = await Terminal.findById(request.params.id);
-            if(!terminal) {
-                return response.status(404).json({message: "Terminal not found"});
-            }
-
-            try{
-            //    ProfileController.performKeyExchange(request.body, request.params.id);
-            await keyExchange.add('keyexchange', {_id: terminal.id});
-            }catch(e){
-                console.log("Unable to trigger key exchange", e)
-            }
-            
-            response.json({status: true})
-        } catch (error) {
-            console.log(error)
-            response.status(400).json({message: error.message})
-        }
-    }
+    
     public async update(request: Request, response: Response) {
         try {
             let terminal = await Terminal.findById(request.params.id);
@@ -137,6 +118,27 @@ export default class TerminalController {
         } catch (error) {
             logger.error(error)
             response.status(400).json({message: "Import failed"})
+        }
+    }
+
+    public async triggerKeyExchange(request: Request, response: Response) {
+        try {
+            let terminal = await Terminal.findById(request.params.id);
+            if(!terminal) {
+                return response.status(404).json({message: "Terminal not found"});
+            }
+
+            try{
+            // await   TerminalController.performKeyExchange(request.body, request.params.id);
+            await keyExchange.add('keyexchange', {_id: terminal.id});
+            }catch(e){
+                console.log("Unable to trigger key exchange", e)
+            }
+            
+            response.json({status: true})
+        } catch (error) {
+            console.log(error)
+            response.status(400).json({message: error.message})
         }
     }
 

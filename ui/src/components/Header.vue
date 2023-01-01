@@ -94,12 +94,14 @@
 import { ref } from "vue";
 import { useSidebar } from "../hooks/useSidebar";
 import { useUserStore } from "../stores/user.store"
+import { useRouter } from 'vue-router';
 
 const dropdownOpen = ref(false);
 const { isOpen } = useSidebar();
 const auth = useUserStore()
+const router = useRouter();
 
 const logout = ()=>{
-  auth.logoutUser();
+  auth.logoutUser(router);
 }
 </script>

@@ -72,6 +72,7 @@ const terminalUpdateValidator = createValidatedRequest(checkSchema({
         custom: {
             options: async (value: string, {req, location, path}) =>{
                 try {
+                    if(value === null) return Promise.resolve();
                     if(value.length && ! await OrganisationModel.findById(value)) return Promise.reject();
                     return true;
                 } catch (error) {

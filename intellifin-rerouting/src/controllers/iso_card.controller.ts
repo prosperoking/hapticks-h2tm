@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import Terminal from '../db/models/terminal.model';
 import logger from '../helpers/logger';
-import { performCardSocketTranaction, TransactionTypes, CardSocketResponse } from '../helpers/cardsockethelper';
+import { performCardSocketTranaction as performCardSocketTransaction, TransactionTypes, CardSocketResponse } from '../helpers/cardsockethelper';
 import { ISOPayload, KIMONOPayload, Processor } from '../@types/types';
 import vasjournalsModel, { IJournal } from '../db/models/transaction.model';
 import Utils from '../helpers/utils';
@@ -11,12 +11,16 @@ import { webhookQueue } from '../queue/queue';
 import { IJournalDocument } from '../db/models/transaction.model';
 import Inteliffin from '../services/inteliffin';
 import { Document } from 'mongoose';
+import { PurchasePayload } from '../@types/types';
+import { InteliffinTransTypes } from '../services/inteliffin';
 
 export interface CardPurchaseResponse {
     resp: string,
     auth: string,
     icc: string,
     meaning: string,
+    stan: string,
+    rrn: string,
 }
 
 type TerminalDocument = Document<unknown, any, ITerminalDocument> & ITerminalDocument & Required<{
@@ -47,10 +51,10 @@ class IsoCardContoller {
 
             const { componentKey1, isoHost, isoPort, isSSL, type  } = terminal.profile
             
-            if (type === 'intelifin')  return this.handleIntelifinKeyExchange(terminal, response);
+            if (type === 'intelliffin')  return this.handleIntelifinKeyExchange(terminal, response);
 
 
-            const result = await performCardSocketTranaction(TransactionTypes.KEY_EXCHANGE, {
+            const result = await performCardSocketTransaction(TransactionTypes.KEY_EXCHANGE, {
                 tid: terminal.terminalId,
                 component: componentKey1,
                 ip: isoHost,
@@ -87,8 +91,7 @@ class IsoCardContoller {
         
         
         try {
-            const data = await Inteliffin.create({ ip: isoHost, port: isoPort })
-                        .getPrepInfo({
+            const data = await Inteliffin.getPrepInfo({
                             terminalid: terminal.terminalId,
                             serialno: terminal.serialNo,
                         });
@@ -113,21 +116,22 @@ class IsoCardContoller {
                 terminalid,
             } = data;
 
-            terminal.encmasterkey = data.pin_key;
+            const padLeadingZeros = (num:number)=> num.toString().padStart(2, '0');
+            terminal.encmasterkey = pin_key;
             terminal.encpinkey = data.pin_key;
             terminal.encsesskey = data.pin_key;
             terminal.clrmasterkey = data.pin_key;
             terminal.clrsesskey = data.pin_key;
             terminal.clrpinkey = data.pin_key;
             terminal.paramdownload = [
-                ["020",datetime.length,datetime],
-                ["030",merchantid.length, merchantid],
-                ["040",timeout.length, timeout],
-                ["050", currency_code.length, currency_code,],
-                ["060", country_code.length, country_code],
-                ["070",callhome.length,callhome],
-                ["080",merchant_category_code.length, merchant_category_code],
-                ["520",merchant_address.length, merchant_address],
+                ["020",padLeadingZeros(datetime.length),datetime],
+                ["030",padLeadingZeros(merchantid.length), merchantid],
+                ["040",padLeadingZeros(timeout.length), timeout],
+                ["050",padLeadingZeros( currency_code.length), currency_code,],
+                ["060",padLeadingZeros( country_code.length), country_code],
+                ["070",padLeadingZeros(callhome.length),callhome],
+                ["080",padLeadingZeros(merchant_category_code.length), merchant_category_code],
+                ["520",padLeadingZeros(merchant_address.length), merchant_address],
             ].map(a=>a.join('')).join('');
             
             await terminal.save();
@@ -200,22 +204,34 @@ class IsoCardContoller {
             .populate({path: 'profile',});
 
             const { body } = request
+            let processor  = String(body.processor).toUpperCase();
+            processor = processor === 'NIBSS' ? 'ISO' : processor;
 
             if (!terminal || terminal.terminalId !== body.tid) return response.status(404).json({ message: "Terminal not found/ Provisioned" });
             const { componentKey1, isoHost, isoPort, isSSL, type } = terminal.profile;
 
-            const messageType = IsoCardContoller.getMessageType(terminal, Number(body.field4))
+            const messageType = terminal.profile.allowProcessorOverride && ['KIMONO','NIBSS'].includes(processor) ? processor as TransactionTypes  : IsoCardContoller.getMessageType(terminal, Number(body.field4))
             const patchedPayload = messageType === TransactionTypes.ISW_KIMONO ? IsoCardContoller.patchISWPayload(body, terminal.profile, terminal): {
                 ...body,
                 component: componentKey1,
                 ip: isoHost,
                 ssl: String(isSSL),
-                port: isoPort
+                port: isoPort,
+                clrsesskey: terminal.clrsesskey,
+                clrpin: terminal.clrpinkey,
+                field43: terminal.parsedParams?.merchantNameLocation,
+                field42: terminal.parsedParams?.mid,
             };
-            const socketResponse = await performCardSocketTranaction(messageType, patchedPayload);
+            const socketResponse =( 
+                messageType === TransactionTypes.ISO_TRANSACTION && 
+                terminal.profile.isInteliffin
+            )? 
+                await IsoCardContoller.hanldeIntellifin(messageType, patchedPayload, terminal) : 
+                await performCardSocketTransaction(messageType, patchedPayload);
+
             const { data } = socketResponse
             const responseData = data.data || data;
-            const journalPayload = messageType === TransactionTypes.ISO_TRANSACTION ? IsoCardContoller.createNIBBSJournal(responseData, body) : IsoCardContoller.createISWJournal(responseData, body, terminal);
+            const journalPayload = messageType === TransactionTypes.ISO_TRANSACTION ? IsoCardContoller.createNIBBSJournal(responseData, patchedPayload) : IsoCardContoller.createISWJournal(responseData, body, terminal);
             terminal.appVersion = appVersion;
             terminal.save();
             
@@ -232,12 +248,59 @@ class IsoCardContoller {
         }
     }
 
-    private static async hanldeIntellifin(type: TransactionTypes, payload: any) {
+    private static async hanldeIntellifin(
+        type: TransactionTypes, 
+        payload: PurchasePayload,
+        terminal: ITerminal
+    ): Promise<CardSocketResponse> {
+        try {
+            const data = await Inteliffin.performTranaction({
+                amount: payload.field4,
+                pinblock: payload.field52,
+                terminalid: payload.tid,
+                merchantid: payload.field42,
+                cashback: "0",
+                merchant_address: terminal.parsedParams?.merchantNameLocation,
+                transtype: type === TransactionTypes.ISO_TRANSACTION ? InteliffinTransTypes.PURCHASE: InteliffinTransTypes.PURCHASE,
+                stan: payload.field11,
+                iccdata: payload.field55,
+                track2: payload.field35,
+                rrn: payload.field37,
+                panseqno: payload.panseqno,
+                merchant_category_code: terminal.parsedParams?.mechantCategoryCode,
+                currecy_code: terminal.parsedParams?.currencyCode,
+            })
 
+            return {
+                status: data.response === "00",
+                message: data.description,
+                data:{
+                    resp:    data.response,
+                    auth:    data.authid,
+                    meaning: data.description,
+                    icc:   data.iccresponse,
+                    stan: data.stan,
+                    rrn: data.rrn,
+                    balance: data.balance,
+                }
+            }
+        } catch (error) {
+            console.error(error.message, error)
+            return {
+                status: false,
+                message: error.message,
+                data:{
+                    resp:    "06",
+                    auth:    null,
+                    meaning: "An error occurred",
+                    icc:    null,
+                }
+            }
+        }
     }
 
     private static async handleOtherTransaction(type: TransactionTypes, payload: any): Promise<CardSocketResponse> {
-        return await performCardSocketTranaction(type, payload);
+        return await performCardSocketTransaction(type, payload);
     }
 
     private static patchISWPayload(data: any, profile: IPTSPProfile, terminal: ITerminal): object {
@@ -248,9 +311,12 @@ class IsoCardContoller {
             merchantLocation: terminal?.parsedParams.merchantNameLocation || "HAPTICKSDATA LTD LA LANG",
             tid: terminal.iswTid,
             mid: profile.iswMid,
+            field43: terminal.parsedParams?.merchantNameLocation || data.field43,
             uniqueId: terminal.iswUniqueId,
             amount: data.field4 || data.amount || 0,
             totalamount: data.field4 || data.amount || 0,
+            clrsesskey: terminal.clrsesskey,
+            clrpin: terminal.clrpinkey,
         }
     }
 
@@ -264,9 +330,9 @@ class IsoCardContoller {
     private static createNIBBSJournal(response: CardPurchaseResponse, payload: ISOPayload): IJournal {
         return {
             PAN: Utils.getMaskPan(payload.field2),
-            rrn: payload.field37,
+            rrn: response.rrn || payload.field37,
             amount: Number.parseFloat(payload.field4),
-            STAN: payload.field11,
+            STAN: response.stan || payload.field11,
             cardExpiration: payload.field14,
             terminalId: payload.field41,
             merchantId: payload.field42,
@@ -305,7 +371,6 @@ class IsoCardContoller {
     }
 
     private static async processWebHook(transaction: IJournalDocument, terminal: ITerminal) {
-        console.log("Webhook Id", terminal.profile.webhookId)
         if(!terminal.profile.webhookId) return;
         webhookQueue.add('sendNotification',{
             tranactionId: transaction._id,

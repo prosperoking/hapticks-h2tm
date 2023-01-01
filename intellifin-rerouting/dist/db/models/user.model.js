@@ -16,6 +16,7 @@ exports.UserRole = void 0;
 const mongoose_1 = require("mongoose");
 const argon2_1 = __importDefault(require("argon2"));
 const crypto_1 = __importDefault(require("crypto"));
+const mongoose_paginate_v2_1 = __importDefault(require("mongoose-paginate-v2"));
 var UserRole;
 (function (UserRole) {
     UserRole["ADMIN"] = "admin";
@@ -57,6 +58,10 @@ const UserSchema = new mongoose_1.Schema({
         type: [mongoose_1.SchemaTypes.String],
         default: []
     },
+    requirePasswordChange: {
+        type: mongoose_1.SchemaTypes.Boolean,
+        default: false,
+    }
 }, {
     timestamps: true,
     toJSON: {
@@ -66,7 +71,7 @@ const UserSchema = new mongoose_1.Schema({
 UserSchema.virtual('organisation', {
     localField: 'organisation_id',
     foreignField: '_id',
-    ref: 'organisation',
+    ref: 'organisationProfile',
     justOne: true,
 });
 UserSchema.virtual('imageUrl').get(function () {
@@ -78,6 +83,7 @@ UserSchema.pre("save", function () {
         this.password = yield argon2_1.default.hash(this.password);
     });
 });
+UserSchema.plugin(mongoose_paginate_v2_1.default);
 const User = (0, mongoose_1.model)('user', UserSchema);
 exports.default = User;
 //# sourceMappingURL=user.model.js.map

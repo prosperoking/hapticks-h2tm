@@ -10,6 +10,7 @@ export interface CardSocketResponse {
 export enum TransactionTypes {
     KEY_EXCHANGE= "KEY EXCHANGE",
     ISO_TRANSACTION= "ISO",
+    NIBSS_TRANSACTION= "NIBSS",
     ISW_KIMONO= "KIMONO"
 }
 

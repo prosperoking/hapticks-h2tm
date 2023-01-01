@@ -70,6 +70,14 @@ const ptspProfileSchema = new mongoose.Schema({
         type: String,
         default: null,
     },
+    allowProcessorOverride: {
+        type: Boolean,
+        default: false,
+    },
+    type: {
+        type: String,
+        default: 'generic',
+    },
     organisationId: {
         type: mongoose_1.SchemaTypes.ObjectId,
         default: null,
@@ -77,10 +85,6 @@ const ptspProfileSchema = new mongoose.Schema({
     webhookId: {
         type: mongoose_1.SchemaTypes.ObjectId,
         default: null,
-    },
-    isInteliffin: {
-        type: mongoose_1.SchemaTypes.Boolean,
-        default: false,
     }
 }, {
     timestamps: true,
@@ -92,6 +96,9 @@ ptspProfileSchema.virtual('terminals', {
     ref: 'terminal',
     localField: '_id',
     foreignField: 'profileId',
+});
+ptspProfileSchema.virtual('isInteliffin').get(function () {
+    return this.type === 'intelliffin';
 });
 ptspProfileSchema.virtual('organisation', {
     ref: 'organisationProfile',

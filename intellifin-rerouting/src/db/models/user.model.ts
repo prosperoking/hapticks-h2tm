@@ -23,6 +23,7 @@ export interface IUserData extends Document {
     role: string,
     imageUrl?: string,
     permissions: string[],
+    requirePasswordChange: boolean,
     createdAt: string,
     updatedAt: string,
 }
@@ -65,6 +66,10 @@ const UserSchema = new Schema<IUserData>({
         type: [SchemaTypes.String],
         default: []
     },
+    requirePasswordChange: {
+        type: SchemaTypes.Boolean,
+        default: false,
+    }
 }, {
     timestamps: true,
     toJSON: {
@@ -75,7 +80,7 @@ const UserSchema = new Schema<IUserData>({
 UserSchema.virtual('organisation', {
     localField: 'organisation_id',
     foreignField: '_id',
-    ref: 'organisation',
+    ref: 'organisationProfile',
     justOne: true,
 });
 

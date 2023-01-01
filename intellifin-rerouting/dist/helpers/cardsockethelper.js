@@ -10,6 +10,7 @@ var TransactionTypes;
 (function (TransactionTypes) {
     TransactionTypes["KEY_EXCHANGE"] = "KEY EXCHANGE";
     TransactionTypes["ISO_TRANSACTION"] = "ISO";
+    TransactionTypes["NIBSS_TRANSACTION"] = "NIBSS";
     TransactionTypes["ISW_KIMONO"] = "KIMONO";
 })(TransactionTypes = exports.TransactionTypes || (exports.TransactionTypes = {}));
 function performCardSocketTranaction(transaction, payload) {

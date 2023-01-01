@@ -9,6 +9,7 @@ class Config {
             DATABASE_HOSTNAME: process.env.DB_HOST,
             DATABASE_PORT: process.env.MDB_PORT,
             DATABASE_NAME: process.env.DB_NAME,
+            ADMIN_EMAILS: (process.env.ADMIN_EMAILS || '').replace(' ', '').split(','),
             enable_logging: [1, '1', 'true', true].includes(process.env.DB_LOGGING),
             options: {
                 user: process.env.DB_USERNAME || '',

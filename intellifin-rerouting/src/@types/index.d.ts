@@ -1,4 +1,4 @@
-// src/@types/express/index.d.ts
+// src/index.d.ts
 
 import { IUserData } from '../db/models/user.model';
 export {}

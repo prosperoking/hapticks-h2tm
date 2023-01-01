@@ -62,6 +62,7 @@ class DashboardController {
                 const date = (0, moment_1.default)().format("YYYY-MM-DD");
                 // @ts-ignore
                 const organisationFilter = ((_a = request.user) === null || _a === void 0 ? void 0 : _a.organisation_id) ? { organisationId: (_b = request.user) === null || _b === void 0 ? void 0 : _b.organisation_id } : {};
+                console.log(request.query);
                 const transactions = yield transaction_model_1.default.paginate(Object.assign(Object.assign({}, DashboardController.filterGen(request.query)), organisationFilter), {
                     sort: { _id: -1 },
                     limit: Number(request.query.limit || 50),
@@ -80,7 +81,8 @@ class DashboardController {
             }
         });
     }
-    static filterGen({ q, organisation, startDate, endDate }) {
+    static filterGen({ q, organisation, startDate, endDate, processor }) {
+        console.log(processor);
         let query = {};
         if (q !== undefined) {
             query = Object.assign(Object.assign({}, query), { $or: [
@@ -91,9 +93,16 @@ class DashboardController {
                         rrn: RegExp(`^${q}`, 'i'),
                     },
                     {
-                        merchantName: { $regex: `${q}` },
-                    }
+                        merchantName: RegExp(`${q}`, 'i'),
+                    },
+                    {
+                        merchantId: RegExp(`^${q}`, 'i'),
+                    },
                 ] });
+        }
+        if (processor !== undefined &&
+            ["kimono", "nibss"].includes(processor.toLowerCase())) {
+            query = Object.assign(Object.assign({}, query), { processor: processor.toUpperCase() });
         }
         if (organisation !== undefined) {
             query = Object.assign(Object.assign({}, query), { organisationId: organisation });
@@ -117,6 +126,7 @@ class DashboardController {
                     },
                 ] });
         }
+        console.log("query: ", query);
         return query;
     }
 }

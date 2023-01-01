@@ -58,8 +58,7 @@ async function handleIntelifinKeyExchange(terminal: TerminalDocument) {
     
     
     try {
-        const data = await Inteliffin.create({ ip: isoHost, port: isoPort })
-                    .getPrepInfo({
+        const data = await Inteliffin.getPrepInfo({
                         terminalid: terminal.terminalId,
                         serialno: terminal.serialNo,
                     });
@@ -79,22 +78,32 @@ async function handleIntelifinKeyExchange(terminal: TerminalDocument) {
             merchantid,
             timeout,
         } = data;
-
+        const padLeadingZeros = (num:number)=> num.toString().padStart(2, '0');
         terminal.encmasterkey = pin_key;
         terminal.encpinkey = data.pin_key;
         terminal.encsesskey = data.pin_key;
         terminal.clrmasterkey = data.pin_key;
         terminal.clrsesskey = data.pin_key;
         terminal.clrpinkey = data.pin_key;
+        console.log([
+            ["020",padLeadingZeros(datetime.length),datetime],
+            ["030",padLeadingZeros(merchantid.length), merchantid],
+            ["040",padLeadingZeros(timeout.length), timeout],
+            ["050",padLeadingZeros( currency_code.length), currency_code,],
+            ["060",padLeadingZeros( country_code.length), country_code],
+            ["070",padLeadingZeros(callhome.length),callhome],
+            ["080",padLeadingZeros(merchant_category_code.length), merchant_category_code],
+            ["520",padLeadingZeros(merchant_address.length), merchant_address],
+        ])
         terminal.paramdownload = [
-            ["020",datetime.length,datetime],
-            ["030",merchantid.length, merchantid],
-            ["040",timeout.length, timeout],
-            ["050", currency_code.length, currency_code,],
-            ["060", country_code.length, country_code],
-            ["070",callhome.length,callhome],
-            ["080",merchant_category_code.length, merchant_category_code],
-            ["520",merchant_address.length, merchant_address],
+            ["020",padLeadingZeros(datetime.length),datetime],
+            ["030",padLeadingZeros(merchantid.length), merchantid],
+            ["040",padLeadingZeros(timeout.length), timeout],
+            ["050",padLeadingZeros( currency_code.length), currency_code,],
+            ["060",padLeadingZeros( country_code.length), country_code],
+            ["070",padLeadingZeros(callhome.length),callhome],
+            ["080",padLeadingZeros(merchant_category_code.length), merchant_category_code],
+            ["520",padLeadingZeros(merchant_address.length), merchant_address],
         ].map(a=>a.join('')).join('');
         
         await terminal.save();

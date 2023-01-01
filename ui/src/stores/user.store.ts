@@ -1,7 +1,7 @@
 import {defineStore} from 'pinia';
 import { User } from '../@types/types';
 import { appHttp } from '../plugins/AxiosPlugin';
-import { useRouter } from 'vue-router';
+import { useRouter, Router } from 'vue-router';
 
 
 
@@ -28,19 +28,22 @@ export const useUserStore = defineStore('auth', {
             }
         },
 
-        async logoutUser() {
-            const router = useRouter();
-            if(!this.user) {
-                this.clearState();
-                return router.replace({name: "Login"})
-            }
+        async logoutUser(irouter?: Router) {
+            const router = irouter ?? useRouter();
+            
 
             try {
-                await appHttp?.get('/dashboard/auth/logout');
+                if(this.user) {
+                    await appHttp?.post('/dashboard/auth/logout');
+                }   
                 this.clearState();
-                router.replace({name: "Login"})
             } catch (error) {
                 console.log("failed",error);
+            }finally{
+                if(!router) {
+                    return (window.location.href = "/")
+                }
+                router.replace({name: "Login"})
             }
         }
     },

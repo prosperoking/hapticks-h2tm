@@ -31,16 +31,58 @@ const profileUpdateValidator = createValidatedRequest(checkSchema({
     isoHost: {
         in: ['body'],
         trim: true,
+        customSanitizer: {
+            options: (value: string) => {
+                if(!value?.length) return null;
+                return parseInt(value);
+            }
+        },
+        optional:{
+            options:{
+                nullable: true,
+            }
+        },
         isIP: true,
     },
     isoPort: {
         in: ['body'],
         trim: true,
+        customSanitizer: {
+            options: (value: string) => {
+                console.log("Port: ", value)
+                if(!value?.length) return null;
+                return parseInt(value);
+            }
+        },
+        optional:{
+            options:{
+                nullable: true,
+            }
+        },
         isPort: true,
+    },
+    allowProcessorOverride: {
+        in: ['body'],
+        isBoolean: true,
+        customSanitizer: {
+            options: 
+                value => ['true','false','1','0'].includes(String(value)
+                            .toLowerCase())
+        },
+        optional:{
+            options:{
+                nullable: true,
+            }
+        },
     },
     isSSl: {
         in: ['body'],
         toBoolean: true,
+        optional:{
+            options:{
+                nullable: true,
+            }
+        },
     },
     iswDestinationAccount: {
         in: ['body'],
@@ -85,10 +127,12 @@ const profileUpdateValidator = createValidatedRequest(checkSchema({
             bail: true,
         }
     },
-    isInteliffin: {
+    type: {
         in: ['body'],
-        optional: true,
-        toBoolean: true,
+        matches: {
+            options: [/\b(?:generic|intelliffin)\b/],
+            errorMessage: "Invalid Profile type"
+        }
     },
     webhookId: {
         in: ['body'],
