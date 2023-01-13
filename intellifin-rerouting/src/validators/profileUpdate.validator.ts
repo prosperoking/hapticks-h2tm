@@ -34,7 +34,7 @@ const profileUpdateValidator = createValidatedRequest(checkSchema({
         customSanitizer: {
             options: (value: string) => {
                 if(!value?.length) return null;
-                return parseInt(value);
+                return value;
             }
         },
         optional:{
