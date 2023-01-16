@@ -86,6 +86,26 @@ const profileUpdateValidator = (0, index_1.createValidatedRequest)((0, schema_1.
         in: ['body'],
         trim: true,
     },
+    role: {
+        in: ['body'],
+        trim: true,
+        optional: true,
+        custom: {
+            options: (value, { req, location, path }) => __awaiter(void 0, void 0, void 0, function* () {
+                if (!(value === null || value === void 0 ? void 0 : value.length))
+                    return;
+                if (!['user', 'admin'].includes(value))
+                    return Promise.reject();
+            })
+        },
+        customSanitizer: {
+            options: (value, { req, location, path }) => {
+                if (!(value === null || value === void 0 ? void 0 : value.length))
+                    return;
+                return value.toLowerCase();
+            }
+        }
+    },
     organisationId: {
         in: ['body'],
         optional: true,

@@ -42,7 +42,7 @@ class IsoCardContoller {
                 terminal.appVersion = appVersion; // update app version
                 const { componentKey1, isoHost, isoPort, isSSL, type } = terminal.profile;
                 if (type === 'intelliffin')
-                    return this.handleIntelifinKeyExchange(terminal, response);
+                    return IsoCardContoller.handleIntelifinKeyExchange(terminal, response);
                 const result = yield (0, cardsockethelper_1.performCardSocketTranaction)(cardsockethelper_1.TransactionTypes.KEY_EXCHANGE, {
                     tid: terminal.terminalId,
                     component: componentKey1,
@@ -74,7 +74,7 @@ class IsoCardContoller {
             }
         });
     }
-    handleIntelifinKeyExchange(terminal, response) {
+    static handleIntelifinKeyExchange(terminal, response) {
         return __awaiter(this, void 0, void 0, function* () {
             const { isoHost, isoPort, isSSL } = terminal.profile;
             try {
@@ -186,6 +186,7 @@ class IsoCardContoller {
                     yield IsoCardContoller.hanldeIntellifin(messageType, patchedPayload, terminal) :
                     yield (0, cardsockethelper_1.performCardSocketTranaction)(messageType, patchedPayload);
                 const { data } = socketResponse;
+                console.log("Response: %s", JSON.stringify(data));
                 const responseData = data.data || data;
                 const journalPayload = messageType === cardsockethelper_1.TransactionTypes.ISO_TRANSACTION ? IsoCardContoller.createNIBBSJournal(responseData, patchedPayload) : IsoCardContoller.createISWJournal(responseData, body, terminal);
                 terminal.appVersion = appVersion;
@@ -221,7 +222,7 @@ class IsoCardContoller {
                     rrn: payload.field37,
                     panseqno: payload.panseqno,
                     merchant_category_code: (_b = terminal.parsedParams) === null || _b === void 0 ? void 0 : _b.mechantCategoryCode,
-                    currecy_code: (_c = terminal.parsedParams) === null || _c === void 0 ? void 0 : _c.currencyCode,
+                    currency_code: (_c = terminal.parsedParams) === null || _c === void 0 ? void 0 : _c.currencyCode,
                 });
                 return {
                     status: data.response === "00",
@@ -259,7 +260,7 @@ class IsoCardContoller {
     }
     static patchISWPayload(data, profile, terminal) {
         var _a;
-        return Object.assign(Object.assign({}, data), { destInstitutionCode: profile.iswInstitutionCode, destAccountNumber: profile.iswDestinationAccount, merchantLocation: (terminal === null || terminal === void 0 ? void 0 : terminal.parsedParams.merchantNameLocation) || "HAPTICKSDATA LTD LA LANG", tid: terminal.iswTid, mid: profile.iswMid, field43: ((_a = terminal.parsedParams) === null || _a === void 0 ? void 0 : _a.merchantNameLocation) || data.field43, uniqueId: terminal.iswUniqueId, amount: data.field4 || data.amount || 0, totalamount: data.field4 || data.amount || 0, clrsesskey: terminal.clrsesskey, clrpin: terminal.clrpinkey });
+        return Object.assign(Object.assign({}, data), { destInstitutionCode: profile.iswInstitutionCode, destAccountNumber: profile.iswDestinationAccount, merchantLocation: (terminal === null || terminal === void 0 ? void 0 : terminal.parsedParams.merchantNameLocation) || "HAPTICKSDATA LTD LA LANG", tid: terminal.iswTid, mid: profile.iswMid, field43: ((_a = terminal.parsedParams) === null || _a === void 0 ? void 0 : _a.merchantNameLocation) || data.field43, uniqueId: terminal.iswUniqueId, amount: data.field4 || data.amount || 0, totalamount: data.field4 || data.amount || 0, clrsesskey: terminal.clrsesskey, clrpin: terminal.clrpinkey, pinblock: data.pinblock || '' });
     }
     static getMessageType(terminal, amount) {
         var _a;

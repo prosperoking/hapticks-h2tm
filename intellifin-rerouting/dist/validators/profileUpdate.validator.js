@@ -50,7 +50,7 @@ const profileUpdateValidator = (0, index_1.createValidatedRequest)((0, schema_1.
             options: (value) => {
                 if (!(value === null || value === void 0 ? void 0 : value.length))
                     return null;
-                return parseInt(value);
+                return value;
             }
         },
         optional: {

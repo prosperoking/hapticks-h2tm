@@ -137,7 +137,6 @@ exports.default = applyAuthSetup;
 const authMiddleware = (roles = [], permissions = []) => {
     return (req, res, next) => {
         var _a, _b, _c, _d;
-        console.log("auth ", roles, permissions);
         if (!req.user) {
             return res.status(401).json({
                 message: "Not Authenticated"

@@ -72,6 +72,23 @@ const profileUpdateValidator = createValidatedRequest(checkSchema({
         in: ['body'],
         trim: true,
     },
+    role: {
+        in: ['body'],
+        trim: true,
+        optional: true,
+        custom: {
+            options: async (value: string, {req, location, path}) =>{
+                if(!value?.length) return;
+                if(!['user','admin'].includes(value)) return Promise.reject();
+            }
+        },
+        customSanitizer: {
+            options: (value: string, {req, location, path}) =>{
+                if(!value?.length) return;
+                return value.toLowerCase();
+            }
+        }
+    },
     organisationId: {
         in: ['body'],
         optional: true,

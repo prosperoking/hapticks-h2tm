@@ -117,7 +117,6 @@ export default function applyAuthSetup(app: Application) {
 
 export const authMiddleware: (roles?:string[], permissions?: string[])=> RequestHandler = (roles =[], permissions = [])=>{
     return (req,res, next)=>{
-        console.log("auth ", roles, permissions)
         if(!req.user) {
             return res.status(401).json({
                 message: "Not Authenticated"

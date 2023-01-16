@@ -31,7 +31,7 @@ export type PerformTransactionOptions = {
   panseqno: string;
   track2: string;
   merchant_address: string;
-  currecy_code: string;
+  currency_code: string;
   pinblock?: string;
   rrn?: string;
   stan?: string;

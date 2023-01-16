@@ -51,7 +51,7 @@ class IsoCardContoller {
 
             const { componentKey1, isoHost, isoPort, isSSL, type  } = terminal.profile
             
-            if (type === 'intelliffin')  return this.handleIntelifinKeyExchange(terminal, response);
+            if (type === 'intelliffin')  return IsoCardContoller.handleIntelifinKeyExchange(terminal, response);
 
 
             const result = await performCardSocketTransaction(TransactionTypes.KEY_EXCHANGE, {
@@ -86,7 +86,7 @@ class IsoCardContoller {
             })
         }
     }
-    private async handleIntelifinKeyExchange(terminal: TerminalDocument, response: Response) {
+    public static async handleIntelifinKeyExchange(terminal: TerminalDocument, response: Response) {
         const { isoHost, isoPort, isSSL } = terminal.profile
         
         
@@ -230,6 +230,7 @@ class IsoCardContoller {
                 await performCardSocketTransaction(messageType, patchedPayload);
 
             const { data } = socketResponse
+            console.log("Response: %s", JSON.stringify(data))
             const responseData = data.data || data;
             const journalPayload = messageType === TransactionTypes.ISO_TRANSACTION ? IsoCardContoller.createNIBBSJournal(responseData, patchedPayload) : IsoCardContoller.createISWJournal(responseData, body, terminal);
             terminal.appVersion = appVersion;
@@ -268,7 +269,7 @@ class IsoCardContoller {
                 rrn: payload.field37,
                 panseqno: payload.panseqno,
                 merchant_category_code: terminal.parsedParams?.mechantCategoryCode,
-                currecy_code: terminal.parsedParams?.currencyCode,
+                currency_code: terminal.parsedParams?.currencyCode,
             })
 
             return {
@@ -317,6 +318,7 @@ class IsoCardContoller {
             totalamount: data.field4 || data.amount || 0,
             clrsesskey: terminal.clrsesskey,
             clrpin: terminal.clrpinkey,
+            pinblock: data.pinblock || '',
         }
     }
 
