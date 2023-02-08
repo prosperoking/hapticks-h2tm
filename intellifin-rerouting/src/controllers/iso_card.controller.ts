@@ -249,10 +249,64 @@ class IsoCardContoller {
         }
     }
 
+    public async checkBalance(request: Request, response: Response) {
+        try {
+            const serial = request.header('x-serial-no');
+            const brand = request.header('x-brand');
+            const deviceModel = request.header('x-device-model') || '';
+            const appVersion = request.header('x-app-version');
+
+            const terminal = await Terminal.findOne({ 
+                serialNo: serial, 
+                deviceModel: deviceModel?.toUpperCase() || null, 
+                brand: brand?.toUpperCase() || null 
+            })
+            .populate({path: 'profile',});
+
+            const { body } = request
+            let processor  = String(body.processor).toUpperCase();
+            processor = processor === 'NIBSS' ? 'ISO' : processor;
+            console.log("Processor: %s => %s", terminal.terminalId, body.tid)
+            if (!terminal || terminal.terminalId !== body.tid) return response.status(404).json({ message: "Terminal not found/ Provisioned" });
+            const { componentKey1, isoHost, isoPort, isSSL, type } = terminal.profile;
+
+            const patchedPayload = {
+                ...body,
+                component: componentKey1,
+                ip: isoHost,
+                ssl: String(isSSL),
+                port: isoPort,
+                clrsesskey: terminal.clrsesskey,
+                clrpin: terminal.clrpinkey,
+                field0: '0100',
+                field3: '31'+ body.field3.substring(2),
+                field43: terminal.parsedParams?.merchantNameLocation,
+                field42: terminal.parsedParams?.mid,
+            };
+
+            const socketResponse =( 
+                terminal.profile.isInteliffin
+            )? 
+                await IsoCardContoller.hanldeIntellifin(TransactionTypes.BALACE_CHECK, patchedPayload, terminal, 7) : 
+                await performCardSocketTransaction(TransactionTypes.BALACE_CHECK, patchedPayload);
+
+            const { data } = socketResponse
+            const responseData = data.data || data;
+            terminal.appVersion = appVersion;
+            terminal.save();
+
+            return response.json({... socketResponse, ...{...socketResponse.data?.data || {}, },data: responseData, ...responseData });
+        } catch (error) {
+            console.log("Error: %s", error)
+            return response.status(400).json({status: false, data: null, message: "An error Occured"})
+        }
+    }
+
     private static async hanldeIntellifin(
         type: TransactionTypes, 
         payload: PurchasePayload,
-        terminal: ITerminal
+        terminal: ITerminal,
+        transType: number | null = null
     ): Promise<CardSocketResponse> {
         try {
             const data = await Inteliffin.performTranaction({
@@ -262,7 +316,7 @@ class IsoCardContoller {
                 merchantid: payload.field42,
                 cashback: "0",
                 merchant_address: terminal.parsedParams?.merchantNameLocation,
-                transtype: type === TransactionTypes.ISO_TRANSACTION ? InteliffinTransTypes.PURCHASE: InteliffinTransTypes.PURCHASE,
+                transtype: transType ?? type === TransactionTypes.ISO_TRANSACTION ? InteliffinTransTypes.PURCHASE: InteliffinTransTypes.PURCHASE,
                 stan: payload.field11,
                 iccdata: payload.field55,
                 track2: payload.field35,

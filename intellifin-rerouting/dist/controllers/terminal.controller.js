@@ -38,8 +38,7 @@ class TerminalController {
                 // @ts-ignore
                 const orgId = !request.user.organisaitonId ? organisation : request.user.organisationId;
                 if (orgId === null || orgId === void 0 ? void 0 : orgId.length)
-                    filter.organisationId = orgId;
-                console.log('filter: ', filter, orgId, organisation);
+                    filter = Object.assign(Object.assign({}, filter), { organisationId: orgId });
                 const data = yield terminal_model_1.default.paginate(filter, {
                     populate: [
                         { path: 'profile', select: 'title iswSwitchAmount' },

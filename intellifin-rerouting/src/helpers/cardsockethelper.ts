@@ -11,7 +11,8 @@ export enum TransactionTypes {
     KEY_EXCHANGE= "KEY EXCHANGE",
     ISO_TRANSACTION= "ISO",
     NIBSS_TRANSACTION= "NIBSS",
-    ISW_KIMONO= "KIMONO"
+    ISW_KIMONO= "KIMONO",
+    BALACE_CHECK= "BALANCE",
 }
 
 export function performCardSocketTranaction(transaction: TransactionTypes, payload: any): 

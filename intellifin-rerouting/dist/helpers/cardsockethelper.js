@@ -12,6 +12,7 @@ var TransactionTypes;
     TransactionTypes["ISO_TRANSACTION"] = "ISO";
     TransactionTypes["NIBSS_TRANSACTION"] = "NIBSS";
     TransactionTypes["ISW_KIMONO"] = "KIMONO";
+    TransactionTypes["BALACE_CHECK"] = "BALANCE";
 })(TransactionTypes = exports.TransactionTypes || (exports.TransactionTypes = {}));
 function performCardSocketTranaction(transaction, payload) {
     return new Promise((resolve, reject) => {

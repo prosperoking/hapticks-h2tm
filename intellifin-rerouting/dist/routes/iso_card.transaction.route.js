@@ -9,5 +9,6 @@ const router = express_1.default.Router();
 router.get('/perform-key-exchange', index_controller_1.isoCardController.performKeyExchange);
 router.get('/terminal-info', index_controller_1.isoCardController.getTerminalInfo);
 router.post('/processCard', index_controller_1.isoCardController.processCard);
+router.post('/checkBalance', index_controller_1.isoCardController.checkBalance);
 exports.default = router;
 //# sourceMappingURL=iso_card.transaction.route.js.map

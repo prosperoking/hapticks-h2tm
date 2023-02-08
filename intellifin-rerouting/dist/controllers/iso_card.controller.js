@@ -204,7 +204,44 @@ class IsoCardContoller {
             }
         });
     }
-    static hanldeIntellifin(type, payload, terminal) {
+    checkBalance(request, response) {
+        var _a, _b, _c;
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const serial = request.header('x-serial-no');
+                const brand = request.header('x-brand');
+                const deviceModel = request.header('x-device-model') || '';
+                const appVersion = request.header('x-app-version');
+                const terminal = yield terminal_model_1.default.findOne({
+                    serialNo: serial,
+                    deviceModel: (deviceModel === null || deviceModel === void 0 ? void 0 : deviceModel.toUpperCase()) || null,
+                    brand: (brand === null || brand === void 0 ? void 0 : brand.toUpperCase()) || null
+                })
+                    .populate({ path: 'profile', });
+                const { body } = request;
+                let processor = String(body.processor).toUpperCase();
+                processor = processor === 'NIBSS' ? 'ISO' : processor;
+                console.log("Processor: %s => %s", terminal.terminalId, body.tid);
+                if (!terminal || terminal.terminalId !== body.tid)
+                    return response.status(404).json({ message: "Terminal not found/ Provisioned" });
+                const { componentKey1, isoHost, isoPort, isSSL, type } = terminal.profile;
+                const patchedPayload = Object.assign(Object.assign({}, body), { component: componentKey1, ip: isoHost, ssl: String(isSSL), port: isoPort, clrsesskey: terminal.clrsesskey, clrpin: terminal.clrpinkey, field0: '0100', field3: '31' + body.field3.substring(2), field43: (_a = terminal.parsedParams) === null || _a === void 0 ? void 0 : _a.merchantNameLocation, field42: (_b = terminal.parsedParams) === null || _b === void 0 ? void 0 : _b.mid });
+                const socketResponse = (terminal.profile.isInteliffin) ?
+                    yield IsoCardContoller.hanldeIntellifin(cardsockethelper_1.TransactionTypes.BALACE_CHECK, patchedPayload, terminal, 7) :
+                    yield (0, cardsockethelper_1.performCardSocketTranaction)(cardsockethelper_1.TransactionTypes.BALACE_CHECK, patchedPayload);
+                const { data } = socketResponse;
+                const responseData = data.data || data;
+                terminal.appVersion = appVersion;
+                terminal.save();
+                return response.json(Object.assign(Object.assign(Object.assign(Object.assign({}, socketResponse), Object.assign({}, ((_c = socketResponse.data) === null || _c === void 0 ? void 0 : _c.data) || {})), { data: responseData }), responseData));
+            }
+            catch (error) {
+                console.log("Error: %s", error);
+                return response.status(400).json({ status: false, data: null, message: "An error Occured" });
+            }
+        });
+    }
+    static hanldeIntellifin(type, payload, terminal, transType = null) {
         var _a, _b, _c;
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -215,7 +252,7 @@ class IsoCardContoller {
                     merchantid: payload.field42,
                     cashback: "0",
                     merchant_address: (_a = terminal.parsedParams) === null || _a === void 0 ? void 0 : _a.merchantNameLocation,
-                    transtype: type === cardsockethelper_1.TransactionTypes.ISO_TRANSACTION ? inteliffin_2.InteliffinTransTypes.PURCHASE : inteliffin_2.InteliffinTransTypes.PURCHASE,
+                    transtype: (transType !== null && transType !== void 0 ? transType : type === cardsockethelper_1.TransactionTypes.ISO_TRANSACTION) ? inteliffin_2.InteliffinTransTypes.PURCHASE : inteliffin_2.InteliffinTransTypes.PURCHASE,
                     stan: payload.field11,
                     iccdata: payload.field55,
                     track2: payload.field35,

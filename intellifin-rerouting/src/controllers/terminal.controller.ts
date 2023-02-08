@@ -23,8 +23,7 @@ export default class TerminalController {
             };
             // @ts-ignore
             const orgId = !request.user.organisaitonId ? organisation : request.user.organisationId;
-            if(orgId?.length) filter.organisationId = orgId;
-            console.log('filter: ', filter, orgId, organisation )
+            if(orgId?.length) filter = {...filter, organisationId: orgId };
             const data = await Terminal.paginate(filter,{
                 populate: [
                     {path: 'profile', select:'title iswSwitchAmount'},
