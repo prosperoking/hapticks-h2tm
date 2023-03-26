@@ -113,9 +113,9 @@ const terminalSchema = new mongoose.Schema<ITerminal>({
     },
     iswTid: {
         type: String,
-        // unique: true,
+        unique: true,
         default: null,
-        // sparse: true,
+        sparse: true,
         get: function(value){
           return value?.length ? value : this.terminalId
         },
@@ -125,9 +125,9 @@ const terminalSchema = new mongoose.Schema<ITerminal>({
     },
     iswUniqueId: {
         type: String,
-        // default: null,
+        default: null,
         unique: true,
-        // sparse: true,
+        sparse: true,
         get: function(value){
             return value?.length ? value : this.serialNo
         },
