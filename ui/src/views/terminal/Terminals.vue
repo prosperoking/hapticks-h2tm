@@ -20,10 +20,17 @@
         <OrganisactionSelect v-model="organisation" />
       </div>
       <div class="space-x-2">
+
         <button @click="open = true"
-          class="px-6 py-2 mt-3 font-medium tracking-wide text-white bg-indigo-600 rounded-md hover:bg-indigo-500 focus:outline-none">
+          class="text-sm px-2 py-2 mt-3 font-medium tracking-wide text-white bg-indigo-600 rounded-md hover:bg-indigo-500 focus:outline-none">
           Add Terminal
         </button>
+
+        <button
+        @click="exportTerminals"
+        class="text-sm px-2 py-2 font-medium tracking-wide text-white bg-gray-600 rounded-md hover:bg-gray-500 focus:outline-none">
+        export
+      </button>
 
         <router-link :to="{ name: 'bulk-upload' }">
           upload csv
@@ -483,6 +490,37 @@ const fetchData = async () => {
   }
 }
 
+const exportTerminals = async () => {
+  try {
+    loading.value = true;
+    const { limit } = state.value.data;
+    const params: {[key:string]: any} = {
+      page: page.value,
+      limit,
+      q: search.value,
+      organisation: organisation.value
+    }
+    const url= new URL($axios?.defaults.baseURL!+'/dashboard/terminals/export', window.origin);
+    Object.keys(params).forEach(key => {
+      if(![undefined, null].includes(params[key]))
+       url.searchParams.append(key, params[key])
+    });
+    window.open(url, '_blank');
+  } catch (error: any) {
+    let message = error.message
+    if (error.isAxiosError) {
+      message = error.response.data.message;
+    }
+    notify({
+      title: "Error",
+      type: "error",
+      text: message,
+    });
+  } finally {
+    loading.value = false;
+  }
+}
+
 const editTerminal = (terminal: Terminal) => {
   form.value = {
     profileId: terminal.profileId,
@@ -548,6 +586,7 @@ const fetchProfilesData = async () => {
     console.log(error)
   }
 }
+
 
 
 const saveProfileForm = async () => {

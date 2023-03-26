@@ -186,6 +186,37 @@ class TerminalController {
             }
         });
     }
+    export(request, response) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { q, organisation } = request.query;
+                let filter = {};
+                if (q === null || q === void 0 ? void 0 : q.length) {
+                    filter = {
+                        $or: [
+                            { terminalId: RegExp(`^${q}`, 'i') },
+                            { serialNo: RegExp(`^${q}`, 'i') },
+                            { brand: RegExp(`^${q}`, 'i') },
+                            { deviceModel: RegExp(`^${q}`, 'i') },
+                        ]
+                    };
+                }
+                ;
+                // @ts-ignore
+                const orgId = !request.user.organisaitonId ? organisation : request.user.organisationId;
+                if (orgId === null || orgId === void 0 ? void 0 : orgId.length)
+                    filter = Object.assign(Object.assign({}, filter), { organisationId: orgId });
+                response.header('Content-Type', 'text/csv; charset=utf-8');
+                response.attachment(`terminals-${Date.now()}.csv`);
+                terminal_model_1.default.find(filter).cursor()
+                    .pipe(terminal_model_1.default.csvTransformStream()).pipe(response);
+            }
+            catch (error) {
+                console.log(error);
+                response.status(400).json({ message: error.message });
+            }
+        });
+    }
 }
 exports.default = TerminalController;
 //# sourceMappingURL=terminal.controller.js.map

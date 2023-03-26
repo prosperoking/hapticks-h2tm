@@ -246,7 +246,14 @@
             <Input title="ISW MID" v-model:value="form.iswMid" type="text" />
           </div>
           <div>
-            <Input title="ISW Destination Institution Code" v-model:value="form.iswInstitutionCode" type="number" />
+            <!-- <Input title="ISW Destination Institution Code" v-model:value="form.iswInstitutionCode" type="number" /> -->
+            <label class="w-1/5 text-sm font-bold text-gray-700" for="type">ISW Bank: </label>
+            <select
+                v-model="form.iswInstitutionCode"
+                class="w-2/5 p-1 mt-2 border border-gray-200 rounded-md focus:outline-none focus:border-none focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
+                name="typ" id="type">
+                <option v-for="(institution, index) of institutionCodes" :key="index" :value="institution.value">{{ institution.title }}</option>
+              </select>
           </div>
 
           <div>
@@ -365,6 +372,15 @@ const defualtState = {
   webhookId: null,
   organisationId: null,
 }
+
+const institutionCodes = [
+    {title: "UBA", value: 627480},
+    {title: "Fidelity", value: 639138},
+    {title: "Polari", value: 636092},
+    {title: "Unity bank", value: 639609},
+    {title: "Zenith", value:627629},
+    {title: "Providus", value:506146},
+]
 
 const confirmType = (value: string) => ['generic', 'intelliffin'].includes(value) || 'Invalid type'
 

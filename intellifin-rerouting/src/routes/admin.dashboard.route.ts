@@ -30,6 +30,11 @@ router.get('/transactions',
     hasRoleOrPermissions(['admin'], ['transactions.list']), 
     dashboardController.transactions
 );
+router.get('/transactions/export',
+    hasRoleOrPermissions(['admin'], ['transactions.list']),
+    dashboardController.export
+);
+
 router.get('/organisations', adminOnly, OrganisationController.getOrganisations);
 router.get('/organisations/all', adminOnly, OrganisationController.getAllOrganisations);
 router.post('/organisations', [
@@ -66,6 +71,12 @@ router.post('/terminals/bulk-upload',
     adminOnly,
     ... terminalBulkUploadValidator,
 ], terminalController.bulkUpload)
+
+router.get('/terminals/export',
+[
+    adminOnly
+], terminalController.export)
+
 router.put('/terminals/:id', [adminOnly, ... terminalUpdateValidator ], terminalController.update)
 router.get('/terminals/trigger-keyexchange/:id', [adminOnly ], terminalController.triggerKeyExchange)
 router.delete('/terminals/:id', adminOnly, terminalController.destroy)

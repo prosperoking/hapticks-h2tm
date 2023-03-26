@@ -18,6 +18,7 @@ function performCardSocketTranaction(transaction, payload) {
     return new Promise((resolve, reject) => {
         let response = [];
         const socket = net_1.default.connect({
+            host: process.env.CARD_SERVICE_HOST,
             port: parseInt(process.env.CARD_SERVICE_PORT),
             timeout: 6000 * 20
         }, () => {

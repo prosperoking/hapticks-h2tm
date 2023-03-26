@@ -222,6 +222,7 @@ class IsoCardContoller {
                 field43: terminal.parsedParams?.merchantNameLocation,
                 field42: terminal.parsedParams?.mid,
             };
+            console.log("MessageType: %s", messageType, messageType === TransactionTypes.ISO_TRANSACTION, terminal.profile.isInteliffin)
             const socketResponse =( 
                 messageType === TransactionTypes.ISO_TRANSACTION && 
                 terminal.profile.isInteliffin
@@ -242,7 +243,7 @@ class IsoCardContoller {
                 console.error("Error: %s \r\n Unable to save transaction: %s", err.message, JSON.stringify(journalPayload))
             });
 
-            return response.json({... socketResponse, ...{...socketResponse.data?.data || {}, },data: responseData, ...responseData });
+            return response.json({... socketResponse, ...{...socketResponse.data?.data || {}, processor: journalPayload.processor },data: responseData, ...responseData, processor: journalPayload.processor });
         } catch (error) {
             console.log("Error: %s", error)
             return response.status(400).json({status: false, data: null, message: "An error Occured"})
@@ -316,7 +317,7 @@ class IsoCardContoller {
                 merchantid: payload.field42,
                 cashback: "0",
                 merchant_address: terminal.parsedParams?.merchantNameLocation,
-                transtype: transType ?? type === TransactionTypes.ISO_TRANSACTION ? InteliffinTransTypes.PURCHASE: InteliffinTransTypes.PURCHASE,
+                transtype: transType?.toString() ?? (type === TransactionTypes.ISO_TRANSACTION ? InteliffinTransTypes.PURCHASE: InteliffinTransTypes.PURCHASE),
                 stan: payload.field11,
                 iccdata: payload.field55,
                 track2: payload.field35,

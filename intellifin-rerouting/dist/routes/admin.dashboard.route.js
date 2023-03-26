@@ -19,6 +19,7 @@ const hasRoleOrPermissions = (roles, permissions) => (0, index_1.authMiddleware)
 const hasPermissions = (permissions = []) => (0, index_1.authMiddleware)([], permissions);
 router.get('/', index_controller_1.dashboardController.index);
 router.get('/transactions', hasRoleOrPermissions(['admin'], ['transactions.list']), index_controller_1.dashboardController.transactions);
+router.get('/transactions/export', hasRoleOrPermissions(['admin'], ['transactions.list']), index_controller_1.dashboardController.export);
 router.get('/organisations', adminOnly, index_controller_1.OrganisationController.getOrganisations);
 router.get('/organisations/all', adminOnly, index_controller_1.OrganisationController.getAllOrganisations);
 router.post('/organisations', [
@@ -50,6 +51,9 @@ router.post('/terminals/bulk-upload', [
     adminOnly,
     ...terminalBulkUpload_validator_1.default,
 ], index_controller_1.terminalController.bulkUpload);
+router.get('/terminals/export', [
+    adminOnly
+], index_controller_1.terminalController.export);
 router.put('/terminals/:id', [adminOnly, ...terminalUpdate_validator_1.default], index_controller_1.terminalController.update);
 router.get('/terminals/trigger-keyexchange/:id', [adminOnly], index_controller_1.terminalController.triggerKeyExchange);
 router.delete('/terminals/:id', adminOnly, index_controller_1.terminalController.destroy);

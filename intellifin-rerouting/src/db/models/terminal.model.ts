@@ -4,6 +4,7 @@ import OrganisationModel from './organisation.model';
 import { OrganisationProfile } from './organisation.model';
 import paginate from 'mongoose-paginate-v2';
 import * as mongoose from 'mongoose';
+import csv from "mongoose-csv-export";
 
 export interface ITerminal {
     _id?: string,
@@ -112,9 +113,9 @@ const terminalSchema = new mongoose.Schema<ITerminal>({
     },
     iswTid: {
         type: String,
-        unique: true,
+        // unique: true,
         default: null,
-        sparse: true,
+        // sparse: true,
         get: function(value){
           return value?.length ? value : this.terminalId
         },
@@ -124,9 +125,9 @@ const terminalSchema = new mongoose.Schema<ITerminal>({
     },
     iswUniqueId: {
         type: String,
-        default: null,
+        // default: null,
         unique: true,
-        sparse: true,
+        // sparse: true,
         get: function(value){
             return value?.length ? value : this.serialNo
         },
@@ -187,6 +188,19 @@ terminalSchema.virtual('parsedParams').get(function(){
 
 
 terminalSchema.plugin(paginate)
+
+terminalSchema.plugin(csv, {
+    headers: ['SerialNo', 'TerminalId',  'IswTid', 'IswUniqueId', 'Brand', 'AppVersion', 'DeviceModel'],
+    alias: {
+        'SerialNo': 'serialNo',
+        'TerminalId': 'terminalId',
+        'IswTid': 'iswTid',
+        'IswUniqueId': 'iswUniqueId',
+        'Brand': 'brand',
+        'AppVersion': 'appVersion',
+        'DeviceModel': 'deviceModel',
+    }
+})
 
 const Termninal = mongoose.model<ITerminalDocument, PaginateModel<ITerminalDocument>>('terminal', terminalSchema);
 

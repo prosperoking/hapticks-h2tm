@@ -70,6 +70,28 @@ export default class DashboardController {
         }
     }
 
+    public async export(request: Request, response: Response) {
+        try {
+            const date = moment().format("YYYY-MM-DD")
+            // @ts-ignore
+            const organisationFilter = request.user?.organisation_id? { organisationId: request.user?.organisation_id} : {};
+
+            response.header('Content-Type', 'text/csv; charset=utf-8')
+            response.attachment(`transactions-${Date.now()}.csv`)
+            vasjournalsModel.find({
+                ...DashboardController.filterGen(request.query),
+                ...organisationFilter
+            }).sort( {_id: -1})
+            .cursor()
+            .pipe(vasjournalsModel.csvTransformStream()).pipe(response);
+        } catch (error) {
+            logger.error(error.message);
+            response.status(400).json({
+                message: "An error occured"
+            })
+        }
+    }
+
     private static filterGen({q, organisation, startDate, endDate, processor}: any) {
         console.log(processor)
         let query = {};

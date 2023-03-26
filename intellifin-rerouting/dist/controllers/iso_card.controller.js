@@ -181,6 +181,7 @@ class IsoCardContoller {
                 const { componentKey1, isoHost, isoPort, isSSL, type } = terminal.profile;
                 const messageType = terminal.profile.allowProcessorOverride && ['KIMONO', 'NIBSS'].includes(processor) ? processor : IsoCardContoller.getMessageType(terminal, Number(body.field4));
                 const patchedPayload = messageType === cardsockethelper_1.TransactionTypes.ISW_KIMONO ? IsoCardContoller.patchISWPayload(body, terminal.profile, terminal) : Object.assign(Object.assign({}, body), { component: componentKey1, ip: isoHost, ssl: String(isSSL), port: isoPort, clrsesskey: terminal.clrsesskey, clrpin: terminal.clrpinkey, field43: (_a = terminal.parsedParams) === null || _a === void 0 ? void 0 : _a.merchantNameLocation, field42: (_b = terminal.parsedParams) === null || _b === void 0 ? void 0 : _b.mid });
+                console.log("MessageType: %s", messageType, messageType === cardsockethelper_1.TransactionTypes.ISO_TRANSACTION, terminal.profile.isInteliffin);
                 const socketResponse = (messageType === cardsockethelper_1.TransactionTypes.ISO_TRANSACTION &&
                     terminal.profile.isInteliffin) ?
                     yield IsoCardContoller.hanldeIntellifin(messageType, patchedPayload, terminal) :
@@ -196,7 +197,7 @@ class IsoCardContoller {
                     .catch(err => {
                     console.error("Error: %s \r\n Unable to save transaction: %s", err.message, JSON.stringify(journalPayload));
                 });
-                return response.json(Object.assign(Object.assign(Object.assign(Object.assign({}, socketResponse), Object.assign({}, ((_c = socketResponse.data) === null || _c === void 0 ? void 0 : _c.data) || {})), { data: responseData }), responseData));
+                return response.json(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign({}, socketResponse), Object.assign(Object.assign({}, ((_c = socketResponse.data) === null || _c === void 0 ? void 0 : _c.data) || {}), { processor: journalPayload.processor })), { data: responseData }), responseData), { processor: journalPayload.processor }));
             }
             catch (error) {
                 console.log("Error: %s", error);
@@ -242,7 +243,7 @@ class IsoCardContoller {
         });
     }
     static hanldeIntellifin(type, payload, terminal, transType = null) {
-        var _a, _b, _c;
+        var _a, _b, _c, _d;
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const data = yield inteliffin_1.default.performTranaction({
@@ -252,14 +253,14 @@ class IsoCardContoller {
                     merchantid: payload.field42,
                     cashback: "0",
                     merchant_address: (_a = terminal.parsedParams) === null || _a === void 0 ? void 0 : _a.merchantNameLocation,
-                    transtype: (transType !== null && transType !== void 0 ? transType : type === cardsockethelper_1.TransactionTypes.ISO_TRANSACTION) ? inteliffin_2.InteliffinTransTypes.PURCHASE : inteliffin_2.InteliffinTransTypes.PURCHASE,
+                    transtype: (_b = transType === null || transType === void 0 ? void 0 : transType.toString()) !== null && _b !== void 0 ? _b : (type === cardsockethelper_1.TransactionTypes.ISO_TRANSACTION ? inteliffin_2.InteliffinTransTypes.PURCHASE : inteliffin_2.InteliffinTransTypes.PURCHASE),
                     stan: payload.field11,
                     iccdata: payload.field55,
                     track2: payload.field35,
                     rrn: payload.field37,
                     panseqno: payload.panseqno,
-                    merchant_category_code: (_b = terminal.parsedParams) === null || _b === void 0 ? void 0 : _b.mechantCategoryCode,
-                    currency_code: (_c = terminal.parsedParams) === null || _c === void 0 ? void 0 : _c.currencyCode,
+                    merchant_category_code: (_c = terminal.parsedParams) === null || _c === void 0 ? void 0 : _c.mechantCategoryCode,
+                    currency_code: (_d = terminal.parsedParams) === null || _d === void 0 ? void 0 : _d.currencyCode,
                 });
                 return {
                     status: data.response === "00",

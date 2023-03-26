@@ -83,6 +83,7 @@ const password = ref("");
 const errorMsg = ref<String | null>(null);
 const loading = ref(false);
 const request: AxiosInstance| undefined = inject('$axios');
+
 async function login() {
   loading.value = true;
   errorMsg.value = null;

@@ -27,6 +27,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = require("mongoose");
+const mongoose_csv_export_1 = __importDefault(require("mongoose-csv-export"));
 const mongoose_paginate_v2_1 = __importDefault(require("mongoose-paginate-v2"));
 const mongoose = __importStar(require("mongoose"));
 let JournalsSchema = new mongoose.Schema({
@@ -78,7 +79,29 @@ JournalsSchema.virtual('organisation', {
     localField: 'organisationId',
     foreignField: '_id',
 });
-// @ts-ignore
 JournalsSchema.plugin(mongoose_paginate_v2_1.default);
+JournalsSchema.plugin(mongoose_csv_export_1.default, {
+    headers: ["MTI", 'TerminalId', "STAN", "RRN", "RESPONSE CODE", "RESPONSE MEANING", "MASKED PAN", "AUTH CODE", "AMOUNT", "CASHBACK", "TRANSACTION TIME", "PROCESSOR", "MERCHANT NAME", "MERCHANT ID", "MERCHANT ADDRESS", "MERCHANT CATEGORY CODE", "CURRENCY CODE",],
+    alias: {
+        "MTI": "MTI",
+        "TerminalId": "terminalId",
+        "STAN": "STAN",
+        "RRN": "rrn",
+        "RESPONSE CODE": "responseCode",
+        "RESPONSE MEANING": "responseDescription",
+        "MASKED PAN": "PAN",
+        "AUTH CODE": "authCode",
+        "AMOUNT": "amount",
+        "CASHBACK": "cashback",
+        "TRANSACTION TIME": "transactionTime",
+        "PROCESSOR": "processor",
+        "ORGANISATION": "organisationId",
+        "MERCHANT NAME": "merchantName",
+        "MERCHANT ID": "merchantId",
+        "MERCHANT ADDRESS": "merchantAddress",
+        "MERCHANT CATEGORY CODE": "merchantCategoryCode",
+        "CURRENCY CODE": "currencyCode",
+    }
+});
 exports.default = mongoose.model('journal', JournalsSchema);
 //# sourceMappingURL=transaction.model.js.map

@@ -81,6 +81,27 @@ class DashboardController {
             }
         });
     }
+    export(request, response) {
+        var _a, _b;
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const date = (0, moment_1.default)().format("YYYY-MM-DD");
+                // @ts-ignore
+                const organisationFilter = ((_a = request.user) === null || _a === void 0 ? void 0 : _a.organisation_id) ? { organisationId: (_b = request.user) === null || _b === void 0 ? void 0 : _b.organisation_id } : {};
+                response.header('Content-Type', 'text/csv; charset=utf-8');
+                response.attachment(`transactions-${Date.now()}.csv`);
+                transaction_model_1.default.find(Object.assign(Object.assign({}, DashboardController.filterGen(request.query)), organisationFilter)).sort({ _id: -1 })
+                    .cursor()
+                    .pipe(transaction_model_1.default.csvTransformStream()).pipe(response);
+            }
+            catch (error) {
+                logger_1.default.error(error.message);
+                response.status(400).json({
+                    message: "An error occured"
+                });
+            }
+        });
+    }
     static filterGen({ q, organisation, startDate, endDate, processor }) {
         console.log(processor);
         let query = {};

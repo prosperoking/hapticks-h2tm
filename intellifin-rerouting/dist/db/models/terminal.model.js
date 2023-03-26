@@ -31,6 +31,7 @@ const ptspProfile_model_1 = __importDefault(require("./ptspProfile.model"));
 const organisation_model_1 = __importDefault(require("./organisation.model"));
 const mongoose_paginate_v2_1 = __importDefault(require("mongoose-paginate-v2"));
 const mongoose = __importStar(require("mongoose"));
+const mongoose_csv_export_1 = __importDefault(require("mongoose-csv-export"));
 const terminalSchema = new mongoose.Schema({
     serialNo: {
         type: String,
@@ -102,9 +103,9 @@ const terminalSchema = new mongoose.Schema({
     },
     iswTid: {
         type: String,
-        unique: true,
+        // unique: true,
         default: null,
-        sparse: true,
+        // sparse: true,
         get: function (value) {
             return (value === null || value === void 0 ? void 0 : value.length) ? value : this.terminalId;
         },
@@ -114,9 +115,9 @@ const terminalSchema = new mongoose.Schema({
     },
     iswUniqueId: {
         type: String,
-        default: null,
+        // default: null,
         unique: true,
-        sparse: true,
+        // sparse: true,
         get: function (value) {
             return (value === null || value === void 0 ? void 0 : value.length) ? value : this.serialNo;
         },
@@ -170,6 +171,18 @@ terminalSchema.virtual('parsedParams').get(function () {
     return data;
 });
 terminalSchema.plugin(mongoose_paginate_v2_1.default);
+terminalSchema.plugin(mongoose_csv_export_1.default, {
+    headers: ['SerialNo', 'TerminalId', 'IswTid', 'IswUniqueId', 'Brand', 'AppVersion', 'DeviceModel'],
+    alias: {
+        'SerialNo': 'serialNo',
+        'TerminalId': 'terminalId',
+        'IswTid': 'iswTid',
+        'IswUniqueId': 'iswUniqueId',
+        'Brand': 'brand',
+        'AppVersion': 'appVersion',
+        'DeviceModel': 'deviceModel',
+    }
+});
 const Termninal = mongoose.model('terminal', terminalSchema);
 exports.default = Termninal;
 //# sourceMappingURL=terminal.model.js.map

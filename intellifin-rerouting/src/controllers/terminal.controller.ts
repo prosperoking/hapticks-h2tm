@@ -175,4 +175,31 @@ export default class TerminalController {
         }
             
     }
+
+    public async export(request: Request, response: Response) {
+        try {
+            const {q, organisation} = request.query;
+            let filter:{[key:string]: any} = {}
+            if(q?.length) {
+                filter = {
+                    $or:[
+                        { terminalId: RegExp(`^${q}`,'i') },
+                        { serialNo: RegExp(`^${q}`,'i') },
+                        { brand: RegExp(`^${q}`,'i') },
+                        { deviceModel: RegExp(`^${q}`,'i') },
+                    ]
+                };
+            };
+            // @ts-ignore
+            const orgId = !request.user.organisaitonId ? organisation : request.user.organisationId;
+            if(orgId?.length) filter = {...filter, organisationId: orgId };
+            response.header('Content-Type', 'text/csv; charset=utf-8')
+            response.attachment(`terminals-${Date.now()}.csv`)
+            Terminal.find(filter).cursor()
+            .pipe(Terminal.csvTransformStream()).pipe(response);
+        } catch (error) {
+            console.log(error)
+            response.status(400).json({message: error.message})
+        }
+    }
 }

@@ -20,6 +20,7 @@ Promise<CardSocketResponse>  {
   return new Promise((resolve,reject)=>{
         let response = [];
         const socket = net.connect({
+            host: process.env.CARD_SERVICE_HOST,
             port: parseInt(process.env.CARD_SERVICE_PORT),
             timeout: 6000 * 20          
         },

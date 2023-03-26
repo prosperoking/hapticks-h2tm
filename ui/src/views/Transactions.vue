@@ -52,6 +52,7 @@
         search
       </button>
       <button
+        @click="exportTransactions"
         class="px-6 py-2 font-medium tracking-wide text-white bg-gray-600 rounded-md hover:bg-gray-500 focus:outline-none">
         export
       </button>
@@ -282,6 +283,34 @@ const getTransactions = async () => {
     notify({
       title: "Error",
       type: "danger",
+      text: message,
+    });
+  } finally {
+    state.loading = false;
+  }
+}
+
+const exportTransactions = async () => {
+  try {
+    state.loading = true;
+    const { page, limit } = state.transactions;
+    const { startDate, endDate, organisation, processor } = state;
+    const params: {[key:string]: any} = { page, limit, q: state.q, startDate, endDate, organisation, processor }
+    console.log(request?.defaults.baseURL)
+    const url= new URL(request?.defaults.baseURL!+'/dashboard/transactions/export', window.origin);
+    Object.keys(params).forEach(key => {
+      if(![undefined, null].includes(params[key]))
+       url.searchParams.append(key, params[key])
+    });
+    window.open(url, '_blank');
+  } catch (error: any) {
+    let message = error.message
+    if (error.isAxiosError) {
+      message = error.response.data.message;
+    }
+    notify({
+      title: "Error",
+      type: "error",
       text: message,
     });
   } finally {

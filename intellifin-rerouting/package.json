@@ -47,6 +47,7 @@
     "moment-timezone": "^0.5.31",
     "mongo-seeding": "^3.5.0",
     "mongoose": "^6.3.6",
+    "mongoose-csv-export": "^1.0.0",
     "mongoose-paginate-v2": "^1.7.0",
     "mongoose-unique-validator": "^3.1.0",
     "morgan": "^1.10.0",

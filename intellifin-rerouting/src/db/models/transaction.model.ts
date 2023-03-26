@@ -1,5 +1,6 @@
 import { Document, PaginateModel, SchemaTypes } from 'mongoose';
 import { Processor } from '../../@types/types';
+import csv from 'mongoose-csv-export';
 import paginate from 'mongoose-paginate-v2';
 import * as mongoose from 'mongoose';
 
@@ -87,7 +88,31 @@ JournalsSchema.virtual('organisation', {
     localField: 'organisationId',
     foreignField: '_id',
 })
-// @ts-ignore
+
 JournalsSchema.plugin(paginate)
+
+JournalsSchema.plugin(csv, {
+    headers: [ "MTI",'TerminalId', "STAN", "RRN", "RESPONSE CODE", "RESPONSE MEANING", "MASKED PAN", "AUTH CODE", "AMOUNT", "CASHBACK", "TRANSACTION TIME", "PROCESSOR", "MERCHANT NAME", "MERCHANT ID", "MERCHANT ADDRESS", "MERCHANT CATEGORY CODE", "CURRENCY CODE", ],
+    alias: {
+        "MTI": "MTI",
+        "TerminalId": "terminalId",
+        "STAN": "STAN",
+        "RRN": "rrn",
+        "RESPONSE CODE": "responseCode",
+        "RESPONSE MEANING": "responseDescription",
+        "MASKED PAN": "PAN",
+        "AUTH CODE": "authCode",
+        "AMOUNT": "amount",
+        "CASHBACK": "cashback",
+        "TRANSACTION TIME": "transactionTime",
+        "PROCESSOR": "processor",
+        "ORGANISATION": "organisationId",
+        "MERCHANT NAME": "merchantName",
+        "MERCHANT ID": "merchantId",
+        "MERCHANT ADDRESS": "merchantAddress",
+        "MERCHANT CATEGORY CODE": "merchantCategoryCode",
+        "CURRENCY CODE": "currencyCode",
+    }
+})
 
 export default mongoose.model<IJournalDocument, PaginateModel<IJournalDocument>>('journal', JournalsSchema);
