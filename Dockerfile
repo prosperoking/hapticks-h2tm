@@ -1,4 +1,4 @@
-FROM node:14-alpine3.17  as builder
+FROM node:16-alpine3.17  as builder
 RUN npm install -g pnpm
 
 WORKDIR /app
@@ -13,7 +13,7 @@ RUN cd ./intellifin-rerouting  && \
     pnpm install && \
     pnpm vite build --emptyOutDir
 
-FROM node:14-alpine3.17
+FROM node:16-alpine3.17
 
 WORKDIR /app
 
