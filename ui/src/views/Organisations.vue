@@ -28,7 +28,7 @@
     </div>
     <div class="space-x-2">
       <button @click="open = true"
-        class="px-6 py-2 font-medium tracking-wide text-white bg-indigo-600 rounded-md hover:bg-indigo-500 focus:outline-none">
+        class="px-6 py-2 font-medium tracking-wide text-white bg-red-600 rounded-md hover:bg-red-500 focus:outline-none">
         Add an Organisation 
       </button>
     </div>
@@ -196,11 +196,11 @@
         <!--Footer-->
         <div class="flex justify-end pt-2">
           <button :disabled="state.loading" @click="open = false"
-            class="p-3 px-6 py-3 mr-2 text-indigo-500 bg-transparent rounded-lg disabled:pointer-events-none hover:bg-gray-100 hover:text-indigo-400 focus:outline-none">
+            class="p-3 px-6 py-3 mr-2 text-red-500 bg-transparent rounded-lg disabled:pointer-events-none hover:bg-gray-100 hover:text-red-400 focus:outline-none">
             Close
           </button>
           <button :disabled="state.loading || $v.$invalid" @click="saveOrganisation"
-            class="px-6 py-3 font-medium tracking-wide text-white bg-indigo-600 rounded-md disabled:opacity-25 disabled:pointer-events-none hover:bg-indigo-500 focus:outline-none">
+            class="px-6 py-3 font-medium tracking-wide text-white bg-red-600 rounded-md disabled:opacity-25 disabled:pointer-events-none hover:bg-red-500 focus:outline-none">
             save
           </button>
         </div>

@@ -18,7 +18,7 @@
       </div>
       <div>
         <button @click="open = true"
-          class="px-6 py-3 mt-3 font-medium tracking-wide text-white bg-indigo-600 rounded-md hover:bg-indigo-500 focus:outline-none">
+          class="px-6 py-3 mt-3 font-medium tracking-wide text-white bg-red-600 rounded-md hover:bg-red-500 focus:outline-none">
           Add profile
         </button>
       </div>
@@ -205,13 +205,14 @@
                 class="w-4/5 p-1 mt-2 border border-gray-200 rounded-md focus:outline-none focus:border-none focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
                 name="typ" id="type">
                 <option value="generic">Generic</option>
+                <option value="3line">3Line</option>
                 <option value="intelliffin">Intelliffin</option>
               </select>
 
             </div>
           </div>
          
-         <template v-if="form.type === 'generic'">
+         <template v-if="['generic', '3line'].includes(form.type)">
           <div>
             <Input title="Component Key" v-model:value="form.componentKey1" />
           </div>
@@ -280,11 +281,11 @@
         <!--Footer-->
         <div class="flex justify-end pt-2">
           <button :disabled="loading" @click="open = false"
-            class="p-3 px-6 py-3 mr-2 text-indigo-500 bg-transparent rounded-lg disabled:pointer-events-none hover:bg-gray-100 hover:text-indigo-400 focus:outline-none">
+            class="p-3 px-6 py-3 mr-2 text-red-500 bg-transparent rounded-lg disabled:pointer-events-none hover:bg-gray-100 hover:text-red-400 focus:outline-none">
             Close
           </button>
           <button :disabled="loading || $v.$invalid" @click="saveProfileForm"
-            class="px-6 py-3 font-medium tracking-wide text-white bg-indigo-600 rounded-md disabled:opacity-25 disabled:pointer-events-none hover:bg-indigo-500 focus:outline-none">
+            class="px-6 py-3 font-medium tracking-wide text-white bg-red-600 rounded-md disabled:opacity-25 disabled:pointer-events-none hover:bg-red-500 focus:outline-none">
             save
           </button>
         </div>
@@ -389,10 +390,10 @@ const open = ref(false);
 const query = useDebouncedRef<string>('', 300);
 const rules = computed(() => ({
   title: { required },
-  isoHost: { requiredIf: requiredIf(() => form.value.type === 'generic'), ipAddress },
-  isoPort: { requiredIf: requiredIf(() => form.value.type === 'generic'), numeric },
-  isSSL: { requiredIf: requiredIf(() => form.value.type === 'generic' )},
-  componentKey1: { requiredIf: requiredIf(() => form.value.type === 'generic') },
+  isoHost: { requiredIf: requiredIf(() =>  ['generic', '3line'].includes(form.value.type)), ipAddress },
+  isoPort: { requiredIf: requiredIf(() => ['generic', '3line'].includes(form.value.type)), numeric },
+  isSSL: { requiredIf: requiredIf(() => ['generic', '3line'].includes(form.value.type))},
+  componentKey1: { requiredIf: requiredIf(() => ['generic', '3line'].includes(form.value.type)) },
   type: { confirmType },
   iswSwitchAmount: { minValue: minValue(0) },
   iswMid: { requiredIf: requiredIf(() => Boolean(form.value.iswSwitchAmount)) }

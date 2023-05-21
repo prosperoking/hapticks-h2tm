@@ -103,7 +103,7 @@ const profileCreateValidator = createValidatedRequest(checkSchema({
     type: {
         in: ['body'],
         matches: {
-            options: [/\b(?:generic|intelliffin)\b/],
+            options: [/\b(?:generic|intelliffin|3line)\b/],
             errorMessage: "Invalid Profile type",
         }
     },

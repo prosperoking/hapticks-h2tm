@@ -13,6 +13,7 @@ export enum TransactionTypes {
     NIBSS_TRANSACTION= "NIBSS",
     ISW_KIMONO= "KIMONO",
     BALACE_CHECK= "BALANCE",
+    BLUESALT= "BLUESALT",
 }
 
 export function performCardSocketTranaction(transaction: TransactionTypes, payload: any): 
@@ -48,7 +49,11 @@ Promise<CardSocketResponse>  {
         })
         .on("end",()=>{
             const allResponse = Buffer.concat(response);
-            resolve(JSON.parse(allResponse.toString()))
+            try {
+                resolve(JSON.parse(allResponse.toString()))
+            } catch (error) {
+                resolve({status: false, message: "Invalid response from card service"})
+            }
         })
         .on("timeout",()=>reject({
             status: false,

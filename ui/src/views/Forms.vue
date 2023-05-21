@@ -55,7 +55,7 @@
 
                 <input
                   type="text"
-                  class="w-full px-12 py-2 border-transparent rounded-md appearance-none focus:border-indigo-600 focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
+                  class="w-full px-12 py-2 border-transparent rounded-md appearance-none focus:border-red-600 focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
                 />
               </div>
             </div>
@@ -67,7 +67,7 @@
                 Cancel
               </button>
               <button
-                class="px-3 py-1 text-sm text-white bg-indigo-600 rounded-md hover:bg-indigo-500 focus:outline-none"
+                class="px-3 py-1 text-sm text-white bg-red-600 rounded-md hover:bg-red-500 focus:outline-none"
               >
                 Save
               </button>
@@ -91,7 +91,7 @@
               <div>
                 <label class="text-gray-700" for="username">Username</label>
                 <input
-                  class="w-full mt-2 border-gray-200 rounded-md focus:border-indigo-600 focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
+                  class="w-full mt-2 border-gray-200 rounded-md focus:border-red-600 focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
                   type="text"
                   v-model="user.username"
                 />
@@ -102,7 +102,7 @@
                   >Email Address</label
                 >
                 <input
-                  class="w-full mt-2 border-gray-200 rounded-md focus:border-indigo-600 focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
+                  class="w-full mt-2 border-gray-200 rounded-md focus:border-red-600 focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
                   type="email"
                   v-model="user.email"
                 />
@@ -111,7 +111,7 @@
               <div>
                 <label class="text-gray-700" for="password">Password</label>
                 <input
-                  class="w-full mt-2 border-gray-200 rounded-md focus:border-indigo-600 focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
+                  class="w-full mt-2 border-gray-200 rounded-md focus:border-red-600 focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
                   type="password"
                   v-model="user.password"
                 />
@@ -122,7 +122,7 @@
                   >Password Confirmation</label
                 >
                 <input
-                  class="w-full mt-2 border-gray-200 rounded-md focus:border-indigo-600 focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
+                  class="w-full mt-2 border-gray-200 rounded-md focus:border-red-600 focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
                   type="password"
                   v-model="user.confirm"
                 />

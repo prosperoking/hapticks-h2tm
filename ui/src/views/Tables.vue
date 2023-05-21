@@ -11,12 +11,12 @@
             <thead class="border-b">
               <tr>
                 <th
-                  class="px-5 py-3 text-sm font-medium text-gray-100 uppercase bg-indigo-800"
+                  class="px-5 py-3 text-sm font-medium text-gray-100 uppercase bg-red-800"
                 >
                   City
                 </th>
                 <th
-                  class="px-5 py-3 text-sm font-medium text-gray-100 uppercase bg-indigo-800"
+                  class="px-5 py-3 text-sm font-medium text-gray-100 uppercase bg-red-800"
                 >
                   Total orders
                 </th>
@@ -315,7 +315,7 @@
                   <td
                     class="px-6 py-4 text-sm font-medium leading-5 text-right border-b border-gray-200 whitespace-nowrap"
                   >
-                    <a href="#" class="text-indigo-600 hover:text-indigo-900"
+                    <a href="#" class="text-red-600 hover:text-red-900"
                       >Edit</a
                     >
                   </td>

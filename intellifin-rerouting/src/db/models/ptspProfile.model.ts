@@ -1,6 +1,8 @@
 import { Schema, model, Document, SchemaTypes, PaginateModel } from "mongoose";
 import paginate from 'mongoose-paginate-v2';
 import * as mongoose from 'mongoose';
+import { encrypt } from "../../helpers/crypt";
+import { decrypt } from "../../helpers/crypt";
 export interface IPTSPProfileData {
     title: string,
     isoHost: string,
@@ -11,13 +13,15 @@ export interface IPTSPProfileData {
     iswSwitchAmount: Number,
     terminals_count?: number,
     iswMid?: string,
-    type: 'generic' | 'intelliffin',
+    type: 'generic' | 'intelliffin' | '3line' | 'bluesalt',
     allowProcessorOverride: boolean,
     iswInstitutionCode?: string,
     iswDestinationAccount?: string,
     organisationId?: string | any,
     webhookId?: string | any,
     isInteliffin: boolean,
+    blueSaltTID?: string, 
+    blueSaltKey?: string,
 }
 
 export interface IPTSPProfile extends Document, IPTSPProfileData { }
@@ -78,7 +82,17 @@ const ptspProfileSchema = new mongoose.Schema<IPTSPProfileData>({
     webhookId: {
         type: SchemaTypes.ObjectId,
         default: null,
-    }
+    },
+    blueSaltTID:  {
+        type: String,
+        default: null,
+    }, 
+    blueSaltKey: {
+        type: String,
+        default: null,
+        set: (value: string)=> encrypt(value),
+        get: (value: string)=> decrypt(value),
+    },
 }, {
     timestamps: true, 
     toJSON: {

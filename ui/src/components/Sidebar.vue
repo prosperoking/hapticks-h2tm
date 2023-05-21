@@ -4,35 +4,39 @@
     <div
       :class="isOpen ? 'block' : 'hidden'"
       @click="isOpen = false"
-      class="fixed inset-0 z-20 transition-opacity bg-black opacity-50 lg:hidden"
+      class="fixed inset-0 z-20 transition-opacity bg-red-600 opacity-50 lg:hidden"
     ></div>
     <!-- End Backdrop -->
 
     <div
       :class="isOpen ? 'translate-x-0 ease-out' : '-translate-x-full ease-in'"
-      class="fixed inset-y-0 left-0 z-30 w-64 overflow-y-auto transition duration-300 transform bg-gray-900 lg:translate-x-0 lg:static lg:inset-0"
+      class="fixed inset-y-0 left-0 z-30 w-64 overflow-y-auto transition duration-300 transform bg-red-600 lg:translate-x-0 lg:static lg:inset-0"
     >
       <div class="flex items-center justify-center mt-8">
         <div class="flex items-center">
 
           <div class="flex items-center justify-center w-8 h-8 bg-white rounded">
-            <svg class="w-8 h-8" viewBox="0 0 114 79" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- <svg class="w-8 h-8" viewBox="0 0 114 79" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M35 5V61" stroke="black" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
               <path d="M71 5V61" stroke="black" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
               <path d="M19 36.1841L31.2222 49L81 11" stroke="black" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg> -->
+            <svg version="1.2" class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" >
+              <path fill="#db353a" d="m36.5 11.8c-2.8 1-6.6 2.7-8.5 3.9-1.9 1.1-5.4 4.2-7.8 6.7-2.3 2.5-4.9 6.1-5.9 7.8-0.9 1.8-2.2 5.5-2.9 8.3-0.8 2.7-1.4 7-1.4 9.5 0 2.5 0.6 6.7 1.3 9.5 0.8 2.7 2 6.1 2.7 7.5 0.7 1.4 2.9 4.5 4.9 6.9 2 2.4 5.6 5.8 8.1 7.4 2.5 1.7 7 3.9 10 4.9 3 1 8 1.8 11 1.8 3 0 8.2-0.9 11.5-2 3.3-1.1 8.1-3.6 10.8-5.5 2.6-1.9 6.3-5.6 8.2-8.3 1.9-2.6 4.5-7.9 5.6-11.7 1.6-5.2 2.1-8.5 1.7-13-0.3-3.3-1.5-8.5-2.6-11.5-1.2-3.1-4.2-7.8-6.9-10.9-2.6-2.9-6.6-6.4-8.8-7.7-2.2-1.3-6.2-3-9-3.9-2.7-0.8-7.7-1.5-11-1.4-3.3 0-8.2 0.8-11 1.7z"/>
+              <path fill="#fff" d="m56.3 22.9c-1.2 0.5-3.1 2.2-4.3 3.8-1.3 1.8-2 4.3-2 6.8 0 2.2 0.8 4.9 1.8 6.1 0.9 1.2 2.7 2.7 4 3.3 1.2 0.6 3.6 1.1 5.3 1.1 2.2 0 4.1-1 6.5-3.5 2.7-2.8 3.4-4.3 3.4-7.5 0-3-0.7-4.8-2.7-7-1.8-2-4.1-3.2-6.3-3.5-1.9-0.3-4.5-0.1-5.7 0.4z"/>
             </svg>
           </div>
           
 
           <span title="Hapticks Terminal Manager and Transaction Monitor" class="mx-2 text-2xl font-semibold text-white"
-            >H2TM</span
+            >A2TM</span
           >
         </div>
       </div>
 
       <nav class="mt-10">
         <router-link
-          class="flex items-center px-6 py-2 mt-4 duration-200 border-l-4"
+          class="flex items-center px-6 py-2 mt-4 duration-200 "
           :class="[$route.name === 'Dashboard' ? activeClass : inactiveClass]"
           to="/dashboard"
         >
@@ -56,7 +60,7 @@
         </router-link>
 
         <router-link
-          class="flex items-center px-6 py-2 mt-4 duration-200 border-l-4"
+          class="flex items-center px-6 py-2 mt-4 duration-200 "
           :class="[$route.name === 'transactions' ? activeClass : inactiveClass]"
           to="/transactions"
         >
@@ -71,7 +75,7 @@
         </router-link>
 
         <router-link
-          class="flex items-center px-6 py-2 mt-4 duration-200 border-l-4"
+          class="flex items-center px-6 py-2 mt-4 duration-200 "
           :class="[$route.name === 'profiles' ? activeClass : inactiveClass]"
           :to="{name: 'profiles'}"
         >
@@ -86,7 +90,7 @@
         </router-link>
 
         <router-link
-          class="flex items-center px-6 py-2 mt-4 duration-200 border-l-4"
+          class="flex items-center px-6 py-2 mt-4 duration-200 "
           :class="[$route.name === 'terminals' ? activeClass : inactiveClass]"
           :to="{name: 'terminals'}"
         >
@@ -98,7 +102,7 @@
         </router-link>
 
          <router-link
-          class="flex items-center px-6 py-2 mt-4 duration-200 border-l-4"
+          class="flex items-center px-6 py-2 mt-4 duration-200 "
           :class="[$route.name === 'organisations' ? activeClass : inactiveClass]"
           :to="{name: 'organisations'}"
         >
@@ -108,7 +112,7 @@
           <span class="mx-4">Organisations</span>
         </router-link>
         <router-link
-          class="flex items-center px-6 py-2 mt-4 duration-200 border-l-4"
+          class="flex items-center px-6 py-2 mt-4 duration-200 "
           :class="[$route.name === 'webhook-listeners' ? activeClass : inactiveClass]"
           :to="{name: 'webhook-listeners'}"
         >
@@ -119,7 +123,7 @@
         </router-link>
 
         <router-link
-          class="flex items-center px-6 py-2 mt-4 duration-200 border-l-4"
+          class="flex items-center px-6 py-2 mt-4 duration-200 "
           :class="[$route.name === 'webhooks' ? activeClass : inactiveClass]"
           :to="{name: 'webhooks'}"
         >
@@ -130,7 +134,7 @@
           <span class="mx-4">Webhook Requests</span>
         </router-link>
         <router-link
-          class="flex items-center px-6 py-2 mt-4 duration-200 border-l-4"
+          class="flex items-center px-6 py-2 mt-4 duration-200 "
           :class="[$route.name === 'users' ? activeClass : inactiveClass]"
           :to="{name: 'users'}"
         >
@@ -144,7 +148,7 @@
         </router-link>
 
         <!-- <router-link
-          class="flex items-center px-6 py-2 mt-4 duration-200 border-l-4"
+          class="flex items-center px-6 py-2 mt-4 duration-200 "
           :class="[$route.name === 'Tables' ? activeClass : inactiveClass]"
           to="/tables"
         >
@@ -172,7 +176,7 @@
         </router-link>
 
         <router-link
-          class="flex items-center px-6 py-2 mt-4 duration-200 border-l-4"
+          class="flex items-center px-6 py-2 mt-4 duration-200 "
           :class="[$route.name === 'Forms' ? activeClass : inactiveClass]"
           to="/forms"
         >
@@ -191,7 +195,7 @@
         </router-link>
 
         <router-link
-          class="flex items-center px-6 py-2 mt-4 duration-200 border-l-4"
+          class="flex items-center px-6 py-2 mt-4 duration-200 "
           :class="[$route.name === 'Cards' ? activeClass : inactiveClass]"
           to="/cards"
         >
@@ -204,7 +208,7 @@
         </router-link>
 
         <router-link
-          class="flex items-center px-6 py-2 mt-4 duration-200 border-l-4"
+          class="flex items-center px-6 py-2 mt-4 duration-200 "
           :class="[$route.name === 'Modal' ? activeClass : inactiveClass]"
           to="/modal"
         >
@@ -218,7 +222,7 @@
         </router-link>
 
         <router-link
-          class="flex items-center px-6 py-2 mt-4 duration-200 border-l-4"
+          class="flex items-center px-6 py-2 mt-4 duration-200 "
           :class="[$route.name === 'Blank' ? activeClass : inactiveClass]"
           to="/blank"
         >
@@ -241,9 +245,9 @@ import { useSidebar } from "../hooks/useSidebar";
 
 const { isOpen } = useSidebar();
 const activeClass = ref(
-  "bg-gray-600 bg-opacity-25 text-gray-100 border-gray-100"
+  "bg-gray-400 bg-opacity-25 text-gray-100 border-gray-500 border-l-4"
 );
 const inactiveClass = ref(
-  "border-gray-900 text-gray-500 hover:bg-gray-600 hover:bg-opacity-25 hover:text-gray-100"
+  "text-gray-100 hover:bg-gray-200 hover:bg-opacity-25 hover:text-gray-100"
 );
 </script>

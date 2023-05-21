@@ -211,17 +211,19 @@ class IsoCardContoller {
             const { componentKey1, isoHost, isoPort, isSSL, type } = terminal.profile;
 
             const messageType = terminal.profile.allowProcessorOverride && ['KIMONO','NIBSS'].includes(processor) ? processor as TransactionTypes  : IsoCardContoller.getMessageType(terminal, Number(body.field4))
-            const patchedPayload = messageType === TransactionTypes.ISW_KIMONO ? IsoCardContoller.patchISWPayload(body, terminal.profile, terminal): {
-                ...body,
-                component: componentKey1,
-                ip: isoHost,
-                ssl: String(isSSL),
-                port: isoPort,
-                clrsesskey: terminal.clrsesskey,
-                clrpin: terminal.clrpinkey,
-                field43: terminal.parsedParams?.merchantNameLocation,
-                field42: terminal.parsedParams?.mid,
-            };
+            // const patchedPayload = messageType === TransactionTypes.ISW_KIMONO ? IsoCardContoller.patchISWPayload(body, terminal.profile, terminal): {
+            //     ...body,
+            //     component: componentKey1,
+            //     ip: isoHost,
+            //     ssl: String(isSSL),
+            //     iso_flavour: type,
+            //     port: isoPort,
+            //     clrsesskey: terminal.clrsesskey,
+            //     clrpin: terminal.clrpinkey,
+            //     field43: terminal.parsedParams?.merchantNameLocation,
+            //     field42: terminal.parsedParams?.mid,
+            // };
+            const patchedPayload = IsoCardContoller.getPayload(messageType, body, terminal)
             console.log("MessageType: %s", messageType, messageType === TransactionTypes.ISO_TRANSACTION, terminal.profile.isInteliffin)
             const socketResponse =( 
                 messageType === TransactionTypes.ISO_TRANSACTION && 
@@ -233,7 +235,7 @@ class IsoCardContoller {
             const { data } = socketResponse
             console.log("Response: %s", JSON.stringify(data))
             const responseData = data.data || data;
-            const journalPayload = messageType === TransactionTypes.ISO_TRANSACTION ? IsoCardContoller.createNIBBSJournal(responseData, patchedPayload) : IsoCardContoller.createISWJournal(responseData, body, terminal);
+            const journalPayload = messageType === TransactionTypes.ISO_TRANSACTION ? IsoCardContoller.createNIBBSJournal(responseData, patchedPayload, IsoCardContoller.getISOProcessor(type)) : IsoCardContoller.createISWJournal(responseData, body, terminal);
             terminal.appVersion = appVersion;
             terminal.save();
             
@@ -248,6 +250,41 @@ class IsoCardContoller {
             console.log("Error: %s", error)
             return response.status(400).json({status: false, data: null, message: "An error Occured"})
         }
+    }
+
+    public static getPayload(messageType, body, terminal: ITerminal) {
+        const { componentKey1, isoHost, isoPort, isSSL, type, blueSaltTID, blueSaltKey } = terminal.profile;
+        switch (messageType) {
+            case TransactionTypes.ISO_TRANSACTION:
+                return {
+                    ...body,
+                    component: componentKey1,
+                    ip: isoHost,
+                    ssl: String(isSSL),
+                    iso_flavour: type,
+                    port: isoPort,
+                    clrsesskey: terminal.clrsesskey,
+                    clrpin: terminal.clrpinkey,
+                    field43: terminal.parsedParams?.merchantNameLocation,
+                    field42: terminal.parsedParams?.mid,
+                }
+            case TransactionTypes.ISW_KIMONO:
+                return IsoCardContoller.patchISWPayload(body, terminal.profile, terminal);
+            case  TransactionTypes.BLUESALT:
+                return {
+                    ...IsoCardContoller.patchISWPayload(body, terminal.profile, terminal),
+                    serial: terminal.serialNo,
+                    blueSaltTid: blueSaltTID,
+                    blueSaltKey: blueSaltKey,
+                    model: terminal.deviceModel,
+                }
+            default:
+                throw new Error("Invalid Message Type")
+        }
+    }
+
+    public static getISOProcessor(key: string) {
+        return !['generic','intelliffin'].includes(key) ? key : undefined;
     }
 
     public async checkBalance(request: Request, response: Response) {
@@ -379,12 +416,12 @@ class IsoCardContoller {
 
     private static getMessageType(terminal: ITerminal, amount: number): TransactionTypes {
         if(!terminal?.profile?.iswSwitchAmount) return TransactionTypes.ISO_TRANSACTION
-        return (amount/100) >= terminal?.profile.iswSwitchAmount ? 
+        return (amount/100) >= (terminal?.profile.iswSwitchAmount as number )? 
             TransactionTypes.ISW_KIMONO : 
             TransactionTypes.ISO_TRANSACTION;
     }
 
-    private static createNIBBSJournal(response: CardPurchaseResponse, payload: ISOPayload): IJournal {
+    private static createNIBBSJournal(response: CardPurchaseResponse, payload: ISOPayload, processor?: string): IJournal {
         return {
             PAN: Utils.getMaskPan(payload.field2),
             rrn: response.rrn || payload.field37,
@@ -402,6 +439,7 @@ class IsoCardContoller {
             transactionTime: (new Date).toUTCString(),
             handlerResponseTime: (new Date).toUTCString(),
             isCompleted: true,
+            processor,
         };
     }
 

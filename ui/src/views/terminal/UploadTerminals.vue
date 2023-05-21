@@ -13,7 +13,7 @@
       <button
       :disabled="$v.$error || busy"
       @click="uploadData"
-      class="px-6 py-2 mt-3 font-medium tracking-wide text-white bg-indigo-600 rounded-md hover:bg-indigo-500 focus:outline-none disabled:bg-blue-300 disabled:cursor-not-allowed"
+      class="px-6 py-2 mt-3 font-medium tracking-wide text-white bg-red-600 rounded-md hover:bg-red-500 focus:outline-none disabled:bg-blue-300 disabled:cursor-not-allowed"
       >Upload</button>
     </div>
   </div>

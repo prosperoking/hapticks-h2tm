@@ -44,7 +44,12 @@ function performCardSocketTranaction(transaction, payload) {
         })
             .on("end", () => {
             const allResponse = Buffer.concat(response);
-            resolve(JSON.parse(allResponse.toString()));
+            try {
+                resolve(JSON.parse(allResponse.toString()));
+            }
+            catch (error) {
+                resolve({ status: false, message: "Invalid response from card service" });
+            }
         })
             .on("timeout", () => reject({
             status: false,
