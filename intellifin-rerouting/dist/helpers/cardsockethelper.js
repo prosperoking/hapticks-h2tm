@@ -13,6 +13,9 @@ var TransactionTypes;
     TransactionTypes["NIBSS_TRANSACTION"] = "NIBSS";
     TransactionTypes["ISW_KIMONO"] = "KIMONO";
     TransactionTypes["BALACE_CHECK"] = "BALANCE";
+    TransactionTypes["BLUESALT"] = "BLUESALT";
+    TransactionTypes["THREELINE"] = "3LINE";
+    TransactionTypes["THREELINE_KEY_EXCHANGE"] = "3LINE_KEY_EXCHANGE";
 })(TransactionTypes = exports.TransactionTypes || (exports.TransactionTypes = {}));
 function performCardSocketTranaction(transaction, payload) {
     return new Promise((resolve, reject) => {
@@ -20,10 +23,10 @@ function performCardSocketTranaction(transaction, payload) {
         const socket = net_1.default.connect({
             host: process.env.CARD_SERVICE_HOST,
             port: parseInt(process.env.CARD_SERVICE_PORT),
-            timeout: 6000 * 20
+            timeout: 6000 * 20,
         }, () => {
             logger_1.default.log("Connected to card service socket to perform operation");
-            socket.write(Buffer.from(JSON.stringify(Object.assign({ transaction }, payload)) + "\n"), err => {
+            socket.write(Buffer.from(JSON.stringify(Object.assign({ transaction }, payload)) + "\n"), (err) => {
                 if (err) {
                     logger_1.default.log(err);
                     socket.end();
@@ -32,23 +35,32 @@ function performCardSocketTranaction(transaction, payload) {
                 logger_1.default.log("Write Successful");
             });
         });
-        socket.on("data", (data) => {
+        socket
+            .on("data", (data) => {
             response = [...response, data];
         })
             .on("error", (err) => {
             socket.end();
             reject({
                 status: false,
-                message: err.message
+                message: err.message,
             });
         })
             .on("end", () => {
             const allResponse = Buffer.concat(response);
-            resolve(JSON.parse(allResponse.toString()));
+            try {
+                resolve(JSON.parse(allResponse.toString()));
+            }
+            catch (error) {
+                reject({
+                    status: false,
+                    message: error.message,
+                });
+            }
         })
             .on("timeout", () => reject({
             status: false,
-            message: "Connection timed out"
+            message: "Connection timed out",
         }));
     });
 }

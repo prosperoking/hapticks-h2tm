@@ -62,7 +62,10 @@ let JournalsSchema = new mongoose.Schema({
         default: null,
     },
     extraData: { type: String, default: "" },
-    processor: { type: String, default: "NIBSS" }
+    processor: { type: String, default: "NIBSS" },
+    meta: {
+        type: Object,
+    }
 }, {
     timestamps: true,
     toJSON: {

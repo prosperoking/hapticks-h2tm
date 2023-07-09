@@ -133,6 +133,29 @@ const profileCreateValidator = (0, index_1.createValidatedRequest)((0, schema_1.
             errorMessage: "Webhook not found",
             bail: true,
         }
+    },
+    processorSettings: {
+        in: ['body'],
+        optional: true,
+        isArray: true,
+    },
+    "processorSettings.*.processor": {
+        in: ['body'],
+        custom: {
+            options: (value, { req, location, path }) => __awaiter(void 0, void 0, void 0, function* () {
+                return ['nibss', 'kimono', 'blueSalt'].includes(value);
+            })
+        }
+    },
+    "processorSettings.*.minAmount": {
+        in: ['body'],
+        isNumeric: true,
+        exists: true,
+    },
+    "processorSettings.*.maxAmount": {
+        in: ['body'],
+        isNumeric: true,
+        exists: true,
     }
 }));
 exports.default = profileCreateValidator;

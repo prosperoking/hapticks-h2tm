@@ -31,7 +31,7 @@ export default class TerminalController {
                 ],
                 limit: Number.parseInt(`${limit}`) || 30,
                 page: Number.parseInt(`${page}`) || 1,
-            });  
+            });
 
             response.json({data, count: data.length})
         } catch (error) {
@@ -43,7 +43,7 @@ export default class TerminalController {
     public async create(request: Request, response: Response) {
         try {
             const data = await Terminal.create({
-                ...request.body, 
+                ...request.body,
             });
 
             response.json({status: true, data})
@@ -54,7 +54,7 @@ export default class TerminalController {
     }
 
 
-    
+
     public async update(request: Request, response: Response) {
         try {
             let terminal = await Terminal.findById(request.params.id);
@@ -62,12 +62,15 @@ export default class TerminalController {
                 return response.status(404).json({message: "Terminal not found"});
             }
 
+            console.log(request.body)
+
             const data = await terminal.update(pick(request.body,[
                 "serialNo",
                 "terminalId",
                 "profileId",
                 "iswTid",
                 "iswUniqueId",
+                "threeLineTid",
                 "organisationId",
                 "brand",
                 "deviceModel"
@@ -75,11 +78,11 @@ export default class TerminalController {
 
             try{
             //    ProfileController.performKeyExchange(request.body, request.params.id);
-            keyExchange.add('keyexchange', {_id: terminal.id});
+            // keyExchange.add('keyexchange', {_id: terminal.id});
             }catch(e){
                 console.log("Unable to trigger key exchange", e)
             }
-            
+
             response.json({status: true, data})
         } catch (error) {
             console.log(error)
@@ -95,7 +98,7 @@ export default class TerminalController {
             }
 
             const data = await terminal.delete();
-            
+
             response.json({status: true, data})
         } catch (error) {
             console.log(error)
@@ -133,7 +136,7 @@ export default class TerminalController {
             }catch(e){
                 console.log("Unable to trigger key exchange", e)
             }
-            
+
             response.json({status: true})
         } catch (error) {
             console.log(error)
@@ -173,7 +176,7 @@ export default class TerminalController {
 
             await terminal.save();
         }
-            
+
     }
 
     public async export(request: Request, response: Response) {

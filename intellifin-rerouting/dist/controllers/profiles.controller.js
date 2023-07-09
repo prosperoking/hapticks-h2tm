@@ -18,6 +18,7 @@ class ProfileController {
     create(request, response) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                console.log(request.body);
                 const data = yield ptspProfile_model_1.default.create(request.body);
                 response.json({ status: true, data });
             }
@@ -81,7 +82,16 @@ class ProfileController {
                     "allowProcessorOverride",
                     "iswDestinationAccount",
                     "organisationId",
-                    "webhookId"
+                    "threeLineKey",
+                    "threeLineHost",
+                    "threeLinePort",
+                    "threeLineHostSSL",
+                    "hasthreelineSupport",
+                    "webhookId",
+                    "blueSaltTID",
+                    "blueSaltKey",
+                    "blueSaltEnv",
+                    "processorSettings",
                 ]));
                 response.json({ status: true, data });
             }

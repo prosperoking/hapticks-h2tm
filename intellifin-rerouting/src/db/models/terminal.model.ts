@@ -26,7 +26,27 @@ export interface ITerminal {
     organisationId?: ObjectId,
     iswTid?: string,
     iswUniqueId?: string,
+    threeLineTid?: string,
+    threeLineParams?: {
+        clrMasterKey: string,
+        encMasterKey: string,
+        encSessionKey: string,
+        clrSessionKey: string,
+        encPinKey: string,
+        clrPinKey: string,
+        paramdownload: string,
+    } | null
     parsedParams?: {
+        callHomeTimeout: string,
+        countryCode: string,
+        currencyCode: string,
+        exchangeTime: string,
+        mechantCategoryCode: string,
+        merchantNameLocation: string,
+        mid: string,
+        timeout: string,
+    },
+    threeLineParsedParams?:{
         callHomeTimeout: string,
         countryCode: string,
         currencyCode: string,
@@ -135,6 +155,16 @@ const terminalSchema = new mongoose.Schema<ITerminal>({
         //    return value.length?value: null;
         // }
     },
+    threeLineTid: {
+        type: String,
+        unique: true,
+        default: null,
+        sparse: true,
+    },
+    threeLineParams: {
+        type: Object,
+        default: null
+    },
 },{
     timestamps: true,
     toJSON: {
@@ -186,11 +216,39 @@ terminalSchema.virtual('parsedParams').get(function(){
     return data;
 });
 
+terminalSchema.virtual('threeLineParsedParams').get(function(){
+    if(!this.threeLineParams?.paramdownload?.length) {
+        return null;
+    }
+
+    const rawParam:string = this.threeLineParams.paramdownload;
+    const tags = {
+        "02": "exchangeTime",
+        "03": "mid",
+        "04": "timeout",
+        "05": "currencyCode",
+        "06": "countryCode",
+        "07": "callHomeTimeout",
+        "52": "merchantNameLocation",
+        "08": "mechantCategoryCode",
+    };
+
+    let message:string = rawParam + '';
+    let data = {}
+    while(message.length){
+        const tag = message.substr(0,2);
+        const length = parseInt(message.substr(2,3));
+        data = {...data, [tags[tag]]:message.substr(5,length)}
+        message = message.substring(5+length, message.length)
+    }
+    return data;
+})
+
 
 terminalSchema.plugin(paginate)
 
 terminalSchema.plugin(csv, {
-    headers: ['SerialNo', 'TerminalId',  'IswTid', 'IswUniqueId', 'Brand', 'AppVersion', 'DeviceModel'],
+    headers: ['SerialNo', 'TerminalId',  'IswTid', 'IswUniqueId', 'Brand', 'AppVersion', 'DeviceModel','ThreeLineTid'],
     alias: {
         'SerialNo': 'serialNo',
         'TerminalId': 'terminalId',
@@ -199,6 +257,7 @@ terminalSchema.plugin(csv, {
         'Brand': 'brand',
         'AppVersion': 'appVersion',
         'DeviceModel': 'deviceModel',
+        'ThreeLineTid': 'threeLineTid'
     }
 })
 

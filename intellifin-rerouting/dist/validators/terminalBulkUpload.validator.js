@@ -19,7 +19,7 @@ const ptspProfile_model_1 = __importDefault(require("../db/models/ptspProfile.mo
 const organisation_model_1 = __importDefault(require("../db/models/organisation.model"));
 const terminalBulkUploadValidator = (0, index_1.createValidatedRequest)((0, schema_1.checkSchema)({
     organisationId: {
-        in: ['body'],
+        in: ["body"],
         optional: true,
         custom: {
             options: (value, { req, location, path }) => __awaiter(void 0, void 0, void 0, function* () {
@@ -34,10 +34,10 @@ const terminalBulkUploadValidator = (0, index_1.createValidatedRequest)((0, sche
             }),
             errorMessage: "Organisation not Found",
             bail: true,
-        }
+        },
     },
     profileId: {
-        in: ['body'],
+        in: ["body"],
         custom: {
             options: (value, { req, location, path }) => __awaiter(void 0, void 0, void 0, function* () {
                 try {
@@ -52,18 +52,18 @@ const terminalBulkUploadValidator = (0, index_1.createValidatedRequest)((0, sche
             errorMessage: "Profile not Found",
             bail: true,
         },
-        notEmpty: true
+        notEmpty: true,
     },
     terminals: {
         isArray: {
             bail: true,
             options: {
                 min: 1,
-            }
-        }
+            },
+        },
     },
     "terminals.*.terminalId": {
-        in: ['body'],
+        in: ["body"],
         trim: true,
         notEmpty: true,
         isLength: {
@@ -75,7 +75,9 @@ const terminalBulkUploadValidator = (0, index_1.createValidatedRequest)((0, sche
         custom: {
             options: (terminalId, { req, location, path }) => __awaiter(void 0, void 0, void 0, function* () {
                 try {
-                    const terminal = yield terminal_model_1.default.findOne({ terminalId: terminalId });
+                    const terminal = yield terminal_model_1.default.findOne({
+                        terminalId: terminalId,
+                    });
                     if (terminal)
                         return Promise.reject("Exists");
                     return true;
@@ -85,18 +87,49 @@ const terminalBulkUploadValidator = (0, index_1.createValidatedRequest)((0, sche
                 }
             }),
             errorMessage: "Terminal Id already exists",
-        }
+        },
+    },
+    "terminals.*.threelineTid": {
+        in: ["body"],
+        trim: true,
+        notEmpty: true,
+        isLength: {
+            options: {
+                max: 8,
+                min: 8,
+            },
+        },
+        custom: {
+            options: (threelineTid, { req, location, path }) => __awaiter(void 0, void 0, void 0, function* () {
+                try {
+                    const terminal = yield terminal_model_1.default.findOne({
+                        threelineTid: threelineTid,
+                    });
+                    if (terminal)
+                        return Promise.reject("Exists");
+                    return true;
+                }
+                catch (error) {
+                    return false;
+                }
+            }),
+            errorMessage: "threelineTid Id already exists",
+        },
     },
     "terminals.*.serialNo": {
-        in: ['body'],
+        in: ["body"],
         trim: true,
         notEmpty: true,
         custom: {
             options: (serialNo, { req, location, path }) => __awaiter(void 0, void 0, void 0, function* () {
                 try {
-                    const index = path.split('.')[0].split('[')[1].split(']')[0];
+                    const index = path.split(".")[0].split("[")[1].split("]")[0];
                     const accData = req.body.terminals[index];
-                    const terminalSerial = yield terminal_model_1.default.findOne({ serialNo, deviceModel: accData.deviceModel, brand: accData.brand });
+                    const terminalSerial = yield terminal_model_1.default.findOne({
+                        serialNo,
+                        deviceModel: accData.deviceModel,
+                        brand: accData.brand,
+                    });
                     if (terminalSerial)
                         return Promise.reject("Exists");
                     return true;
@@ -106,20 +139,20 @@ const terminalBulkUploadValidator = (0, index_1.createValidatedRequest)((0, sche
                 }
             }),
             errorMessage: "Terminal Exists",
-        }
+        },
     },
     "terminals.*.brand": {
-        in: ['body'],
+        in: ["body"],
         trim: true,
-        notEmpty: true
+        notEmpty: true,
     },
     "terminals.*.deviceModel": {
-        in: ['body'],
+        in: ["body"],
         trim: true,
-        notEmpty: true
+        notEmpty: true,
     },
     "terminals.*.iswTid": {
-        in: ['body'],
+        in: ["body"],
         trim: true,
         custom: {
             options: (iswTid, { req, location, path }) => __awaiter(void 0, void 0, void 0, function* () {
@@ -127,10 +160,10 @@ const terminalBulkUploadValidator = (0, index_1.createValidatedRequest)((0, sche
                     throw Error("Exists");
             }),
             errorMessage: "IswTid alread taken",
-        }
+        },
     },
     "terminals.*.iswUniqueId": {
-        in: ['body'],
+        in: ["body"],
         trim: true,
         custom: {
             options: (iswUniqueId, { req, location, path }) => __awaiter(void 0, void 0, void 0, function* () {
@@ -138,7 +171,7 @@ const terminalBulkUploadValidator = (0, index_1.createValidatedRequest)((0, sche
                     throw Error("Exists");
             }),
             errorMessage: "Isw UniqueId taken",
-        }
+        },
     },
 }));
 exports.default = terminalBulkUploadValidator;

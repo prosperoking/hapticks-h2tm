@@ -74,19 +74,21 @@ class TerminalController {
                 if (!terminal) {
                     return response.status(404).json({ message: "Terminal not found" });
                 }
+                console.log(request.body);
                 const data = yield terminal.update((0, lodash_1.pick)(request.body, [
                     "serialNo",
                     "terminalId",
                     "profileId",
                     "iswTid",
                     "iswUniqueId",
+                    "threeLineTid",
                     "organisationId",
                     "brand",
                     "deviceModel"
                 ]));
                 try {
                     //    ProfileController.performKeyExchange(request.body, request.params.id);
-                    queue_1.keyExchange.add('keyexchange', { _id: terminal.id });
+                    // keyExchange.add('keyexchange', {_id: terminal.id});
                 }
                 catch (e) {
                     console.log("Unable to trigger key exchange", e);

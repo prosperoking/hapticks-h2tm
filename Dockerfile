@@ -18,6 +18,8 @@ FROM node:16-alpine3.17
 WORKDIR /app
 
 COPY --from=builder /app/intellifin-rerouting/package*.json /app/intellifin-rerouting/dist ./
+RUN apk --update --no-cache add curl tzdata
+ENV TZ=Africa/Lagos
 
 RUN npm install --only=production
 

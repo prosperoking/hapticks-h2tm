@@ -69,7 +69,8 @@ export interface KIMONOPayload {
 
 export enum Processor {
     NIBSS = "NIBSS",
-    KIMONO = "KIMONO"
+    KIMONO = "KIMONO",
+    THREELINE = "3LINE",
 }
 
 

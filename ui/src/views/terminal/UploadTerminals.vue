@@ -18,13 +18,13 @@
     </div>
   </div>
   <div class="flex items-center space-x-5">
-    <div 
+    <div
       @dragenter.prevent
       @dragover.prevent
-     
+
       @drop.prevent="handleFileDrop" @click="()=>
       // @ts-ignore
-      $refs?.file.click()" 
+      $refs?.file.click()"
       class="flex mt-2 items-center justify-center w-1/3 bg-white border-2 border-gray-700 border-dashed rounded shadow h-36 p-5 hover:cursor-pointer">
       <span v-if="fileName==null">Drop Or Click to upload</span>
       <span v-else>{{fileName}}</span>
@@ -55,6 +55,11 @@
                     class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-600 uppercase bg-gray-100 border-b-2 border-gray-200"
                   >
                   SerialNo
+                  </th>
+                  <th
+                    class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-600 uppercase bg-gray-100 border-b-2 border-gray-200"
+                  >
+                  ThreeLineTid
                   </th>
                   <th
                     class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-600 uppercase bg-gray-100 border-b-2 border-gray-200"
@@ -110,6 +115,16 @@
                   >
                   <div class="flex items-center space-y-2">
                       <div class="flex-shrink-0 w-10 h-10">
+                        {{terminal.threeLineTid}}
+                      </div>
+                    </div>
+                    <error-message :errors="errors" :errorKey="`terminals[${index * page}].iswTid`" />
+                  </td>
+                  <td
+                    class="px-5 py-5 text-sm bg-white border-b border-gray-200"
+                  >
+                  <div class="flex items-center space-y-2">
+                      <div class="flex-shrink-0 w-10 h-10">
                         {{terminal.iswTid}}
                       </div>
                     </div>
@@ -148,7 +163,7 @@
                   >
                   <div class="flex items-center">
                       <div class="flex-shrink-0 w-10 h-10">
-                        
+
                       </div>
                     </div>
                   </td>
@@ -205,6 +220,7 @@ import { Axios } from "axios";
 interface TerminalData {
   serialNo: string,
   terminalId: string,
+  threeLineTid?: string,
   iswTid?: string | null,
   iswUniqueId?: string | null,
   brand?: string | null,
@@ -226,7 +242,7 @@ let form = reactive<TerminalForm>(defaultForm);
 const readingFile = ref(false);
 const fileName= ref<string | null>(null);
 const errors = ref<{}>({})
-const page = ref(1);  
+const page = ref(1);
 const busy = ref(false);
 
 const $axios = inject<Axios>('$axios')
@@ -265,7 +281,7 @@ const rules = {
 const $v = useVuelidate<TerminalForm>(rules, form, { $autoDirty: true, });
 
 const readFile: (file:File)=> Promise<TerminalData[]> = (file: File) =>{
-  
+
   return new Promise((resolve,reject)=>{
 
     if(file.type !== 'text/csv') {
@@ -366,7 +382,7 @@ const uploadData = async ()=>{
       type: "success",
       text: `Total of ${form.terminals.length} terminals successfully uploaded`
     })
-  } 
+  }
   catch (error: any) {
     let message = error.message
     if(error.isAxiosError) {
@@ -375,7 +391,7 @@ const uploadData = async ()=>{
         const {data} = error.response;
         errors.value = {...data.errors}
       }
-      
+
     }
     notify({
       title: "Error",

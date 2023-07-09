@@ -67,12 +67,11 @@
                 <td class="px-5 py-5 text-sm bg-white border-b border-gray-200">
                   <div class="flex items-center justify-start">
                     <div class="ml-3">
-                      <span 
-                      :class="{
+                      <span :class="{
                         'bg-green-100 text-green-800': profile.type === 'generic',
                         'bg-blue-100 text-blue-800': profile.type === 'intelliffin',
-                      }"
-                      class="p-1 text-sm rounded-lg whitespace-nowrap">
+                        'bg-blue-100 text-blue-600': profile.type === '3line',
+                      }" class="p-1 text-sm uppercase rounded-lg whitespace-nowrap">
                         {{ profile.type }}
                       </span>
                     </div>
@@ -82,15 +81,15 @@
                   <template v-if="profile.type === 'generic'">
                     <p class="text-gray-900 whitespace-nowrap">Host: {{ profile.isoHost }}:{{ profile.isoPort }}</p>
                     <p class="text-gray-900 whitespace-nowrap">Is SSL: {{ profile?.isSSL ? "Yes" : "No" }}</p>
-                  
+
                   </template>
                   <p class="text-gray-900 whitespace-nowrap">
                     Switch Amount: {{ !Boolean(profile.iswSwitchAmount) ? 'None' :
-                        currencyFormatter(profile.iswSwitchAmount)
+                      currencyFormatter(profile.iswSwitchAmount)
                     }}
                   </p>
                   <p class="text-gray-900 whitespace-nowrap">
-                    Can Override Processor: {{ profile.allowProcessorOverride? 'Yes': 'No' }}
+                    Can Override Processor: {{ profile.allowProcessorOverride ? 'Yes' : 'No' }}
                   </p>
                   <p v-if="profile?.webhook" class="text-gray-900 whitespace-nowrap">
                     Webhook: {{ profile.webhook?.name }}
@@ -108,9 +107,7 @@
                       :class="`absolute inset-0 bg-${profile?.statusColor}-200 opacity-50 rounded-full`"></span>
                     <span class="relative">{{ profile?.status }}</span>
                   </span> -->
-                  <button 
-                    class="text-gray-500 hover:text-gray-600" 
-                    @click="editProfile(profile)">
+                  <button class="text-gray-500 hover:text-gray-600" @click="editProfile(profile)">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                       stroke="currentColor" class="w-5 h-5">
                       <path stroke-linecap="round" stroke-linejoin="round"
@@ -162,10 +159,10 @@
     </div>
   </div>
   <div :class="`modal ${!open && 'opacity-0 pointer-events-none'
-  } z-50 fixed w-full h-full top-0 left-0 flex items-center justify-center`">
+    } z-50 fixed w-full h-full top-0 left-0 flex items-center justify-center`">
     <div class="absolute w-full h-full bg-gray-900 opacity-50 modal-overlay"></div>
 
-    <div class="z-50 w-11/12 mx-auto overflow-y-auto bg-white rounded shadow-lg modal-container md:max-w-md">
+    <div class="z-50 w-full mx-auto overflow-y-auto bg-white rounded shadow-lg modal-container md:max-w-md">
       <div @click="open = false"
         class="absolute top-0 right-0 z-50 flex flex-col items-center mt-4 mr-4 text-sm text-white cursor-pointer modal-close">
         <svg class="text-white fill-current" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
@@ -191,46 +188,15 @@
         </div>
 
         <!--Body-->
-        <div class="flex flex-col">
+        <div class="flex flex-col h-96">
           <div>
             <Input title="Title" v-model:value="form.title" />
           </div>
           <div>
-
-            <div class="flex items-baseline mb-2 space-x-2">
-
-              <label class="w-1/5 text-sm font-bold text-gray-700" for="type">Type: </label>
-              <select
-                v-model="form.type"
-                class="w-4/5 p-1 mt-2 border border-gray-200 rounded-md focus:outline-none focus:border-none focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
-                name="typ" id="type">
-                <option value="generic">Generic</option>
-                <option value="intelliffin">Intelliffin</option>
-              </select>
-
-            </div>
-          </div>
-         
-         <template v-if="form.type === 'generic'">
-          <div>
-            <Input title="Component Key" v-model:value="form.componentKey1" />
-          </div>
-            <div>
-              <Input title="Host IP" v-model:value="form.isoHost" />
-            </div>
-            <div>
-              <Input title="Host PORT" v-model:value="form.isoPort" />
-            </div>
-            <div>
-              <Input title="Is SSL" v-model:value="form.isSSL" type="checkbox" />
-            </div>
-         </template>
-         <div>
             <div class="flex items-baseline mb-2 space-x-2">
 
               <label class="w-1/5 text-sm font-bold text-gray-700" for="type">Allow Processor Override: </label>
-              <select
-                v-model="form.allowProcessorOverride"
+              <select v-model="form.allowProcessorOverride"
                 class="w-4/5 p-1 mt-2 border border-gray-200 rounded-md focus:outline-none focus:border-none focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
                 name="typ" id="type">
                 <option :value="false">No</option>
@@ -239,26 +205,162 @@
 
             </div>
           </div>
-          <div>
-            <Input title="ISW Switch Amount" v-model:value="form.iswSwitchAmount" type="number" />
-          </div>
-          <div>
-            <Input title="ISW MID" v-model:value="form.iswMid" type="text" />
-          </div>
-          <div>
-            <!-- <Input title="ISW Destination Institution Code" v-model:value="form.iswInstitutionCode" type="number" /> -->
-            <label class="w-1/5 text-sm font-bold text-gray-700" for="type">ISW Bank: </label>
-            <select
-                v-model="form.iswInstitutionCode"
-                class="w-2/5 p-1 mt-2 border border-gray-200 rounded-md focus:outline-none focus:border-none focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
+
+          <div class="py-2 my-2">
+            <h4 class="text-center text-blue-500">Default Processor Settings</h4>
+
+            <div class="flex items-baseline mb-2 space-x-2">
+
+              <label class="w-1/5 text-sm font-bold text-gray-700" for="type">Type: </label>
+              <select v-model="form.type"
+                class="w-4/5 p-1 mt-2 border border-gray-200 rounded-md focus:outline-none focus:border-none focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
                 name="typ" id="type">
-                <option v-for="(institution, index) of institutionCodes" :key="index" :value="institution.value">{{ institution.title }}</option>
+                <option value="generic">Generic</option>
+                <option value="intelliffin">Intelliffin</option>
+                <option value="3line">3Line</option>
               </select>
+            </div>
+            <template v-if="form.type === 'generic'">
+              <div>
+                <Input title="Component Key" v-model:value="form.componentKey1" />
+              </div>
+              <div>
+                <Input title="Host IP" v-model:value="form.isoHost" />
+              </div>
+              <div>
+                <Input title="Host PORT" v-model:value="form.isoPort" />
+              </div>
+              <div>
+                <Input title="Is SSL" v-model:value="form.isSSL" type="checkbox" />
+              </div>
+            </template>
           </div>
 
-          <div>
-            <Input title="ISW Destination Account" v-model:value="form.iswDestinationAccount" type="number" />
-          </div>
+
+          <Disclosure as="div" v-slot="{ open }" class="py-2 my-2">
+            <DisclosureButton class="flex justify-between w-full p-1 text-center text-white bg-gray-500 rounded">
+              <span>3Line Settings</span>
+              <ChevronUpIcon :class="open ? 'rotate-180 transform' : ''" class="w-5 h-5 text-white" />
+            </DisclosureButton>
+            <DisclosurePanel>
+              <div>
+                <Input title="Enabled" v-model:value="form.hasthreelineSupport" type="checkbox" />
+              </div>
+              <div>
+                <Input title="Component Key" v-model:value="form.threeLineKey" />
+              </div>
+              <div>
+                <Input title="Host IP" v-model:value="form.threeLineHost" />
+              </div>
+              <div>
+                <Input title="Host PORT" v-model:value="form.threeLinePort" />
+              </div>
+              <div>
+                <Input title="Is SSL" v-model:value="form.threeLineHostSSL" type="checkbox" />
+              </div>
+            </DisclosurePanel>
+          </Disclosure>
+
+
+
+          <!-- <Disclosure as="div" v-slot="{ open }" class="py-2 my-2">
+            <DisclosureButton class="flex justify-between w-full p-1 text-center text-white bg-gray-500 rounded">
+              <span>Blue Salt Settings</span>
+              <ChevronUpIcon :class="open ? 'rotate-180 transform' : ''" class="w-5 h-5 text-white" />
+            </DisclosureButton>
+            <DisclosurePanel>
+              <div>
+                <Input title="BlueSalt TID" v-model:value="form.blueSaltTID" />
+              </div>
+              <div>
+                <Input title="BlueSalt Key" v-model:value="form.blueSaltKey" type="text" />
+              </div>
+              <div>
+                <label class="w-1/5 text-sm font-bold text-gray-700" for="type">BlueSalt env: </label>
+                <select v-model="form.blueSaltEnv"
+                  class="w-2/5 p-1 mt-2 border border-gray-200 rounded-md focus:outline-none focus:border-none focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
+                  name="blueSaltEnv">
+                  <option :value="null">Select Enviroment</option>
+                  <option :value="'staging'">Staging</option>
+                  <option :value="'live'">Live</option>
+                </select>
+              </div>
+            </DisclosurePanel>
+          </Disclosure> -->
+          <Disclosure as="div" v-slot="{ open }" class="py-2 my-2">
+            <DisclosureButton class="flex justify-between w-full p-1 text-center text-white bg-gray-500 rounded">
+              <span>ISW Settings</span>
+              <ChevronUpIcon :class="open ? 'rotate-180 transform' : ''" class="w-5 h-5 text-white" />
+            </DisclosureButton>
+
+            <DisclosurePanel>
+            <div>
+              <Input title="ISW Switch Amount" v-model:value="form.iswSwitchAmount" type="number" />
+            </div>
+            <div>
+              <Input title="ISW MID" v-model:value="form.iswMid" type="text" />
+            </div>
+            <div>
+              <!-- <Input title="ISW Destination Institution Code" v-model:value="form.iswInstitutionCode" type="number" /> -->
+              <label class="w-1/5 text-sm font-bold text-gray-700" for="type">ISW Bank: </label>
+              <select v-model="form.iswInstitutionCode"
+                class="w-2/5 p-1 mt-2 border border-gray-200 rounded-md focus:outline-none focus:border-none focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
+                name="typ" id="type">
+                <option v-for="(institution, index) of institutionCodes" :key="index" :value="institution.value">{{
+                  institution.title }}</option>
+              </select>
+            </div>
+
+            <div>
+              <Input title="ISW Destination Account" v-model:value="form.iswDestinationAccount" type="number" />
+            </div>
+          </DisclosurePanel>
+          </Disclosure>
+          <Disclosure as="div" v-slot="{ open }" class="py-2 my-2">
+            <DisclosureButton class="flex justify-between w-full p-1 text-center text-white bg-gray-500 rounded">
+              <span class="font-bold text-green-400">Bands</span>
+              <ChevronUpIcon :class="open ? 'rotate-180 transform' : ''" class="w-5 h-5 text-white" />
+            </DisclosureButton>
+          <DisclosurePanel>
+            <div class="flex space-x-2">
+              <div class="w-1/3">
+
+                <select v-model="bandForm.processor"
+                  class="w-full p-1 mt-2 border border-gray-200 rounded-md focus:outline-none focus:border-none focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
+                  name="processor" id="processor">
+                  <option value="nibss">Nibss</option>
+                  <option value="kimono">Kimono</option>
+                  <!-- <option value="bluesalt">BlueSalt</option> -->
+                  <option value="3line">3line</option>
+                </select>
+                <!-- <label class="block mb-2 text-sm font-bold text-gray-700" for="processor">Processor</label> -->
+              </div>
+              <div class="w-1/3">
+                <Input title="Min" v-model:value="bandForm.minAmount" type="number" />
+              </div>
+              <div class="w-1/3">
+                <Input title="Max" v-model:value="bandForm.maxAmount" type="number" />
+              </div>
+            </div>
+            <button class="text-blue-500" @click="addBand">add</button>
+            <table class="w-full border divide-y shadow">
+              <tr class="divide-x">
+                <th class="p-1 text-center">Processor</th>
+                <th class="p-1 text-center">Min Amount</th>
+                <th class="p-1 text-center">Max Amount</th>
+                <th class="p-1 text-center"></th>
+              </tr>
+              <tr class="divide-x" v-for="(band, index) of form.processorSettings" :key="index">
+                <td class="p-1 text-center">{{ band.processor }}</td>
+                <td class="p-1 text-center">{{ band.minAmount }}</td>
+                <td class="p-1 text-center">{{ band.maxAmount }}</td>
+                <th class="p-1 text-center">
+                  <button @click="removeBand(index)" class="font-bold text-red-400">x</button>
+                </th>
+              </tr>
+            </table>
+          </DisclosurePanel>
+          </Disclosure>
 
           <div class="flex space-x-4">
             <div class="w-1/2">
@@ -269,25 +371,25 @@
               <OrganisactionSelect placeholder="Pick organisation" v-model="form.organisationId" />
             </div>
           </div>
+          <div>
+            <p v-for="error of $v.$errors" :key="error.$uid">
+              {{ error.$message }}
+            </p>
+          </div>
 
-        </div>
-        <div>
-          <p v-for="error of $v.$errors" :key="error.$uid">
-            {{ error.$message }}
-          </p>
+          <!--Footer-->
+          <div class="flex justify-end py-2">
+            <button :disabled="loading" @click="open = false"
+              class="p-3 px-6 py-3 mr-2 text-indigo-500 bg-transparent rounded-lg disabled:pointer-events-none hover:bg-gray-100 hover:text-indigo-400 focus:outline-none">
+              Close
+            </button>
+            <button :disabled="loading || $v.$invalid" @click="saveProfileForm"
+              class="px-6 py-3 font-medium tracking-wide text-white bg-indigo-600 rounded-md disabled:opacity-25 disabled:pointer-events-none hover:bg-indigo-500 focus:outline-none">
+              save
+            </button>
+          </div>
         </div>
 
-        <!--Footer-->
-        <div class="flex justify-end pt-2">
-          <button :disabled="loading" @click="open = false"
-            class="p-3 px-6 py-3 mr-2 text-indigo-500 bg-transparent rounded-lg disabled:pointer-events-none hover:bg-gray-100 hover:text-indigo-400 focus:outline-none">
-            Close
-          </button>
-          <button :disabled="loading || $v.$invalid" @click="saveProfileForm"
-            class="px-6 py-3 font-medium tracking-wide text-white bg-indigo-600 rounded-md disabled:opacity-25 disabled:pointer-events-none hover:bg-indigo-500 focus:outline-none">
-            save
-          </button>
-        </div>
       </div>
     </div>
   </div>
@@ -312,6 +414,13 @@ import useDebouncedRef from '../../utils/DebounceRef';
 import WebhookSelect from '../../components/WebhookSelect.vue';
 // @ts-ignore
 import OrganisactionSelect from '../../components/OrganisactionSelect.vue';
+import {
+  Disclosure,
+  DisclosureButton,
+  DisclosurePanel,
+} from '@headlessui/vue'
+
+import { ChevronUpIcon } from '@heroicons/vue/20/solid'
 
 interface Profile {
   _id?: string,
@@ -332,6 +441,21 @@ interface Profile {
   webhook?: Webhook,
   type: string
   organisation?: Organisation,
+  blueSaltTID: string | null,
+  blueSaltKey: string | null,
+  blueSaltEnv: 'staging' | 'live' | null,
+  processorSettings?: Band[],
+  threeLineKey?: string,
+    threeLineHost?: string,
+    threeLinePort?: string,
+    threeLineHostSSL?: boolean,
+    hasthreelineSupport: boolean,
+}
+
+type Band = {
+  processor: 'nibss' | 'kimono' | 'bluesalt' | '3line',
+  minAmount: number,
+  maxAmount: number,
 }
 
 
@@ -371,27 +495,41 @@ const defualtState = {
   iswMid: null,
   webhookId: null,
   organisationId: null,
+  blueSaltTID: null,
+  blueSaltKey: null,
+  blueSaltEnv: null,
+  processorSettings: [],
+  threeLineKey: null,
+  threeLineHost: null,
+  threeLinePort: null,
+  threeLineHostSSL: null,
+  hasthreelineSupport: null,
 }
 
 const institutionCodes = [
-    {title: "UBA", value: 627480},
-    {title: "Fidelity", value: 639138},
-    {title: "Polari", value: 636092},
-    {title: "Unity bank", value: 639609},
-    {title: "Zenith", value:627629},
-    {title: "Providus", value:506146},
+  { title: "UBA", value: 627480 },
+  { title: "Fidelity", value: 639138 },
+  { title: "Polari", value: 636092 },
+  { title: "Unity bank", value: 639609 },
+  { title: "Zenith", value: 627629 },
+  { title: "Providus", value: 506146 },
 ]
 
 const confirmType = (value: string) => ['generic', 'intelliffin'].includes(value) || 'Invalid type'
 
 let form = ref<Profile>({ ...defualtState })
+let bandForm = ref<Band>({
+  processor: 'nibss',
+  minAmount: 0,
+  maxAmount: 0,
+})
 const open = ref(false);
 const query = useDebouncedRef<string>('', 300);
 const rules = computed(() => ({
   title: { required },
   isoHost: { requiredIf: requiredIf(() => form.value.type === 'generic'), ipAddress },
   isoPort: { requiredIf: requiredIf(() => form.value.type === 'generic'), numeric },
-  isSSL: { requiredIf: requiredIf(() => form.value.type === 'generic' )},
+  isSSL: { requiredIf: requiredIf(() => form.value.type === 'generic') },
   componentKey1: { requiredIf: requiredIf(() => form.value.type === 'generic') },
   type: { confirmType },
   iswSwitchAmount: { minValue: minValue(0) },
@@ -420,6 +558,19 @@ const fetchData = async () => {
   }
 }
 
+const addBand = () => {
+  form.value.processorSettings = [...(form.value.processorSettings ?? []), bandForm.value]
+  bandForm.value = {
+    processor: 'nibss',
+    minAmount: 0,
+    maxAmount: 0,
+  }
+}
+
+const removeBand = (index: Number) => {
+  form.value.processorSettings = form.value.processorSettings?.filter((band, i) => i !== index)
+}
+
 const fetchOrganisations = async () => {
   try {
     const { data } = await $axios.get<Organisation[]>('/dashboard/organisations/all')
@@ -440,6 +591,7 @@ const gotoPage = (page?: number) => {
 }
 const editProfile = (value: Profile) => {
   open.value = true;
+  console.log(value.blueSaltEnv)
   form.value = {
     ...form.value,
     ...value,
@@ -459,7 +611,7 @@ const confirmProfileDelete = (profile: Profile) => {
   }
 }
 
-const deleteProfile = async (confirm: boolean)  => {
+const deleteProfile = async (confirm: boolean) => {
   if (!confirm) {
     confirmDelete.value = { ...confirmDelete.value, ...defaultDeleteState }
     return;

@@ -125,6 +125,16 @@ const terminalSchema = new mongoose.Schema({
         //    return value.length?value: null;
         // }
     },
+    threeLineTid: {
+        type: String,
+        unique: true,
+        default: null,
+        sparse: true,
+    },
+    threeLineParams: {
+        type: Object,
+        default: null
+    },
 }, {
     timestamps: true,
     toJSON: {
@@ -170,9 +180,35 @@ terminalSchema.virtual('parsedParams').get(function () {
     }
     return data;
 });
+terminalSchema.virtual('threeLineParsedParams').get(function () {
+    var _a, _b;
+    if (!((_b = (_a = this.threeLineParams) === null || _a === void 0 ? void 0 : _a.paramdownload) === null || _b === void 0 ? void 0 : _b.length)) {
+        return null;
+    }
+    const rawParam = this.threeLineParams.paramdownload;
+    const tags = {
+        "02": "exchangeTime",
+        "03": "mid",
+        "04": "timeout",
+        "05": "currencyCode",
+        "06": "countryCode",
+        "07": "callHomeTimeout",
+        "52": "merchantNameLocation",
+        "08": "mechantCategoryCode",
+    };
+    let message = rawParam + '';
+    let data = {};
+    while (message.length) {
+        const tag = message.substr(0, 2);
+        const length = parseInt(message.substr(2, 3));
+        data = Object.assign(Object.assign({}, data), { [tags[tag]]: message.substr(5, length) });
+        message = message.substring(5 + length, message.length);
+    }
+    return data;
+});
 terminalSchema.plugin(mongoose_paginate_v2_1.default);
 terminalSchema.plugin(mongoose_csv_export_1.default, {
-    headers: ['SerialNo', 'TerminalId', 'IswTid', 'IswUniqueId', 'Brand', 'AppVersion', 'DeviceModel'],
+    headers: ['SerialNo', 'TerminalId', 'IswTid', 'IswUniqueId', 'Brand', 'AppVersion', 'DeviceModel', 'ThreeLineTid'],
     alias: {
         'SerialNo': 'serialNo',
         'TerminalId': 'terminalId',
@@ -181,6 +217,7 @@ terminalSchema.plugin(mongoose_csv_export_1.default, {
         'Brand': 'brand',
         'AppVersion': 'appVersion',
         'DeviceModel': 'deviceModel',
+        'ThreeLineTid': 'threeLineTid'
     }
 });
 const Termninal = mongoose.model('terminal', terminalSchema);
