@@ -65,7 +65,7 @@ const profileUpdateValidator = createValidatedRequest(checkSchema({
         in: ['body'],
         isBoolean: true,
         customSanitizer: {
-            options: 
+            options:
                 value => ['true','false','1','0'].includes(String(value)
                             .toLowerCase())
         },
@@ -130,7 +130,7 @@ const profileUpdateValidator = createValidatedRequest(checkSchema({
     type: {
         in: ['body'],
         matches: {
-            options: [/\b(?:generic|intelliffin)\b/],
+            options: [/\b(?:generic|intelliffin|3line)\b/],
             errorMessage: "Invalid Profile type"
         }
     },

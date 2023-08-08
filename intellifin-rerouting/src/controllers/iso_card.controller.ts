@@ -586,7 +586,7 @@ class IsoCardContoller {
     amount: number
   ): TransactionTypes {
     const profile = terminal?.profile;
-    if (!terminal?.profile?.iswSwitchAmount)
+    if (!terminal?.profile?.iswSwitchAmount && !profile.processorSettings)
       return TransactionTypes.ISO_TRANSACTION;
     if (!profile.processorSettings)
       return amount / 100 >= (terminal?.profile.iswSwitchAmount as number)
