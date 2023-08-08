@@ -148,7 +148,7 @@ const profileUpdateValidator = (0, index_1.createValidatedRequest)((0, schema_1.
     type: {
         in: ['body'],
         matches: {
-            options: [/\b(?:generic|intelliffin)\b/],
+            options: [/\b(?:generic|intelliffin|3line)\b/],
             errorMessage: "Invalid Profile type"
         }
     },

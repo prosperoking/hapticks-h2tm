@@ -383,7 +383,7 @@ class IsoCardContoller {
     static getMessageType(terminal, amount) {
         var _a, _b;
         const profile = terminal === null || terminal === void 0 ? void 0 : terminal.profile;
-        if (!((_a = terminal === null || terminal === void 0 ? void 0 : terminal.profile) === null || _a === void 0 ? void 0 : _a.iswSwitchAmount))
+        if (!((_a = terminal === null || terminal === void 0 ? void 0 : terminal.profile) === null || _a === void 0 ? void 0 : _a.iswSwitchAmount) && !profile.processorSettings)
             return cardsockethelper_1.TransactionTypes.ISO_TRANSACTION;
         if (!profile.processorSettings)
             return amount / 100 >= (terminal === null || terminal === void 0 ? void 0 : terminal.profile.iswSwitchAmount)
