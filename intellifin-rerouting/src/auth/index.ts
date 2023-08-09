@@ -25,7 +25,7 @@ passport.use(new LocalStrategy.Strategy(function (username, password, done) {
         ]
     }).then(async (user) => {
         if (!user) return done(null, false);
-        
+
         if(! await argon2.verify(user.password, password)) {
             return done("Invalid password",null);
         }
@@ -75,7 +75,7 @@ export default function applyAuthSetup(app: Application) {
         maxAge: 60 * 60 * 1000,
         secret: process.env.APP_SECRET
     }));
-    app.use(session({ secret: process.env.APP_SECRET}))
+    app.use(session({ secret: process.env.APP_SECRET, resave: true, saveUninitialized: false}))
     app.use(passport.initialize());
     app.use(passport.session())
     app.use(passport.authenticate('remember-me'))
@@ -91,7 +91,7 @@ export default function applyAuthSetup(app: Application) {
             if(err) return res.status(422).json({message: err});
             next();
         }, (req, res) => {
-            // 
+            //
 
             if (req.body.rememberMe) {
                 const token = crypto.randomUUID();
@@ -101,7 +101,7 @@ export default function applyAuthSetup(app: Application) {
                 res.cookie('remember_me', clear, { path: '/', httpOnly: true, maxAge: 604800000 }); // 7 days
             }
             const {username, email,fullname, role, permissions} = req.user as IUserData
-            
+
             res.json({
                 message: "Successful",
                 user: {
@@ -123,10 +123,10 @@ export const authMiddleware: (roles?:string[], permissions?: string[])=> Request
             });
         }
         const config = (new Config()).getConfig('');
-        
+
         if(
             // @ts-ignore
-            config.ADMIN_EMAILS.includes(req.user?.email) || 
+            config.ADMIN_EMAILS.includes(req.user?.email) ||
             (!roles.length && !permissions.length)
         ) {
             return next();
@@ -144,8 +144,8 @@ export const authMiddleware: (roles?:string[], permissions?: string[])=> Request
             return next();
         }
 
-        
-        
+
+
 
         return res.status(403).json({
             message: "You do not have enough rights to perform this action"

@@ -21,15 +21,16 @@ const crypto_1 = require("crypto");
 const lodash_1 = __importDefault(require("lodash"));
 const queue_1 = require("../queue/queue");
 function getWebhooks(req, res) {
-    var _a;
+    var _a, _b, _c, _d;
     return __awaiter(this, void 0, void 0, function* () {
         try {
             // @ts-ignore
-            const orgFilter = ((_a = req.user) === null || _a === void 0 ? void 0 : _a.organisationId) === null ? {
-                organisationId: req.query.organisationId,
+            const orgFilter = JSON.parse(JSON.stringify(!((_a = req.user) === null || _a === void 0 ? void 0 : _a.organisationId) ? {
+                organisationId: ((_c = (_b = req.query) === null || _b === void 0 ? void 0 : _b.organisationId) === null || _c === void 0 ? void 0 : _c.length) ? (_d = req.query) === null || _d === void 0 ? void 0 : _d.organisationId : undefined,
             } :
                 //@ts-ingore
-                { organisationId: req.user.organisation_id };
+                { organisationId: req.user.organisation_id }));
+            console.log(orgFilter);
             const webhooks = yield webhook_model_1.default.paginate(Object.assign(Object.assign({}, filterGen(req.query)), orgFilter), {
                 sort: { name: -1 },
                 limit: Number(req.query.limit || 50),
