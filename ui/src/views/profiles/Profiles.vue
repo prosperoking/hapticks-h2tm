@@ -237,7 +237,7 @@
           </div>
 
 
-          <!-- <Disclosure as="div" v-slot="{ open }" class="py-2 my-2">
+          <Disclosure as="div" v-slot="{ open }" class="py-2 my-2">
             <DisclosureButton class="flex justify-between w-full p-1 text-center text-white bg-gray-500 rounded">
               <span>3Line Settings</span>
               <ChevronUpIcon :class="open ? 'rotate-180 transform' : ''" class="w-5 h-5 text-white" />
@@ -259,7 +259,7 @@
                 <Input title="Is SSL" v-model:value="form.threeLineHostSSL" type="checkbox" />
               </div>
             </DisclosurePanel>
-          </Disclosure> -->
+          </Disclosure>
 
 
 
