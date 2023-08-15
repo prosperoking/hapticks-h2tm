@@ -116,7 +116,8 @@ JournalsSchema.plugin(csv, {
         "MERCHANT ADDRESS": "merchantAddress",
         "MERCHANT CATEGORY CODE": "merchantCategoryCode",
         "CURRENCY CODE": "currencyCode",
-    }
+    },
+    delimiter: ",",
 })
 
 export default mongoose.model<IJournalDocument, PaginateModel<IJournalDocument>>('journal', JournalsSchema);

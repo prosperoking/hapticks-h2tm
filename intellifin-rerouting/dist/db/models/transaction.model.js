@@ -104,7 +104,8 @@ JournalsSchema.plugin(mongoose_csv_export_1.default, {
         "MERCHANT ADDRESS": "merchantAddress",
         "MERCHANT CATEGORY CODE": "merchantCategoryCode",
         "CURRENCY CODE": "currencyCode",
-    }
+    },
+    delimiter: ",",
 });
 exports.default = mongoose.model('journal', JournalsSchema);
 //# sourceMappingURL=transaction.model.js.map
