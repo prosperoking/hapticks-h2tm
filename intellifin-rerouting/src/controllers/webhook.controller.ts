@@ -12,12 +12,13 @@ import { webhookQueue } from '../queue/queue';
 export async function getWebhooks(req: Request, res: Response){
     try {
         // @ts-ignore
-        const orgFilter = req.user?.organisationId === null?{
-            organisationId: req.query.organisationId,
-            
+        const orgFilter = JSON.parse(JSON.stringify(!req.user?.organisationId ?{
+            organisationId: req.query?.organisationId?.length ? req.query?.organisationId:undefined,
         }:
         //@ts-ingore
-        {organisationId: (req.user as IUserData).organisation_id};
+        {organisationId: (req.user as IUserData).organisation_id}
+        ));
+        console.log(orgFilter)
         const webhooks = await webhookModel.paginate({
             ...filterGen(req.query),
             ... orgFilter,
@@ -146,7 +147,7 @@ export async function webhookRequests(req: Request, res: Response) {
 
 export async function retryWebhook(req: Request, res: Response) {
     try {
-        
+
         const webhookRequest = await webhookRequestModel.findById(req.params.id);
         if(!webhookRequest) return res.status(404).json({
             mesage: "Webhook Request Not found"
@@ -196,7 +197,7 @@ function filterRequest({q, organisation, webhook}: any) {
                 },
                 {
                     "payload.merchantName":  RegExp(`^${q}`,'i'),
-                    
+
                 },
             ]
         }

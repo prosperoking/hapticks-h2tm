@@ -70,7 +70,7 @@ export interface KIMONOPayload {
 export enum Processor {
     NIBSS = "NIBSS",
     KIMONO = "KIMONO",
-    MEDUSA = "MEDUSA",
+    THREELINE = "3LINE",
 }
 
 

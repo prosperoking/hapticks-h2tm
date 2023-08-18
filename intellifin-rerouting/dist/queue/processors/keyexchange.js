@@ -25,10 +25,23 @@ const connection = {
     password: config.redis.password,
 };
 exports.keyExchangeWorker = new bullmq_1.Worker('keyexchange', (job) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     const terminal = yield terminal_model_1.default.findById(job.data._id).populate('profile');
     if (!terminal)
         throw Error("Terminal Not found");
     const profile = terminal.profile;
+    if (terminal.profile.hasthreelineSupport && ((_a = terminal.threeLineTid) === null || _a === void 0 ? void 0 : _a.length)) {
+        const threeResult = yield (0, cardsockethelper_1.performCardSocketTranaction)(cardsockethelper_1.TransactionTypes.THREELINE_KEY_EXCHANGE, {
+            tid: terminal.threeLineTid,
+            component: terminal.profile.threeLineKey,
+            ip: terminal.profile.threeLineHost,
+            ssl: String(terminal.profile.threeLineHostSSL),
+            port: terminal.profile.threeLinePort,
+        });
+        if (threeResult.status) {
+            terminal.threeLineParams = threeResult.data;
+        }
+    }
     if (profile.isInteliffin) {
         return handleIntelifinKeyExchange(terminal);
     }

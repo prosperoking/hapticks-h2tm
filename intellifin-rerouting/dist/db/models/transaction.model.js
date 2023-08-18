@@ -62,7 +62,10 @@ let JournalsSchema = new mongoose.Schema({
         default: null,
     },
     extraData: { type: String, default: "" },
-    processor: { type: String, default: "NIBSS" }
+    processor: { type: String, default: "NIBSS" },
+    meta: {
+        type: Object,
+    }
 }, {
     timestamps: true,
     toJSON: {
@@ -101,7 +104,8 @@ JournalsSchema.plugin(mongoose_csv_export_1.default, {
         "MERCHANT ADDRESS": "merchantAddress",
         "MERCHANT CATEGORY CODE": "merchantCategoryCode",
         "CURRENCY CODE": "currencyCode",
-    }
+    },
+    delimiter: ",",
 });
 exports.default = mongoose.model('journal', JournalsSchema);
 //# sourceMappingURL=transaction.model.js.map

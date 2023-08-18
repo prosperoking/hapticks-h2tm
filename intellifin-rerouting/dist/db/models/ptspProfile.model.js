@@ -29,6 +29,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = require("mongoose");
 const mongoose_paginate_v2_1 = __importDefault(require("mongoose-paginate-v2"));
 const mongoose = __importStar(require("mongoose"));
+const crypt_1 = require("../../helpers/crypt");
 const ptspProfileSchema = new mongoose.Schema({
     title: {
         type: String,
@@ -82,14 +83,50 @@ const ptspProfileSchema = new mongoose.Schema({
         type: mongoose_1.SchemaTypes.ObjectId,
         default: null,
     },
+    threeLineKey: {
+        type: String,
+        default: null,
+    },
+    threeLineHost: {
+        type: String,
+        default: null,
+    },
+    threeLinePort: {
+        type: String,
+        default: null,
+    },
+    threeLineHostSSL: {
+        type: Boolean,
+        default: null,
+    },
+    hasthreelineSupport: {
+        type: Boolean,
+        default: false,
+    },
     webhookId: {
         type: mongoose_1.SchemaTypes.ObjectId,
         default: null,
-    }
+    },
+    blueSaltTID: {
+        type: String,
+        default: null,
+    },
+    blueSaltKey: {
+        type: String,
+        default: null,
+        set: (value) => (value !== null && (value === null || value === void 0 ? void 0 : value.length)) ? (0, crypt_1.encrypt)(value) : null,
+        get: (value) => (value !== null && (value === null || value === void 0 ? void 0 : value.length)) ? (0, crypt_1.decrypt)(value) : null,
+    },
+    blueSaltEnv: {
+        type: String,
+        default: null,
+    },
+    processorSettings: [mongoose_1.SchemaTypes.Mixed]
 }, {
     timestamps: true,
     toJSON: {
-        virtuals: true
+        virtuals: true,
+        getters: true,
     }
 });
 ptspProfileSchema.virtual('terminals', {
@@ -117,6 +154,9 @@ ptspProfileSchema.virtual('webhook', {
     localField: 'webhookId',
     foreignField: '_id',
     justOne: true,
+});
+ptspProfileSchema.virtual('blueSaltUrl').get(function () {
+    return this.blueSaltEnv === 'staging' ? 'https://dev-wallets.bluesalt.net' : undefined;
 });
 // @ts-ignore
 ptspProfileSchema.plugin(mongoose_paginate_v2_1.default);

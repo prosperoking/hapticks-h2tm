@@ -1,8 +1,7 @@
 import { Schema, model, Document, SchemaTypes, PaginateModel } from "mongoose";
 import paginate from 'mongoose-paginate-v2';
 import * as mongoose from 'mongoose';
-import { encrypt } from "../../helpers/crypt";
-import { decrypt } from "../../helpers/crypt";
+import { decrypt, encrypt } from '../../helpers/crypt';
 export interface IPTSPProfileData {
     title: string,
     isoHost: string,
@@ -18,10 +17,21 @@ export interface IPTSPProfileData {
     iswInstitutionCode?: string,
     iswDestinationAccount?: string,
     organisationId?: string | any,
+    threeLineKey?: string,
+    threeLineHost?: string,
+    threeLinePort?: string,
+    threeLineHostSSL?: boolean,
+    hasthreelineSupport: boolean,
     webhookId?: string | any,
     isInteliffin: boolean,
-    blueSaltTID?: string, 
-    blueSaltKey?: string,
+    blueSaltTID: string | null,
+    blueSaltKey: string | null,
+    blueSaltEnv: "staging" | "live"  | null,
+    processorSettings?: {
+        minAmount: number,
+        maxAmount: number,
+        processor: 'nibss' | 'kimono' | 'bluesalt' | '3line',
+    }[]
 }
 
 export interface IPTSPProfile extends Document, IPTSPProfileData { }
@@ -79,24 +89,50 @@ const ptspProfileSchema = new mongoose.Schema<IPTSPProfileData>({
         type: SchemaTypes.ObjectId,
         default: null,
     },
+    threeLineKey: {
+        type: String,
+        default: null,
+    },
+    threeLineHost: {
+        type: String,
+        default: null,
+    },
+    threeLinePort: {
+        type: String,
+        default: null,
+    },
+    threeLineHostSSL:{
+        type: Boolean,
+        default: null,
+    },
+    hasthreelineSupport:{
+        type: Boolean,
+        default: false,
+    },
     webhookId: {
         type: SchemaTypes.ObjectId,
         default: null,
     },
-    blueSaltTID:  {
+    blueSaltTID: {
         type: String,
         default: null,
-    }, 
+    },
     blueSaltKey: {
         type: String,
         default: null,
-        set: (value: string)=> encrypt(value),
-        get: (value: string)=> decrypt(value),
+        set: (value: string)=> (value !== null && value?.length) ? encrypt(value) : null,
+        get: (value: string)=> (value !== null && value?.length) ? decrypt(value) : null,
     },
+    blueSaltEnv: {
+        type: String,
+        default: null,
+    },
+    processorSettings: [SchemaTypes.Mixed]
 }, {
-    timestamps: true, 
+    timestamps: true,
     toJSON: {
-        virtuals: true
+        virtuals: true,
+        getters: true,
     }
 })
 
@@ -130,6 +166,10 @@ ptspProfileSchema.virtual('webhook', {
     foreignField: '_id',
     justOne: true,
 });
+
+ptspProfileSchema.virtual('blueSaltUrl').get(function(){
+    return this.blueSaltEnv === 'staging' ? 'https://dev-wallets.bluesalt.net' : undefined;
+})
 
 // @ts-ignore
 ptspProfileSchema.plugin(paginate);

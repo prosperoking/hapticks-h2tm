@@ -5,5 +5,6 @@ var Processor;
 (function (Processor) {
     Processor["NIBSS"] = "NIBSS";
     Processor["KIMONO"] = "KIMONO";
+    Processor["THREELINE"] = "3LINE";
 })(Processor = exports.Processor || (exports.Processor = {}));
 //# sourceMappingURL=types.js.map

@@ -244,7 +244,7 @@
                         {{ item }}
                       </p>
                     </td>
-                    
+
                     <td class="text-sm bg-white">
                       <div class="flex items-center">
                         <input
@@ -253,7 +253,7 @@
         class="p-1 mt-2 border border-gray-200 rounded-md focus:outline-none focus:border-none focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
         type="checkbox"  />
                     </div>
-                      
+
                     </td>
                   </tr>
                 </table>
@@ -287,7 +287,7 @@
   <ConfirmDialog v-model:value="confirmDelete.open" :title="confirmDelete.title" :confirm="confirmDelete.value"
     :message="confirmDelete.message" @accepted="deleteUser" />
 </template>
-  
+
 <script lang="ts" setup>
 import { reactive, inject, onMounted, ref, watch, computed } from 'vue';
 import {
@@ -308,22 +308,6 @@ import { required, requiredIf } from "@vuelidate/validators"
 import { parse, format } from "date-fns"
 import { Organisation, PaginatedData, User } from '../@types/types';
 import useDebouncedRef from '../utils/DebounceRef';
-
-interface Profile {
-  _id?: string,
-  title: string,
-  isoHost: string,
-  isoPort: string,
-  isSSL: boolean,
-  componentKey1: string,
-  componentKey2: string,
-  iswSwitchAmount: number,
-  terminals_count?: number,
-
-}
-
-
-
 
 
 interface UserForm {

@@ -100,7 +100,7 @@ function applyAuthSetup(app) {
         maxAge: 60 * 60 * 1000,
         secret: process.env.APP_SECRET
     }));
-    app.use((0, express_session_1.default)({ secret: process.env.APP_SECRET }));
+    app.use((0, express_session_1.default)({ secret: process.env.APP_SECRET, resave: true, saveUninitialized: false }));
     app.use(passport_1.default.initialize());
     app.use(passport_1.default.session());
     app.use(passport_1.default.authenticate('remember-me'));
@@ -112,7 +112,7 @@ function applyAuthSetup(app) {
             return res.status(422).json({ message: err });
         next();
     }, (req, res) => {
-        // 
+        //
         if (req.body.rememberMe) {
             const token = crypto_1.default.randomUUID();
             const clear = Buffer.from(token).toString('base64');

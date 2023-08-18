@@ -139,6 +139,22 @@
                       {{ terminal?.organisation.name }}
                     </span>
                   </p>
+                  <template v-if="terminal?.threeLineTid?.length">
+                    <p class=" whitespace-nowrap">
+                      3Line TID: <span class="font-bold">{{ terminal.threeLineTid }}</span>
+                    </p>
+                  </template>
+                  <template v-if="terminal.threeLineParsedParams != null">
+                      <p class=" whitespace-nowrap">
+                        3Line MID: <span class="font-bold">{{ terminal?.threeLineParsedParams?.mid }}</span>
+                      </p>
+
+                      <p>
+                        3Line Last Key Exchange: <span class="font-bold">{{ formatExchangeTime(
+                            terminal?.threeLineParsedParams.exchangeTime)
+                        }}</span>
+                      </p>
+                  </template>
                   <template v-if="terminal?.profile?.iswSwitchAmount">
                     <p class=" whitespace-nowrap">
                       ISW TID: <span class="font-bold">{{ terminal.iswTid }}</span>
@@ -149,9 +165,9 @@
                   </template>
                 </td>
                 <td class="px-5 py-5 text-sm bg-white border-b border-gray-200">
-                  <button 
-                  :title='terminal?.parsedParams?.exchangeTime.length ? "Refresh Keys" : "Perform keyExchange" ' 
-                  class="text-green-500 hover:text-green-600" 
+                  <button
+                  :title='terminal?.parsedParams?.exchangeTime.length ? "Refresh Keys" : "Perform keyExchange" '
+                  class="text-green-500 hover:text-green-600"
                   :class="{'animate animate-pulse': busyIds.includes(terminal._id!)}"
                   @click="performKeyExchange(terminal._id!)">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" view-box="0 0 24 24" stroke-width='1.5'
@@ -159,7 +175,7 @@
                       <path strokeLinecap="round" strokeLinejoin="round"
                         d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
                     </svg>
-                    
+
                   </button>
                   <button class="text-gray-500 hover:text-gray-600" @click="editTerminal(terminal)">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -297,6 +313,9 @@
             <Input title="Terminal Id" v-model:value="form.terminalId" />
           </div>
           <div>
+            <Input title="3Line Tid" v-model:value="form.threeLineTid" />
+          </div>
+          <div>
             <Input title="ISW Terminal Id" v-model:value="form.iswTid" />
           </div>
           <div>
@@ -358,6 +377,7 @@ interface Profile {
   componentKey2: string,
   iswSwitchAmount: number,
   terminals_count?: number,
+  hasthreelineSupport: boolean,
 
 }
 
@@ -367,6 +387,7 @@ interface Terminal {
   _id?: string,
   serialNo: string,
   terminalId: string,
+  threeLineTid?: string,
   clrmasterkey?: string,
   encmasterkey?: string,
   encsesskey?: string,
@@ -384,6 +405,16 @@ interface Terminal {
   brand?: string,
   deviceModel?: string,
   appVersion?: string,
+  threeLineParsedParams?:{
+    callHomeTimeout: string,
+    countryCode: string,
+    currencyCode: string,
+    exchangeTime: string,
+    mechantCategoryCode: string,
+    merchantNameLocation: string,
+    mid: string,
+    timeout: string,
+  },
   parsedParams?: {
     callHomeTimeout: string,
     countryCode: string,
@@ -400,6 +431,7 @@ interface TerminalForm {
   _id?: string,
   serialNo: string,
   terminalId: string,
+  threeLineTid?: string,
   profileId: string,
   iswTid?: string | null,
   iswUniqueId?: string | null,
@@ -414,7 +446,7 @@ interface State {
   perPage: number
 }
 
-const terminalBrands = ['HORIZONPAY', 'PAX', 'NEXGO', 'MOREFUN', 'MPOS', "AISINO"].sort();
+const terminalBrands = ['HORIZONPAY', 'PAX', 'NEXGO', 'MOREFUN', 'MPOS', "AISINO", 'NEWLAND',].sort();
 
 // @ts-ignore: Unreachable code error
 const $axios: Axios = inject('$axios')
@@ -444,6 +476,7 @@ const confirmDelete = ref(defaultDeleteState)
 const defualtState: TerminalForm = {
   serialNo: '',
   terminalId: '',
+  threeLineTid: undefined,
   profileId: '',
   iswTid: null,
   iswUniqueId: null,
@@ -526,6 +559,7 @@ const editTerminal = (terminal: Terminal) => {
     profileId: terminal.profileId,
     serialNo: terminal.serialNo,
     terminalId: terminal.terminalId,
+    threeLineTid: terminal.threeLineTid,
     iswTid: terminal.iswTid,
     iswUniqueId: terminal.iswUniqueId,
     brand: terminal.brand || null,

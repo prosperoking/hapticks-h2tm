@@ -1,5 +1,5 @@
 import { createHmac, createHash } from "crypto"
-import { AES } from 'crypto-js'
+import { AES, enc } from 'crypto-js'
 const password = process.env.API_SECRET_KEY;
 
 export function encrypt (value) {
@@ -7,7 +7,7 @@ export function encrypt (value) {
 }
 
 export function decrypt(value) {
-    return AES.decrypt(value, password).toString();
+    return AES.decrypt(value, password).toString(enc.Utf8);
 }
 
 export function createDigest(secret, data) {

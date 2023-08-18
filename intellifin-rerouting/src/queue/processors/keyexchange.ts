@@ -15,15 +15,31 @@ const connection = {
 };
 
 export const keyExchangeWorker = new Worker<ITerminal>('keyexchange',async (job: Job<ITerminal>) => {
-    
+
     const terminal = await Terminal.findById(job.data._id).populate('profile');
     if(!terminal) throw Error("Terminal Not found");
     const profile = terminal.profile;
+    if(terminal.profile.hasthreelineSupport && terminal.threeLineTid?.length) {
+        const threeResult = await performCardSocketTranaction(
+          TransactionTypes.THREELINE_KEY_EXCHANGE,
+          {
+            tid: terminal.threeLineTid,
+            component: terminal.profile.threeLineKey,
+            ip: terminal.profile.threeLineHost,
+            ssl: String(terminal.profile.threeLineHostSSL),
+            port: terminal.profile.threeLinePort,
+          }
+        )
+
+        if(threeResult.status) {
+          terminal.threeLineParams = threeResult.data
+        }
+      }
 
     if(profile.isInteliffin) {
         return handleIntelifinKeyExchange(terminal);
     }
-    
+
     let result = await performCardSocketTranaction(TransactionTypes.KEY_EXCHANGE, {
         tid: terminal.terminalId,
         component: profile.componentKey1,
@@ -55,23 +71,23 @@ type TerminalDocument = Document<unknown, any, ITerminalDocument> & ITerminalDoc
 
 async function handleIntelifinKeyExchange(terminal: TerminalDocument) {
     const { isoHost, isoPort, isSSL } = terminal.profile
-    
-    
+
+
     try {
         const data = await Inteliffin.getPrepInfo({
                         terminalid: terminal.terminalId,
                         serialno: terminal.serialNo,
                     });
-        
+
         if (data.response !== '00') {
-            return 
+            return
         }
 
-        const { 
-            pin_key, 
-            callhome, 
-            country_code, 
-            currency_code,  
+        const {
+            pin_key,
+            callhome,
+            country_code,
+            currency_code,
             datetime,
             merchant_address,
             merchant_category_code,
@@ -105,9 +121,9 @@ async function handleIntelifinKeyExchange(terminal: TerminalDocument) {
             ["080",padLeadingZeros(merchant_category_code.length), merchant_category_code],
             ["520",padLeadingZeros(merchant_address.length), merchant_address],
         ].map(a=>a.join('')).join('');
-        
+
         await terminal.save();
-       
+
 
     } catch (error) {
         throw error;

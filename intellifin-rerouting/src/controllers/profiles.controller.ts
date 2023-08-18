@@ -4,8 +4,8 @@ import {pick,} from "lodash"
 export default class ProfileController {
     public async create(request: Request, response: Response) {
         try {
+            console.log(request.body)
             const data = await PTSPProfileModel.create(request.body);
-
             response.json({status: true, data})
         } catch (error) {
             console.log(error)
@@ -63,7 +63,16 @@ export default class ProfileController {
                 "allowProcessorOverride",
                 "iswDestinationAccount",
                 "organisationId",
-                "webhookId"
+                "threeLineKey",
+                "threeLineHost",
+                "threeLinePort",
+                "threeLineHostSSL",
+                "hasthreelineSupport",
+                "webhookId",
+                "blueSaltTID",
+                "blueSaltKey",
+                "blueSaltEnv",
+                "processorSettings",
             ]));
 
 

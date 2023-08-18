@@ -9,7 +9,7 @@ function encrypt(value) {
 }
 exports.encrypt = encrypt;
 function decrypt(value) {
-    return crypto_js_1.AES.decrypt(value, password).toString();
+    return crypto_js_1.AES.decrypt(value, password).toString(crypto_js_1.enc.Utf8);
 }
 exports.decrypt = decrypt;
 function createDigest(secret, data) {

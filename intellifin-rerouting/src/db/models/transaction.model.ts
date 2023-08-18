@@ -31,6 +31,7 @@ export interface IJournal {
     extraData?: string,
     processor?: Processor | any,
     organisationId?: string | any,
+    meta?: object,
 }
 
 export interface IJournalDocument extends Document, IJournal {}
@@ -68,7 +69,10 @@ let JournalsSchema = new mongoose.Schema<IJournalDocument>({
         default: null,
     },
     extraData: { type: String, default: "" },
-    processor: { type: String, default: "NIBSS" }
+    processor: { type: String, default: "NIBSS" },
+    meta: {
+        type: Object,
+    }
 
 },{
     timestamps: true,
@@ -112,7 +116,8 @@ JournalsSchema.plugin(csv, {
         "MERCHANT ADDRESS": "merchantAddress",
         "MERCHANT CATEGORY CODE": "merchantCategoryCode",
         "CURRENCY CODE": "currencyCode",
-    }
+    },
+    delimiter: ",",
 })
 
 export default mongoose.model<IJournalDocument, PaginateModel<IJournalDocument>>('journal', JournalsSchema);
