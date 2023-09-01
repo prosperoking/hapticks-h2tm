@@ -15,11 +15,11 @@ export async function index(req: Request, res: Response) {
             organisation_id: req.query.organisationId,
           }
         : //@ts-ingore
-          { organisation_id: (req.user as IUserData).organisation_id };
+          { organisation_id: (req.user as IUserData).organisation_id ?? undefined};
     const webhooks = await userModel.paginate(
       {
         ...filterGen(req.query),
-        ...orgFilter,
+        ..._.omitBy(orgFilter, _.isUndefined),
       },
       {
         sort: { name: -1 },
@@ -44,16 +44,17 @@ export async function addUser(req: Request, res: Response) {
     const {body} = req;
     // @ts-ignore
     const orgFilter = req.user?.organisation_id === null
-        ? {
-            organisation_id: req.query.organisation_id,
-          }
+        ? {}
         : //@ts-ingore
           { organisationId: (req.user as IUserData).organisation_id };
-    const user = userModel.create({...body, ...orgFilter});
-    
+    const user = userModel.create({
+      ... _.pick( body, ['email','fullname','organisation_id','password','permissions','username']),
+      ...orgFilter
+    });
+
     return res.json(user);
   } catch (error) {
-    logger.error(error.message);
+    logger.error(error);
     return res.status(400).json({
       message: "failed to create user",
     });
@@ -120,7 +121,7 @@ export async function deleteUser(req: Request, res: Response) {
 
 function filterGen({ q }: any) {
   let query = {};
-  if (q !== undefined) {
+  if (!_.isEmpty(q)) {
     query = {
       ...query,
       $or: [

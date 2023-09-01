@@ -32,6 +32,7 @@ export interface IJournal {
     processor?: Processor | any,
     organisationId?: string | any,
     meta?: object,
+    webhookData?: object,
 }
 
 export interface IJournalDocument extends Document, IJournal {}
@@ -72,6 +73,10 @@ let JournalsSchema = new mongoose.Schema<IJournalDocument>({
     processor: { type: String, default: "NIBSS" },
     meta: {
         type: Object,
+    },
+    webhookData: {
+        type: Object,
+        default: null,
     }
 
 },{

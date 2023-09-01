@@ -28,8 +28,7 @@
     </div>
 
     <div class="px-4 py-4 -mx-4 overflow-x-auto sm:-mx-8 sm:px-8">
-      <div :class="{ 'opacity-20 relative': loading }"
-        class="inline-block min-w-full overflow-hidden rounded-lg shadow">
+      <div :class="{ 'opacity-20 relative': loading }" class="inline-block min-w-full overflow-hidden rounded-lg shadow">
         <div v-show="loading" class="fixed bg-gray-900 rounded top-1/2 left-1/2">
           <svg version="1.1" id="L9" class="w-10 h-10 animate-spin " xmlns="http://www.w3.org/2000/svg"
             xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 100 100"
@@ -105,9 +104,16 @@
                 </td>
 
                 <td class="px-5 py-5 text-sm bg-white border-b border-gray-200">
-                  <p class="text-gray-900 whitespace-nowrap">
-                    {{ user.permissions }}
-                  </p>
+                  <div class="text-gray-900 whitespace-nowrap">
+                    <template v-for="(group, index) in groupPermissions(user.permissions)">
+                      <div class="flex space-x-3">
+                        <span class="font-bold">
+                        {{ index.toString().toUpperCase() }}:
+                      </span>
+                      <span>{{ group.join('/ ').toUpperCase() }}</span>
+                      </div>
+                    </template>
+                  </div>
                 </td>
 
                 <td class="px-5 py-5 text-sm bg-white border-b border-gray-200">
@@ -152,7 +158,7 @@
               Page {{ state.data.page }} of {{ state.data.totalPages }}
             </span>
             <span class="text-xs text-gray-900 xs:text-sm">Showing 1 to {{ state.data.limit }} of {{
-                state.data.totalDocs
+              state.data.totalDocs
             }}
               terminals</span>
           </div>
@@ -171,7 +177,7 @@
     </div>
   </div>
   <div v-if="open" :class="`modal ${!open && 'opacity-0 pointer-events-none'
-  } z-50 fixed w-full h-full top-0 left-0 flex items-center justify-center`">
+    } z-50 fixed w-full h-full top-0 left-0 flex items-center justify-center`">
     <div class="absolute w-full h-full bg-gray-900 opacity-50 modal-overlay"></div>
 
     <div class="z-50 w-11/12 mx-auto overflow-y-auto bg-white rounded shadow-lg modal-container md:max-w-md">
@@ -229,10 +235,8 @@
 
           <div class="flex flex-col w-full justify-start space-y-2">
             <h3 class="h-3 mb-3 font-bold text-blue-500">Permissions</h3>
-            <Disclosure
-              as="div"
-              class="border border-gray-200 rounded"
-              v-for="(permission, title) of permissions" :key="title">
+            <Disclosure as="div" class="border border-gray-200 rounded" v-for="(permission, title) of permissions"
+              :key="title">
               <DisclosureButton class="p-2 text-left flex w-full bg-blue-200 text-blue-600 uppercase">
                 {{ title }}
               </DisclosureButton>
@@ -247,12 +251,10 @@
 
                     <td class="text-sm bg-white">
                       <div class="flex items-center">
-                        <input
-        :value="`${title}.${item}`"
-                        v-model="form.permissions"
-        class="p-1 mt-2 border border-gray-200 rounded-md focus:outline-none focus:border-none focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
-        type="checkbox"  />
-                    </div>
+                        <input :value="`${title}.${item}`" v-model="form.permissions"
+                          class="p-1 mt-2 border border-gray-200 rounded-md focus:outline-none focus:border-none focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
+                          type="checkbox" />
+                      </div>
 
                     </td>
                   </tr>
@@ -291,10 +293,10 @@
 <script lang="ts" setup>
 import { reactive, inject, onMounted, ref, watch, computed } from 'vue';
 import {
-    Disclosure,
-    DisclosureButton,
-    DisclosurePanel,
-  } from '@headlessui/vue'
+  Disclosure,
+  DisclosureButton,
+  DisclosurePanel,
+} from '@headlessui/vue'
 import { Axios } from 'axios';
 // @ts-ignore
 import Input from '../components/Input.vue'
@@ -317,7 +319,7 @@ interface UserForm {
   email: string,
   password?: string,
   password_confirm?: string,
-  role?: string | null,
+  role?: 'admin' | 'user',
   permissions?: string[],
   organisation_id?: string | null,
 }
@@ -364,7 +366,7 @@ const defualtState: UserForm = {
   username: '',
   email: '',
   password: '',
-  role: null,
+  role: undefined,
   permissions: [],
   organisation_id: null,
 }
@@ -391,6 +393,13 @@ const rules = computed(() => ({
   password: { requiredIf: requiredIf(() => !form.value._id), confirmed: (value: string) => value === form.value.password_confirm },
   permissions: {},
 }))
+
+const groupPermissions = (permissions: string[]) => {
+  return permissions.reduce((acc: { [key: string]: string[] }, permission) => {
+    const key = permission.split('.')[0];
+    return { ...acc, [key]: [...(acc[key] || []), permission.split('.')[1]] }
+  }, {})
+}
 
 
 const $v = useVuelidate<UserForm>(rules, form, { $autoDirty: true, });

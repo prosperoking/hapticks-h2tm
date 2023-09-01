@@ -47,6 +47,7 @@ async (job: Job) => {
          merchantName: journal.merchantName,
          merchantAddress: journal.merchantAddress,
          rrn: journal.rrn,
+         metaData: journal.webhookData,
     };
 
     const verifyString = createSha256Hash(JSON.stringify(payloadObject));
@@ -61,7 +62,7 @@ async (job: Job) => {
         })
     } catch (error) {
         if(!error.isAxiosError){
-           throw error 
+           throw error
         }
         response = (error as AxiosError).response
     }

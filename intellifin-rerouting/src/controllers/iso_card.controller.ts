@@ -106,7 +106,7 @@ class IsoCardContoller {
       terminal.paramdownload = data.paramdownload;
 
       await terminal.save();
-      return response.json(data);
+      return response.json({...data, parsedParams: terminal.parsedParams});
     } catch (error) {
       console.log(error);
       return response.status(400).json({
@@ -115,6 +115,7 @@ class IsoCardContoller {
       });
     }
   }
+
   public static async handleIntelifinKeyExchange(
     terminal: TerminalDocument,
     response: Response
@@ -288,7 +289,7 @@ class IsoCardContoller {
       terminal.save();
 
       vasjournalsModel
-        .create({ ...journalPayload, organisationId: terminal.organisationId })
+        .create({ ...journalPayload, organisationId: terminal.organisationId, webhookData: body.webhookData })
         .then((data) => {
           transLog.journalId = data._id;
           transLog.save();
@@ -332,7 +333,7 @@ class IsoCardContoller {
         return IsoCardContoller.createNIBBSJournal(
           responseData,
           patchedPayload,
-          IsoCardContoller.getISOProcessor(type)
+          IsoCardContoller.getISOProcessor(type),
         );
       case TransactionTypes.BLUESALT:
         return IsoCardContoller.createNIBBSJournal(
@@ -613,7 +614,7 @@ class IsoCardContoller {
   private static createNIBBSJournal(
     response: CardPurchaseResponse,
     payload: ISOPayload,
-    processor?: string
+    processor?: string,
   ): IJournal {
     return {
       PAN: Utils.getMaskPan(payload.field2),
