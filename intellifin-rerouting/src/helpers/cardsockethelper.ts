@@ -28,7 +28,7 @@ export function performCardSocketTranaction(
       {
         host: process.env.CARD_SERVICE_HOST,
         port: parseInt(process.env.CARD_SERVICE_PORT),
-        timeout: 6000 * 20,
+        timeout: 6000 * 40,
       },
       () => {
         logger.log("Connected to card service socket to perform operation");
@@ -54,6 +54,7 @@ export function performCardSocketTranaction(
         socket.end();
         reject({
           status: false,
+          payload,
           message: err.message,
         });
       })
@@ -64,6 +65,7 @@ export function performCardSocketTranaction(
         } catch (error) {
           reject({
             status: false,
+            payload,
             message: error.message,
           });
         }
@@ -71,6 +73,7 @@ export function performCardSocketTranaction(
       .on("timeout", () =>
         reject({
           status: false,
+          payload,
           message: "Connection timed out",
         })
       );

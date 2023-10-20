@@ -3,7 +3,7 @@
     <h3 class="text-3xl font-semibold text-gray-700">Forms</h3>
 
     <div class="mt-4">
-      <h4 class="text-gray-600">Model Form</h4>
+      <h4 class="text-gray-800">Model Form</h4>
 
       <div class="mt-4">
         <div
@@ -36,7 +36,7 @@
 
               <div class="relative mt-2 rounded-md shadow-sm">
                 <span
-                  class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-600"
+                  class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-800"
                 >
                   <svg
                     class="w-6 h-6"
@@ -55,7 +55,7 @@
 
                 <input
                   type="text"
-                  class="w-full px-12 py-2 border-transparent rounded-md appearance-none focus:border-red-600 focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
+                  class="w-full px-12 py-2 border-transparent rounded-md appearance-none focus:border-gray-800 focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
                 />
               </div>
             </div>
@@ -67,7 +67,7 @@
                 Cancel
               </button>
               <button
-                class="px-3 py-1 text-sm text-white bg-red-600 rounded-md hover:bg-red-500 focus:outline-none"
+                class="px-3 py-1 text-sm text-white bg-gray-800 rounded-md hover:bg-gray-500 focus:outline-none"
               >
                 Save
               </button>
@@ -78,7 +78,7 @@
     </div>
 
     <div class="mt-8">
-      <h4 class="text-gray-600">Forms</h4>
+      <h4 class="text-gray-800">Forms</h4>
 
       <div class="mt-4">
         <div class="p-6 bg-white rounded-md shadow-md">
@@ -91,7 +91,7 @@
               <div>
                 <label class="text-gray-700" for="username">Username</label>
                 <input
-                  class="w-full mt-2 border-gray-200 rounded-md focus:border-red-600 focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
+                  class="w-full mt-2 border-gray-200 rounded-md focus:border-gray-800 focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
                   type="text"
                   v-model="user.username"
                 />
@@ -102,7 +102,7 @@
                   >Email Address</label
                 >
                 <input
-                  class="w-full mt-2 border-gray-200 rounded-md focus:border-red-600 focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
+                  class="w-full mt-2 border-gray-200 rounded-md focus:border-gray-800 focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
                   type="email"
                   v-model="user.email"
                 />
@@ -111,7 +111,7 @@
               <div>
                 <label class="text-gray-700" for="password">Password</label>
                 <input
-                  class="w-full mt-2 border-gray-200 rounded-md focus:border-red-600 focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
+                  class="w-full mt-2 border-gray-200 rounded-md focus:border-gray-800 focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
                   type="password"
                   v-model="user.password"
                 />
@@ -122,7 +122,7 @@
                   >Password Confirmation</label
                 >
                 <input
-                  class="w-full mt-2 border-gray-200 rounded-md focus:border-red-600 focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
+                  class="w-full mt-2 border-gray-200 rounded-md focus:border-gray-800 focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
                   type="password"
                   v-model="user.confirm"
                 />

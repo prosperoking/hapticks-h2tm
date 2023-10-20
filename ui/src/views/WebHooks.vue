@@ -14,11 +14,11 @@
                 </span>
 
                 <input placeholder="Search by tid or merchant name" v-model="query"
-                    class="flex w-full py-2 pl-8 pr-6 text-sm text-gray-700 placeholder-gray-400 bg-white border border-b border-gray-400 rounded appearance-none focus:bg-white focus:placeholder-gray-600 focus:text-gray-700 focus:outline-none" />
+                    class="flex w-full py-2 pl-8 pr-6 text-sm text-gray-700 placeholder-gray-400 bg-white border border-b border-gray-400 rounded appearance-none focus:bg-white focus:placeholder-gray-800 focus:text-gray-700 focus:outline-none" />
             </div>
             <div class="space-x-2">
                 <button @click="fetchData"
-                    class="px-3 py-2 font-medium tracking-wide text-white bg-gray-600 rounded-md hover:bg-gray-500 focus:outline-none">
+                    class="px-3 py-2 font-medium tracking-wide text-white bg-gray-800 rounded-md hover:bg-gray-500 focus:outline-none">
                     search
                 </button>
             </div>
@@ -32,23 +32,23 @@
                     <thead>
                         <tr>
                             <th
-                                class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-600 uppercase bg-gray-100 border-b-2 border-gray-200">
+                                class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-800 uppercase bg-gray-100 border-b-2 border-gray-200">
                                 TID
                             </th>
                             <th
-                                class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-600 uppercase bg-gray-100 border-b-2 border-gray-200">
+                                class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-800 uppercase bg-gray-100 border-b-2 border-gray-200">
                                 HTTP RESPONSE
                             </th>
                             <th
-                                class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-600 uppercase bg-gray-100 border-b-2 border-gray-200">
+                                class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-800 uppercase bg-gray-100 border-b-2 border-gray-200">
                                 Info
                             </th>
                             <th
-                                class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-600 uppercase bg-gray-100 border-b-2 border-gray-200">
+                                class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-800 uppercase bg-gray-100 border-b-2 border-gray-200">
                                 Status
                             </th>
                             <th
-                                class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-600 uppercase bg-gray-100 border-b-2 border-gray-200">
+                                class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-800 uppercase bg-gray-100 border-b-2 border-gray-200">
                                 Actions
                             </th>
                         </tr>
@@ -93,7 +93,7 @@
                                 </td>
                                 <td class="px-5 py-5 text-sm bg-white border-b border-gray-200">
                                     <span
-                                        :class="`relative inline-block px-3 py-1  ${u.status === 'success' ? 'bg-green-600' : 'bg-red-600'} text-white rounded-full border  leading-tight`">
+                                        :class="`relative inline-block px-3 py-1  ${u.status === 'success' ? 'bg-green-600' : 'bg-gray-800'} text-white rounded-full border  leading-tight`">
                                         <span aria-hidden :class="`absolute inset-0 opacity-50 rounded-full`"></span>
                                         <span class="relative">{{ u.status }}</span>
                                     </span>
@@ -125,7 +125,7 @@
                                     <section class="py-4 px-2 rounded space-y-3">
 
                                         <div class="flex justify-end">
-                                            <button class="text-red-500" @click="selected = null">
+                                            <button class="text-gray-500" @click="selected = null">
                                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                                     stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                                                     <path stroke-linecap="round" stroke-linejoin="round"

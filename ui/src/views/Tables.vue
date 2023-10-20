@@ -3,7 +3,7 @@
     <h3 class="text-3xl font-medium text-gray-700">Tables</h3>
 
     <div class="mt-4">
-      <h4 class="text-gray-600">Simple Table</h4>
+      <h4 class="text-gray-800">Simple Table</h4>
 
       <div class="mt-6">
         <div class="my-6 overflow-hidden bg-white rounded-md shadow">
@@ -42,7 +42,7 @@
     </div>
 
     <div class="mt-8">
-      <h4 class="text-gray-600">Table with pagination</h4>
+      <h4 class="text-gray-800">Table with pagination</h4>
 
       <div class="mt-6">
         <h2 class="text-xl font-semibold leading-tight text-gray-700">Users</h2>
@@ -112,7 +112,7 @@
 
             <input
               placeholder="Search"
-              class="block w-full py-2 pl-8 pr-6 text-sm text-gray-700 placeholder-gray-400 bg-white border border-b border-gray-400 rounded-l rounded-r appearance-none sm:rounded-l-none focus:bg-white focus:placeholder-gray-600 focus:text-gray-700 focus:outline-none"
+              class="block w-full py-2 pl-8 pr-6 text-sm text-gray-700 placeholder-gray-400 bg-white border border-b border-gray-400 rounded-l rounded-r appearance-none sm:rounded-l-none focus:bg-white focus:placeholder-gray-800 focus:text-gray-700 focus:outline-none"
             />
           </div>
         </div>
@@ -125,22 +125,22 @@
               <thead>
                 <tr>
                   <th
-                    class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-600 uppercase bg-gray-100 border-b-2 border-gray-200"
+                    class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-800 uppercase bg-gray-100 border-b-2 border-gray-200"
                   >
                     User
                   </th>
                   <th
-                    class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-600 uppercase bg-gray-100 border-b-2 border-gray-200"
+                    class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-800 uppercase bg-gray-100 border-b-2 border-gray-200"
                   >
                     Role
                   </th>
                   <th
-                    class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-600 uppercase bg-gray-100 border-b-2 border-gray-200"
+                    class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-800 uppercase bg-gray-100 border-b-2 border-gray-200"
                   >
                     Created at
                   </th>
                   <th
-                    class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-600 uppercase bg-gray-100 border-b-2 border-gray-200"
+                    class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-800 uppercase bg-gray-100 border-b-2 border-gray-200"
                   >
                     Status
                   </th>
@@ -221,7 +221,7 @@
     </div>
 
     <div class="mt-8">
-      <h4 class="text-gray-600">Wide Table</h4>
+      <h4 class="text-gray-800">Wide Table</h4>
 
       <div class="flex flex-col mt-6">
         <div
@@ -315,7 +315,7 @@
                   <td
                     class="px-6 py-4 text-sm font-medium leading-5 text-right border-b border-gray-200 whitespace-nowrap"
                   >
-                    <a href="#" class="text-red-600 hover:text-red-900"
+                    <a href="#" class="text-gray-800 hover:text-red-900"
                       >Edit</a
                     >
                   </td>

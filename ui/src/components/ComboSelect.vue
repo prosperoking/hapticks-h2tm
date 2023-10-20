@@ -17,14 +17,14 @@
             <ChevronDownIcon v-if="!busy" class="w-5 h-5 text-gray-400" aria-hidden="true" />
           </ComboboxButton>
         </div>
-      
+
         <TransitionRoot
           leave="transition ease-in duration-100"
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
           @after-leave="query = ''"
         >
-        
+
           <ComboboxOptions
             class="absolute w-full py-1 mt-1 overflow-auto text-base bg-white rounded-md shadow-lg max-h-60 ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
           >
@@ -46,7 +46,7 @@
             >
               Nothing found.
             </div>
-            
+
             <template v-if="data.length">
             <ComboboxOption
               v-for="(item,index) in data"
@@ -55,11 +55,11 @@
               :value="item[valueKey]"
               v-slot="{ selected, active }"
             >
-            
+
               <li
                 class="relative py-2 pl-10 cursor-pointer select-none pr-4s"
                 :class="{
-                  'text-gray-600 font-bold': active,
+                  'text-gray-800 font-bold': active,
                   'text-gray-900': !active,
                 }"
               >
@@ -169,7 +169,7 @@ let data = computed<Option[]>(() =>{
 
 const getDisplay = (value: any)=> {
  if(data.value instanceof Array === false || !value === undefined || value?.length < 1) return
- 
+
  return (data.value || []).find(item=>item[props.valueKey] === value)?.[props.titleKey]
 }
 

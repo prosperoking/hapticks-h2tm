@@ -1,7 +1,7 @@
 <template>
 
   <h3 class="space-x-3 text-3xl font-medium text-gray-700">
-   <span class="text-gray-600">Listeners: {{ state.webhooks.totalDocs }}</span> 
+   <span class="text-gray-800">Listeners: {{ state.webhooks.totalDocs }}</span>
     <small class="text-sm text-blue-500" v-if="state.loading">Loading ...</small>
   </h3>
   <div class="flex items-center justify-between mt-6">
@@ -17,19 +17,19 @@
         <input placeholder="Search"
           v-model="state.q"
           @change="()=>state.q.length > 3 ? debounce(getWebhooks, 400): null"
-          class="flex w-full py-2 pl-8 pr-6 text-sm text-gray-700 placeholder-gray-400 bg-white border border-b border-gray-400 rounded appearance-none focus:bg-white focus:placeholder-gray-600 focus:text-gray-700 focus:outline-none" />
+          class="flex w-full py-2 pl-8 pr-6 text-sm text-gray-700 placeholder-gray-400 bg-white border border-b border-gray-400 rounded appearance-none focus:bg-white focus:placeholder-gray-800 focus:text-gray-700 focus:outline-none" />
       </div>
       <div class="space-x-2">
         <button @click="getWebhooks"
-          class="px-3 py-2 font-medium tracking-wide text-white bg-gray-600 rounded-md hover:bg-gray-500 focus:outline-none">
-          search 
+          class="px-3 py-2 font-medium tracking-wide text-white bg-gray-800 rounded-md hover:bg-gray-500 focus:outline-none">
+          search
         </button>
       </div>
     </div>
     <div class="space-x-2">
       <button @click="open = true"
-        class="px-6 py-2 font-medium tracking-wide text-white bg-red-600 rounded-md hover:bg-red-500 focus:outline-none">
-        Add WebHook 
+        class="px-6 py-2 font-medium tracking-wide text-white bg-gray-800 rounded-md hover:bg-gray-500 focus:outline-none">
+        Add WebHook
       </button>
     </div>
   </div>
@@ -42,12 +42,12 @@
         <table class="min-w-full">
           <thead>
             <tr>
-            
+
               <th
                 class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
                 Name
               </th>
-             
+
               <th
                 class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
                 URl
@@ -72,27 +72,27 @@
           <tbody class="bg-white">
             <template v-if="state.webhooks?.totalDocs">
               <tr v-for="(u, index) in state.webhooks.docs" :key="index">
-               
+
                 <td class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
                   <div class="flex items-center">
                     <div class="ml-2">
                       <div class="text-sm font-medium leading-5 text-gray-500">
-                        
+
                          <span
                     class="inline-flex px-2 text-xs font-semibold leading-5 text-green-800 bg-green-100 rounded-full">
                     {{ u.name}}</span>
                       </div>
-                      
+
                     </div>
                   </div>
                 </td>
-               
+
 
                 <td class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
                   <div :title="u.url" class="text-xs w-36 overflow-hidden text-ellipsis leading-5 text-gray-900">
                     {{ u.url }}
                   </div>
-                  
+
                 </td>
                 <td  class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
                   {{ u.organisation?.name }}
@@ -114,7 +114,7 @@
                     <span>
                     {{maskSecret(u.secret)}}
                   </span>
-                  <button 
+                  <button
                     @click="copySecret(u.secret)"
                     class="hover:text-gray-700"
                     title="copy secret for webhook verification">
@@ -124,10 +124,10 @@
                   </button>
                   </div>
                   <button @click="resetSecret(u)" class="flex space-x-1 text-xs">
-                    <svg 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    fill="none" viewBox="0 0 24 24" 
-                    stroke-width="1.5" stroke="currentColor" 
+                    <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none" viewBox="0 0 24 24"
+                    stroke-width="1.5" stroke="currentColor"
                     class="w-4 h-4"
                     :class="{'animate animate-spin': resetingId === u._id}"
                     >
@@ -145,7 +145,7 @@
                       <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
                     </svg>
                   </button>
-                  <button class="text-red-400 hover:text-red-600">
+                  <button class="text-gray-400 hover:text-gray-800">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
                     </svg>
@@ -157,7 +157,7 @@
             <template v-else>
               <tr>
                 <td colspan="7" class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
-                  <div class="text-sm text-center font-medium leading-5 text-gray-600">
+                  <div class="text-sm text-center font-medium leading-5 text-gray-800">
                     No Listeners  added yet
                   </div>
                 </td>
@@ -230,7 +230,7 @@
 
         <!--Body-->
         <div class="flex flex-col">
-          
+
           <div>
             <Input title="Name" type="text" v-model:value="form.name" />
           </div>
@@ -252,11 +252,11 @@
         <!--Footer-->
         <div class="flex justify-end pt-2">
           <button :disabled="state.loading" @click="open = false"
-            class="p-3 px-6 py-3 mr-2 text-red-500 bg-transparent rounded-lg disabled:pointer-events-none hover:bg-gray-100 hover:text-red-400 focus:outline-none">
+            class="p-3 px-6 py-3 mr-2 text-gray-500 bg-transparent rounded-lg disabled:pointer-events-none hover:bg-gray-100 hover:text-gray-400 focus:outline-none">
             Close
           </button>
           <button :disabled="state.loading || $v.$invalid" @click="saveOrganisation"
-            class="px-6 py-3 font-medium tracking-wide text-white bg-red-600 rounded-md disabled:opacity-25 disabled:pointer-events-none hover:bg-red-500 focus:outline-none">
+            class="px-6 py-3 font-medium tracking-wide text-white bg-gray-800 rounded-md disabled:opacity-25 disabled:pointer-events-none hover:bg-gray-500 focus:outline-none">
             save
           </button>
         </div>
@@ -421,8 +421,8 @@ const resetSecret = async (item: Webhook) =>{
 const saveOrganisation = async () => {
   try {
     state.loading = true;
-    const {data} = form.value?._id?.length? 
-      await request!.put<Webhook>(`/dashboard/webhook/${form.value?._id}`,form.value): 
+    const {data} = form.value?._id?.length?
+      await request!.put<Webhook>(`/dashboard/webhook/${form.value?._id}`,form.value):
       await request!.post<Webhook>('/dashboard/webhook',form.value);
     getWebhooks();
     notify({

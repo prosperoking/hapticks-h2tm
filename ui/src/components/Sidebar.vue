@@ -4,29 +4,25 @@
     <div
       :class="isOpen ? 'block' : 'hidden'"
       @click="isOpen = false"
-      class="fixed inset-0 z-20 transition-opacity bg-red-600 opacity-50 lg:hidden"
+      class="fixed inset-0 z-20 transition-opacity bg-gray-800 opacity-50 lg:hidden"
     ></div>
     <!-- End Backdrop -->
 
     <div
       :class="isOpen ? 'translate-x-0 ease-out' : '-translate-x-full ease-in'"
-      class="fixed inset-y-0 left-0 z-30 w-64 overflow-y-auto transition duration-300 transform bg-red-600 lg:translate-x-0 lg:static lg:inset-0"
+      class="fixed inset-y-0 left-0 z-30 w-64 overflow-y-auto transition duration-300 transform bg-gray-800 lg:translate-x-0 lg:static lg:inset-0"
     >
       <div class="flex items-center justify-center mt-8">
         <div class="flex items-center">
 
           <div class="flex items-center justify-center w-8 h-8 bg-white rounded">
-            <!-- <svg class="w-8 h-8" viewBox="0 0 114 79" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg class="w-8 h-8" viewBox="0 0 114 79" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M35 5V61" stroke="black" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
               <path d="M71 5V61" stroke="black" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
               <path d="M19 36.1841L31.2222 49L81 11" stroke="black" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg> -->
-            <svg version="1.2" class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" >
-              <path fill="#db353a" d="m36.5 11.8c-2.8 1-6.6 2.7-8.5 3.9-1.9 1.1-5.4 4.2-7.8 6.7-2.3 2.5-4.9 6.1-5.9 7.8-0.9 1.8-2.2 5.5-2.9 8.3-0.8 2.7-1.4 7-1.4 9.5 0 2.5 0.6 6.7 1.3 9.5 0.8 2.7 2 6.1 2.7 7.5 0.7 1.4 2.9 4.5 4.9 6.9 2 2.4 5.6 5.8 8.1 7.4 2.5 1.7 7 3.9 10 4.9 3 1 8 1.8 11 1.8 3 0 8.2-0.9 11.5-2 3.3-1.1 8.1-3.6 10.8-5.5 2.6-1.9 6.3-5.6 8.2-8.3 1.9-2.6 4.5-7.9 5.6-11.7 1.6-5.2 2.1-8.5 1.7-13-0.3-3.3-1.5-8.5-2.6-11.5-1.2-3.1-4.2-7.8-6.9-10.9-2.6-2.9-6.6-6.4-8.8-7.7-2.2-1.3-6.2-3-9-3.9-2.7-0.8-7.7-1.5-11-1.4-3.3 0-8.2 0.8-11 1.7z"/>
-              <path fill="#fff" d="m56.3 22.9c-1.2 0.5-3.1 2.2-4.3 3.8-1.3 1.8-2 4.3-2 6.8 0 2.2 0.8 4.9 1.8 6.1 0.9 1.2 2.7 2.7 4 3.3 1.2 0.6 3.6 1.1 5.3 1.1 2.2 0 4.1-1 6.5-3.5 2.7-2.8 3.4-4.3 3.4-7.5 0-3-0.7-4.8-2.7-7-1.8-2-4.1-3.2-6.3-3.5-1.9-0.3-4.5-0.1-5.7 0.4z"/>
             </svg>
           </div>
-          
+
 
           <span title="Hapticks Terminal Manager and Transaction Monitor" class="mx-2 text-2xl font-semibold text-white"
             >A2TM</span
@@ -65,9 +61,9 @@
           to="/transactions"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path 
-              stroke-linecap="round" 
-              stroke-linejoin="round" 
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
               d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
           </svg>
 
@@ -80,9 +76,9 @@
           :to="{name: 'profiles'}"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path 
-              stroke-linecap="round" 
-              stroke-linejoin="round" 
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
               d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
           </svg>
 
@@ -138,7 +134,7 @@
           :class="[$route.name === 'users' ? activeClass : inactiveClass]"
           :to="{name: 'users'}"
         >
-         
+
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
           </svg>

@@ -1,7 +1,7 @@
 <template>
 
   <h3 class="space-x-3 text-3xl font-medium text-gray-700">
-   <span class="text-gray-600">Organisations: {{ state.organisations.totalDocs }}</span> 
+   <span class="text-gray-800">Organisations: {{ state.organisations.totalDocs }}</span>
     <small class="text-sm text-blue-500" v-if="state.loading">Loading ...</small>
   </h3>
   <div class="flex items-center justify-between mt-6">
@@ -17,19 +17,19 @@
         <input placeholder="Search"
           v-model="state.q"
           @change="()=>state.q.length > 3 ? debounce(getOrganisations, 400): null"
-          class="flex w-full py-2 pl-8 pr-6 text-sm text-gray-700 placeholder-gray-400 bg-white border border-b border-gray-400 rounded appearance-none focus:bg-white focus:placeholder-gray-600 focus:text-gray-700 focus:outline-none" />
+          class="flex w-full py-2 pl-8 pr-6 text-sm text-gray-700 placeholder-gray-400 bg-white border border-b border-gray-400 rounded appearance-none focus:bg-white focus:placeholder-gray-800 focus:text-gray-700 focus:outline-none" />
       </div>
       <div class="space-x-2">
         <button @click="getOrganisations"
-          class="px-3 py-2 font-medium tracking-wide text-white bg-gray-600 rounded-md hover:bg-gray-500 focus:outline-none">
-          search 
+          class="px-3 py-2 font-medium tracking-wide text-white bg-gray-800 rounded-md hover:bg-gray-500 focus:outline-none">
+          search
         </button>
       </div>
     </div>
     <div class="space-x-2">
       <button @click="open = true"
-        class="px-6 py-2 font-medium tracking-wide text-white bg-red-600 rounded-md hover:bg-red-500 focus:outline-none">
-        Add an Organisation 
+        class="px-6 py-2 font-medium tracking-wide text-white bg-gray-800 rounded-md hover:bg-gray-500 focus:outline-none">
+        Add an Organisation
       </button>
     </div>
   </div>
@@ -42,12 +42,12 @@
         <table class="min-w-full">
           <thead>
             <tr>
-            
+
               <th
                 class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
                 Name
               </th>
-             
+
               <th
                 class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
                 Users
@@ -68,27 +68,27 @@
           <tbody class="bg-white">
             <template v-if="state.organisations?.totalDocs">
               <tr v-for="(u, index) in state.organisations.docs" :key="index">
-               
+
                 <td class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
                   <div class="flex items-center">
                     <div class="ml-2">
                       <div class="text-sm font-medium leading-5 text-gray-500">
-                        
+
                          <span
                     class="inline-flex px-2 text-xs font-semibold leading-5 text-green-800 bg-green-100 rounded-full">
                     {{ u.name}}</span>
                       </div>
-                      
+
                     </div>
                   </div>
                 </td>
-               
+
 
                 <td class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
                   <div class="text-sm leading-5 text-gray-900">
                     {{ u.users_count }}
                   </div>
-                  
+
                 </td>
 
                 <td class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
@@ -101,14 +101,14 @@
 
                 <td
                   class="px-6 py-4 text-sm font-medium leading-5 text-right border-b border-gray-200 whitespace-nowrap">
-                  
+
                 </td>
               </tr>
             </template>
             <template v-else>
               <tr>
                 <td colspan="7" class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
-                  <div class="text-sm font-medium leading-5 text-gray-600">
+                  <div class="text-sm font-medium leading-5 text-gray-800">
                     No organisation added yet
                   </div>
                 </td>
@@ -181,7 +181,7 @@
 
         <!--Body-->
         <div class="flex flex-col">
-          
+
           <div>
             <Input title="Name" v-model:value="form.name" />
           </div>
@@ -196,11 +196,11 @@
         <!--Footer-->
         <div class="flex justify-end pt-2">
           <button :disabled="state.loading" @click="open = false"
-            class="p-3 px-6 py-3 mr-2 text-red-500 bg-transparent rounded-lg disabled:pointer-events-none hover:bg-gray-100 hover:text-red-400 focus:outline-none">
+            class="p-3 px-6 py-3 mr-2 text-gray-500 bg-transparent rounded-lg disabled:pointer-events-none hover:bg-gray-100 hover:text-gray-400 focus:outline-none">
             Close
           </button>
           <button :disabled="state.loading || $v.$invalid" @click="saveOrganisation"
-            class="px-6 py-3 font-medium tracking-wide text-white bg-red-600 rounded-md disabled:opacity-25 disabled:pointer-events-none hover:bg-red-500 focus:outline-none">
+            class="px-6 py-3 font-medium tracking-wide text-white bg-gray-800 rounded-md disabled:opacity-25 disabled:pointer-events-none hover:bg-gray-500 focus:outline-none">
             save
           </button>
         </div>

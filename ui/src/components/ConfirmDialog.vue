@@ -18,7 +18,7 @@
             <div class="px-6 py-4 space-y-3 text-left modal-content">
                 <!--Title-->
                 <div class="flex items-center justify-between pb-3">
-                    <div class="text-lg font-bold text-center text-gray-600">
+                    <div class="text-lg font-bold text-center text-gray-800">
                         <p v-if="title === undefined">Confirm Action</p>
                         <p v-else>{{ title }}</p>
                     </div>
@@ -44,11 +44,11 @@
                 <!--Footer-->
                 <div class="flex justify-end pt-2">
                     <button @click="closeModal"
-                        class="p-3 px-6 py-3 mr-2 text-red-500 bg-transparent rounded-lg disabled:pointer-events-none hover:bg-gray-100 hover:text-red-400 focus:outline-none">
+                        class="p-3 px-6 py-3 mr-2 text-gray-500 bg-transparent rounded-lg disabled:pointer-events-none hover:bg-gray-100 hover:text-gray-400 focus:outline-none">
                         Close
                     </button>
                     <button :disabled="Boolean(confirm?.length) && confirmation !== confirm" @click="confirmModal"
-                        class="px-6 py-3 font-medium tracking-wide text-white bg-red-600 rounded-md disabled:opacity-25 disabled:pointer-events-none hover:bg-red-500 focus:outline-none">
+                        class="px-6 py-3 font-medium tracking-wide text-white bg-gray-800 rounded-md disabled:opacity-25 disabled:pointer-events-none hover:bg-gray-500 focus:outline-none">
                         save
                     </button>
                 </div>

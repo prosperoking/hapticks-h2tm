@@ -6,7 +6,7 @@
       <div class="flex flex-wrap -mx-6">
         <div class="w-full px-6 sm:w-1/2 xl:w-1/3">
           <div class="flex items-center px-5 py-6 bg-white rounded-md shadow-sm">
-            <div class="p-3 bg-red-600 bg-opacity-75 rounded-full">
+            <div class="p-3 bg-gray-800 bg-opacity-75 rounded-full">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-white" viewBox="0 0 20 20"
                 fill="currentColor">
                 <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
@@ -57,7 +57,7 @@
           </div>
         </div>
 
-        
+
       </div>
     </div>
 
@@ -85,7 +85,7 @@
                   class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 w-28 bg-gray-50">
                   Amount
                 </th>
-                
+
                 <th
                   class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
                   MERCHANT INFO
@@ -142,11 +142,11 @@
                       <div class="text-sm font-medium leading-5 text-gray-900 text-ellipsis">
                         {{ currencyFormatter( u.amount/100 )  }}
                       </div>
-                  
+
                     </div>
                   </div>
                 </td>
-                
+
                 <td class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
                   <div class="text-sm leading-5 text-gray-900">
                     {{ u.merchantName }}
@@ -172,7 +172,7 @@
 
                 <td
                   class="px-6 py-4 text-sm font-medium leading-5 text-right border-b border-gray-200 whitespace-nowrap">
-                  <a href="#" class="text-red-600 hover:text-red-900">Edit</a>
+                  <a href="#" class="text-gray-800 hover:text-red-900">Edit</a>
                 </td>
               </tr>
               </template>
@@ -229,7 +229,7 @@ const getDashBoardData = async ()=> {
     state.latestTransactions = data.lastestTransacions;
   } catch (error: any) {
     if(error.isAxiosError){
-      
+
     }
   }
 }

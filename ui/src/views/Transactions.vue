@@ -15,14 +15,14 @@
           </svg>
         </span>
         <input placeholder="Search" v-model="filter"
-          class="flex w-full py-2 pl-8 pr-6 text-sm text-gray-700 placeholder-gray-400 bg-white border border-b border-gray-400 rounded appearance-none focus:bg-white focus:placeholder-gray-600 focus:text-gray-700 focus:outline-none" />
+          class="flex w-full py-2 pl-8 pr-6 text-sm text-gray-700 placeholder-gray-400 bg-white border border-b border-gray-400 rounded appearance-none focus:bg-white focus:placeholder-gray-800 focus:text-gray-700 focus:outline-none" />
       </div>
     </div>
     <div class="w-2/12">
       <div class="relative block w-full mt-2 sm:mt-0">
         <label>Processor</label>
         <select v-model="state.processor"
-          class="flex w-full py-2 pl-8 pr-6 text-sm text-gray-700 placeholder-gray-400 bg-white border border-b border-gray-400 rounded appearance-none focus:bg-white focus:placeholder-gray-600 focus:text-gray-700 focus:outline-none">
+          class="flex w-full py-2 pl-8 pr-6 text-sm text-gray-700 placeholder-gray-400 bg-white border border-b border-gray-400 rounded appearance-none focus:bg-white focus:placeholder-gray-800 focus:text-gray-700 focus:outline-none">
           <option value="all">All</option>
           <option value="kimono">Kimono</option>
           <option value="nibss">NIBSS</option>
@@ -34,7 +34,7 @@
       <div class="relative block w-full mt-2 sm:mt-0">
         <label>Start Date</label>
         <input placeholder="Search" type="date" v-model="state.startDate"
-          class="flex w-full py-2 pl-8 pr-6 text-sm text-gray-700 placeholder-gray-400 bg-white border border-b border-gray-400 rounded appearance-none focus:bg-white focus:placeholder-gray-600 focus:text-gray-700 focus:outline-none" />
+          class="flex w-full py-2 pl-8 pr-6 text-sm text-gray-700 placeholder-gray-400 bg-white border border-b border-gray-400 rounded appearance-none focus:bg-white focus:placeholder-gray-800 focus:text-gray-700 focus:outline-none" />
       </div>
 
     </div>
@@ -42,18 +42,18 @@
       <div class="relative block w-full mt-2 sm:mt-0">
         <label>End Date</label>
         <input v-model="state.endDate" type="date"
-          class="flex w-full py-2 pl-8 pr-6 text-sm text-gray-700 placeholder-gray-400 bg-white border border-b border-gray-400 rounded appearance-none focus:bg-white focus:placeholder-gray-600 focus:text-gray-700 focus:outline-none" />
+          class="flex w-full py-2 pl-8 pr-6 text-sm text-gray-700 placeholder-gray-400 bg-white border border-b border-gray-400 rounded appearance-none focus:bg-white focus:placeholder-gray-800 focus:text-gray-700 focus:outline-none" />
       </div>
 
     </div>
     <div class="space-x-2">
       <button @click="getTransactions"
-        class="px-6 py-2 font-medium tracking-wide text-white bg-red-600 rounded-md hover:bg-red-500 focus:outline-none">
+        class="px-6 py-2 font-medium tracking-wide text-white bg-gray-800 rounded-md hover:bg-gray-500 focus:outline-none">
         search
       </button>
       <button
         @click="exportTransactions"
-        class="px-6 py-2 font-medium tracking-wide text-white bg-gray-600 rounded-md hover:bg-gray-500 focus:outline-none">
+        class="px-6 py-2 font-medium tracking-wide text-white bg-gray-800 rounded-md hover:bg-gray-500 focus:outline-none">
         export
       </button>
     </div>
@@ -165,7 +165,7 @@
 
                 <td
                   class="px-6 py-4 text-sm font-medium leading-5 text-right border-b border-gray-200 whitespace-nowrap">
-                  <a href="#" class="text-red-600 hover:text-red-900">print</a>
+                  <a href="#" class="text-gray-800 hover:text-red-900">print</a>
                 </td>
               </tr>
             </template>

@@ -47,7 +47,7 @@
           class="flex flex-col justify-between p-4 leading-normal bg-white border-b border-l border-r border-gray-200 rounded-b lg:border-l-0 lg:border-t lg:border-gray-200 lg:rounded-b-none lg:rounded-r"
         >
           <div class="mb-8">
-            <p class="flex items-center text-sm text-gray-600">
+            <p class="flex items-center text-sm text-gray-800">
               <svg
                 class="w-3 h-3 mr-2 text-gray-500 fill-current"
                 xmlns="http://www.w3.org/2000/svg"
@@ -76,7 +76,7 @@
             />
             <div class="text-sm">
               <p class="leading-none text-gray-900">Jonathan Reinink</p>
-              <p class="text-gray-600">Aug 18</p>
+              <p class="text-gray-800">Aug 18</p>
             </div>
           </div>
         </div>

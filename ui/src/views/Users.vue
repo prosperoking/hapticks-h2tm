@@ -13,7 +13,7 @@
           </span>
 
           <input placeholder="Search" v-model="search"
-            class="flex w-full py-2 pl-8 pr-6 text-sm text-gray-700 placeholder-gray-400 bg-white border border-b border-gray-400 rounded appearance-none focus:bg-white focus:placeholder-gray-600 focus:text-gray-700 focus:outline-none" />
+            class="flex w-full py-2 pl-8 pr-6 text-sm text-gray-700 placeholder-gray-400 bg-white border border-b border-gray-400 rounded appearance-none focus:bg-white focus:placeholder-gray-800 focus:text-gray-700 focus:outline-none" />
         </div>
       </div>
       <div>
@@ -21,7 +21,7 @@
       </div>
       <div class="space-x-2">
         <button @click="open = true"
-          class="px-6 py-2 mt-3 font-medium tracking-wide text-white bg-red-600 rounded-md hover:bg-red-500 focus:outline-none">
+          class="px-6 py-2 mt-3 font-medium tracking-wide text-white bg-gray-800 rounded-md hover:bg-gray-500 focus:outline-none">
           Add User
         </button>
       </div>
@@ -44,27 +44,27 @@
           <thead>
             <tr>
               <!-- <th
-                class="flex items-center px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-600 uppercase bg-gray-100 border-b-2 border-gray-200">
+                class="flex items-center px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-800 uppercase bg-gray-100 border-b-2 border-gray-200">
                 <Input v-model:value="selected" type="checkbox" class="inline-flex mr-2" />
               </th> -->
               <th
-                class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-600 uppercase bg-gray-100 border-b-2 border-gray-200">
+                class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-800 uppercase bg-gray-100 border-b-2 border-gray-200">
                 Name
               </th>
               <th
-                class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-600 uppercase bg-gray-100 border-b-2 border-gray-200">
+                class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-800 uppercase bg-gray-100 border-b-2 border-gray-200">
                 Organisation
               </th>
               <th
-                class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-600 uppercase bg-gray-100 border-b-2 border-gray-200">
+                class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-800 uppercase bg-gray-100 border-b-2 border-gray-200">
                 Role
               </th>
               <th
-                class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-600 uppercase bg-gray-100 border-b-2 border-gray-200">
+                class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-800 uppercase bg-gray-100 border-b-2 border-gray-200">
                 Permissions
               </th>
               <th
-                class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-600 uppercase bg-gray-100 border-b-2 border-gray-200">
+                class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-800 uppercase bg-gray-100 border-b-2 border-gray-200">
                 Actions
               </th>
             </tr>
@@ -83,7 +83,7 @@
                       <p class="text-gray-900 whitespace-nowrap">
                         {{ user.fullname }}
                       </p>
-                      <p class="text-gray-600 whitespace-nowrap">
+                      <p class="text-gray-800 whitespace-nowrap">
                         {{ user.username }}
                       </p>
                       <p class="text-blue-900 whitespace-nowrap">
@@ -117,14 +117,14 @@
                 </td>
 
                 <td class="px-5 py-5 text-sm bg-white border-b border-gray-200">
-                  <button class="text-gray-500 hover:text-gray-600" @click="editUser(user)">
+                  <button class="text-gray-500 hover:text-gray-800" @click="editUser(user)">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                       stroke="currentColor" class="w-5 h-5">
                       <path stroke-linecap="round" stroke-linejoin="round"
                         d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
                     </svg>
                   </button>
-                  <button class="text-red-500 hover:text-red-600" @click="confirmUserDelete(user)">
+                  <button class="text-gray-500 hover:text-gray-800" @click="confirmUserDelete(user)">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                       stroke="currentColor" class="w-5 h-5">
                       <path stroke-linecap="round" stroke-linejoin="round"
@@ -195,7 +195,7 @@
       <div class=" text-left modal-content">
         <!--Title-->
         <div class="flex px-6 py-4 items-center justify-between pb-3 border-b mb-4">
-          <p class="text-2xl text-gray-600">{{ form._id ? 'Update' : 'Add' }} User</p>
+          <p class="text-2xl text-gray-800">{{ form._id ? 'Update' : 'Add' }} User</p>
           <div class="z-50 cursor-pointer modal-close" @click="open = false">
             <svg class="text-black fill-current" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
               viewBox="0 0 18 18">
@@ -274,11 +274,11 @@
         <!--Footer-->
         <div class="flex justify-end px-6 py-4">
           <button :disabled="loading" @click="open = false"
-            class="p-3 px-6 py-3 mr-2 text-red-500 bg-transparent rounded-lg disabled:pointer-events-none hover:bg-gray-100 hover:text-red-400 focus:outline-none">
+            class="p-3 px-6 py-3 mr-2 text-gray-500 bg-transparent rounded-lg disabled:pointer-events-none hover:bg-gray-100 hover:text-gray-400 focus:outline-none">
             Close
           </button>
           <button :disabled="loading || $v.$invalid" @click="saveUserForm"
-            class="px-6 py-3 font-medium tracking-wide text-white bg-red-600 rounded-md disabled:opacity-25 disabled:pointer-events-none hover:bg-red-500 focus:outline-none">
+            class="px-6 py-3 font-medium tracking-wide text-white bg-gray-800 rounded-md disabled:opacity-25 disabled:pointer-events-none hover:bg-gray-500 focus:outline-none">
             save
           </button>
         </div>

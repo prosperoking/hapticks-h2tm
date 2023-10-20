@@ -35,6 +35,8 @@ type TerminalDocument = Document<unknown, any, ITerminalDocument> &
     _id: string;
   }>;
 
+
+
 class IsoCardContoller {
   public async performKeyExchange(request: Request, response: Response) {
     try {
@@ -225,20 +227,26 @@ class IsoCardContoller {
   }
 
   public async processCard(request: Request, response: Response) {
-    try {
-      const serial = request.header("x-serial-no");
-      const brand = request.header("x-brand");
-      const deviceModel = request.header("x-device-model") || "";
-      const appVersion = request.header("x-app-version");
+    const serial = request.header("x-serial-no");
+    const brand = request.header("x-brand");
+    const deviceModel = request.header("x-device-model") || "";
+    const appVersion = request.header("x-app-version");
+    const { body } = request;
+    let patchedPayload,
+        terminal: TerminalDocument,
+        processor:string,
+        transLog,
+        messageType: TransactionTypes;
 
-      const terminal = await Terminal.findOne({
+    try {
+      terminal = await Terminal.findOne({
         serialNo: serial,
         deviceModel: deviceModel?.toUpperCase() || null,
         brand: brand?.toUpperCase() || null,
       }).populate({ path: "profile" });
 
-      const { body } = request;
-      let processor = String(body.processor).toUpperCase();
+
+      processor = String(body.processor).toUpperCase();
       processor = processor === "NIBSS" ? "ISO" : processor;
 
       if (!terminal || terminal.terminalId !== body.tid)
@@ -246,7 +254,7 @@ class IsoCardContoller {
           .status(404)
           .json({ message: "Terminal not found/ Provisioned" });
       const { componentKey1, isoHost, isoPort, isSSL, type } = terminal.profile;
-      const transLog = await CardLogModel.create({
+      transLog = await CardLogModel.create({
         tid: terminal.terminalId,
         amount: body.field4,
         maskedPan: Utils.getMaskPan(body.field2),
@@ -254,17 +262,18 @@ class IsoCardContoller {
         stan: body.field11,
       });
 
-      const messageType =
+      messageType =
         terminal.profile.allowProcessorOverride &&
         ["KIMONO", "NIBSS", "BLUESALT", "ISO", "3LINE"].includes(processor)
           ? (processor as TransactionTypes)
           : IsoCardContoller.getMessageType(terminal, Number(body.field4));
 
-      const patchedPayload = IsoCardContoller.getPayload(
+      patchedPayload = IsoCardContoller.getPayload(
         messageType,
         body,
         terminal
       );
+
       const socketResponse =
         messageType === TransactionTypes.ISO_TRANSACTION &&
         terminal.profile.isInteliffin
@@ -277,31 +286,7 @@ class IsoCardContoller {
 
       const { data } = socketResponse;
       const responseData = data.data || data;
-      const journalPayload = IsoCardContoller.resolveJournal(
-        messageType,
-        type,
-        body,
-        responseData,
-        patchedPayload,
-        terminal
-      );
-      terminal.appVersion = appVersion;
-      terminal.save();
-
-      vasjournalsModel
-        .create({ ...journalPayload, organisationId: terminal.organisationId, webhookData: body.webhookData })
-        .then((data) => {
-          transLog.journalId = data._id;
-          transLog.save();
-          return IsoCardContoller.processWebHook(data, terminal)
-        })
-        .catch((err) => {
-          console.error(
-            "Error: %s \r\n Unable to save transaction: %s",
-            err.message,
-            JSON.stringify(journalPayload)
-          );
-        });
+      const journalPayload = IsoCardContoller.saveTransaction(messageType, type, body, responseData, patchedPayload, terminal, appVersion, transLog);
       return response.json({
         ...socketResponse,
         ...{
@@ -313,11 +298,53 @@ class IsoCardContoller {
         processor: journalPayload.processor,
       });
     } catch (error) {
+      const responseData = error.data || error;
+      IsoCardContoller.saveTransaction(
+        messageType,
+        terminal.profile.type,
+        body,
+        responseData,
+        patchedPayload,
+        terminal,
+        appVersion, transLog
+      )
       console.log("Error: %s", error);
+      if(error.payload) {
+        console.log("Payload: %s", JSON.stringify(error.payload));
+      }
+
       return response
-        .status(400)
         .json({ status: false, data: null, message: "An error Occured" });
     }
+  }
+
+  public static saveTransaction(messageType: TransactionTypes, type: string, body: any, responseData: any, patchedPayload: any, terminal: TerminalDocument, appVersion: string, transLog: import("/home/prosperoking/projects/hapticks-middleware/intellifin-rerouting/src/db/models/cardTransactionLog.model").CardTransactionLogProfile & { _id: import("mongoose").Types.ObjectId; }) {
+    const journalPayload = IsoCardContoller.resolveJournal(
+      messageType,
+      type,
+      body,
+      responseData,
+      patchedPayload,
+      terminal
+    );
+    terminal.appVersion = appVersion;
+    terminal.save();
+
+    vasjournalsModel
+      .create({ ...journalPayload, organisationId: terminal.organisationId, webhookData: body.webhookData })
+      .then((data) => {
+        transLog.journalId = data._id;
+        transLog.save();
+        return IsoCardContoller.processWebHook(data, terminal);
+      })
+      .catch((err) => {
+        console.error(
+          "Error: %s \r\n Unable to save transaction: %s",
+          err.message,
+          JSON.stringify(journalPayload)
+        );
+      });
+    return journalPayload;
   }
 
   public static resolveJournal(

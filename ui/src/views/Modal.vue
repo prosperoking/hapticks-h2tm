@@ -3,7 +3,7 @@
     <h3 class="text-3xl font-medium text-gray-700">Modal</h3>
     <button
       @click="open = true"
-      class="px-6 py-3 mt-3 font-medium tracking-wide text-white bg-red-600 rounded-md hover:bg-red-500 focus:outline-none"
+      class="px-6 py-3 mt-3 font-medium tracking-wide text-white bg-gray-800 rounded-md hover:bg-gray-500 focus:outline-none"
     >
       Open Modal
     </button>
@@ -65,13 +65,13 @@
           <div class="flex justify-end pt-2">
             <button
               @click="open = false"
-              class="p-3 px-6 py-3 mr-2 text-red-500 bg-transparent rounded-lg hover:bg-gray-100 hover:text-red-400 focus:outline-none"
+              class="p-3 px-6 py-3 mr-2 text-gray-500 bg-transparent rounded-lg hover:bg-gray-100 hover:text-gray-400 focus:outline-none"
             >
               Close
             </button>
             <button
               @click="open = false"
-              class="px-6 py-3 font-medium tracking-wide text-white bg-red-600 rounded-md hover:bg-red-500 focus:outline-none"
+              class="px-6 py-3 font-medium tracking-wide text-white bg-gray-800 rounded-md hover:bg-gray-500 focus:outline-none"
             >
               Action
             </button>
