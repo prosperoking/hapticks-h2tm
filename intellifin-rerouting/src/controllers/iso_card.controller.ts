@@ -17,7 +17,7 @@ import Inteliffin from "../services/inteliffin";
 import { Document } from "mongoose";
 import { PurchasePayload } from "../@types/types";
 import { InteliffinTransTypes } from "../services/inteliffin";
-import CardLogModel from "../db/models/cardTransactionLog.model";
+import CardLogModel, { CardTransactionLogProfile } from "../db/models/cardTransactionLog.model";
 
 export interface CardPurchaseResponse {
   resp: string;
@@ -115,6 +115,47 @@ class IsoCardContoller {
         status: false,
         message: "An error occurred",
       });
+    }
+  }
+
+  public async requeryTransaction(request: Request, response: Response) {
+    try {
+      const appVersion = request.header("x-app-version");
+      const terminal = await Terminal.findOne({
+        serialNo: request.header("x-serial-no"),
+        deviceModel: request.header("x-device-model")?.toUpperCase() || null,
+        brand: request.header("x-brand")?.toUpperCase() || null,
+      }).populate({
+        path: "profile",
+      });
+
+      if (!terminal) {
+        return response.status(400).json({
+          status: false,
+          message: "Unknown terminal",
+        });
+      }
+      const {rrn} = request.body;
+
+      const data = await vasjournalsModel.find({
+        rrn,
+      }).exec()
+      return response.json({
+        status: data.length > 0,
+        data: data.map((item)=>({
+          rrn: item.rrn,
+          stan: item.STAN,
+          amount: item.amount,
+          responseCode: item.responseCode,
+          responseDescription: item.responseDescription,
+          PAN: item.PAN,
+          authCode: item.authCode,
+          processor: item.processor,
+        }))
+      })
+    } catch (error) {
+      logger.error(error);
+      return response.status(500).json({message: "An error occurred"})
     }
   }
 
@@ -318,7 +359,16 @@ class IsoCardContoller {
     }
   }
 
-  public static saveTransaction(messageType: TransactionTypes, type: string, body: any, responseData: any, patchedPayload: any, terminal: TerminalDocument, appVersion: string, transLog: import("/home/prosperoking/projects/hapticks-middleware/intellifin-rerouting/src/db/models/cardTransactionLog.model").CardTransactionLogProfile & { _id: import("mongoose").Types.ObjectId; }) {
+  public static saveTransaction(
+    messageType: TransactionTypes,
+    type: string,
+    body: any,
+    responseData: any,
+    patchedPayload: any,
+    terminal: TerminalDocument,
+    appVersion: string,
+    transLog: CardTransactionLogProfile & { _id: import("mongoose").Types.ObjectId; }
+  ) {
     const journalPayload = IsoCardContoller.resolveJournal(
       messageType,
       type,
