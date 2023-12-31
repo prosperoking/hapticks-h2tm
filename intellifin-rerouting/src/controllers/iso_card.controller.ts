@@ -324,9 +324,9 @@ class IsoCardContoller {
               terminal
             )
           : await performCardSocketTransaction(messageType, patchedPayload);
-
+      console.log("SOCKET RESPONSE: ",JSON.stringify(socketResponse))
       const { data } = socketResponse;
-      const responseData = data.data || data;
+      const responseData = data?.data || data;
       const journalPayload = IsoCardContoller.saveTransaction(messageType, type, body, responseData, patchedPayload, terminal, appVersion, transLog);
       return response.json({
         ...socketResponse,
@@ -355,7 +355,7 @@ class IsoCardContoller {
       }
 
       return response
-        .json({ status: false, data: null, message: "An error Occured" });
+        .json({ status: false, data: null, message: "An error Occured", processor });
     }
   }
 
@@ -474,10 +474,12 @@ class IsoCardContoller {
           port: terminal.profile?.threeLinePort,
           clrsesskey: terminal.clrsesskey,
           clrpin: terminal.clrpinkey,
+          clrPinKey: terminal.clrpinkey,
           field41: terminal.threeLineTid,
           field43: terminal.threeLineParsedParams?.merchantNameLocation,
           field42: terminal.threeLineParsedParams?.mid,
           threeLineclrPinKey: terminal.threeLineParams.clrPinKey,
+          threeLinePinKey: terminal.threeLineParams.clrpinkey,
         };
       case TransactionTypes.ISW_KIMONO:
         return IsoCardContoller.patchISWPayload(

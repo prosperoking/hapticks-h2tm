@@ -15,9 +15,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteUser = exports.getAllPermissions = exports.updateUser = exports.addUser = exports.index = void 0;
 const user_model_1 = __importDefault(require("../db/models/user.model"));
 const logger_1 = __importDefault(require("../helpers/logger"));
+const lodash_1 = __importDefault(require("lodash"));
 const permissions_1 = require("../config/permissions");
 function index(req, res) {
-    var _a;
+    var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
         try {
             // @ts-ignore
@@ -26,8 +27,8 @@ function index(req, res) {
                     organisation_id: req.query.organisationId,
                 }
                 : //@ts-ingore
-                    { organisation_id: req.user.organisation_id };
-            const webhooks = yield user_model_1.default.paginate(Object.assign(Object.assign({}, filterGen(req.query)), orgFilter), {
+                    { organisation_id: (_b = req.user.organisation_id) !== null && _b !== void 0 ? _b : undefined };
+            const webhooks = yield user_model_1.default.paginate(Object.assign(Object.assign({}, filterGen(req.query)), lodash_1.default.omitBy(orgFilter, lodash_1.default.isUndefined)), {
                 sort: { name: -1 },
                 limit: Number(req.query.limit || 50),
                 page: Number(req.query.page || 1),
@@ -51,16 +52,14 @@ function addUser(req, res) {
             const { body } = req;
             // @ts-ignore
             const orgFilter = ((_a = req.user) === null || _a === void 0 ? void 0 : _a.organisation_id) === null
-                ? {
-                    organisation_id: req.query.organisation_id,
-                }
+                ? {}
                 : //@ts-ingore
                     { organisationId: req.user.organisation_id };
-            const user = user_model_1.default.create(Object.assign(Object.assign({}, body), orgFilter));
+            const user = user_model_1.default.create(Object.assign(Object.assign({}, lodash_1.default.pick(body, ['email', 'fullname', 'organisation_id', 'password', 'permissions', 'username'])), orgFilter));
             return res.json(user);
         }
         catch (error) {
-            logger_1.default.error(error.message);
+            logger_1.default.error(error);
             return res.status(400).json({
                 message: "failed to create user",
             });
@@ -129,7 +128,7 @@ function deleteUser(req, res) {
 exports.deleteUser = deleteUser;
 function filterGen({ q }) {
     let query = {};
-    if (q !== undefined) {
+    if (!lodash_1.default.isEmpty(q)) {
         query = Object.assign(Object.assign({}, query), { $or: [
                 {
                     name: RegExp(`^${q}`, "i"),

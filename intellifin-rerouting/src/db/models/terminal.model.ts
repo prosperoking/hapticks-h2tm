@@ -28,6 +28,7 @@ export interface ITerminal {
     iswUniqueId?: string,
     threeLineTid?: string,
     threeLineParams?: {
+        clrpinkey: string;
         clrMasterKey: string,
         encMasterKey: string,
         encSessionKey: string,

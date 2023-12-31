@@ -50,6 +50,7 @@ exports.webhookWorker = new bullmq_1.Worker('webhook', (job) => __awaiter(void 0
         merchantName: journal.merchantName,
         merchantAddress: journal.merchantAddress,
         rrn: journal.rrn,
+        metaData: journal.webhookData,
     };
     const verifyString = (0, crypt_1.createSha256Hash)(JSON.stringify(payloadObject));
     const signature = (0, crypt_1.createDigest)(webhook.secret, verifyString);

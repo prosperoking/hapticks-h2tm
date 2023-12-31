@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const terminal_model_1 = __importDefault(require("../db/models/terminal.model"));
+const logger_1 = __importDefault(require("../helpers/logger"));
 const cardsockethelper_1 = require("../helpers/cardsockethelper");
 const types_1 = require("../@types/types");
 const transaction_model_1 = __importDefault(require("../db/models/transaction.model"));
@@ -79,7 +80,7 @@ class IsoCardContoller {
                 terminal.clrpinkey = data.clrpinkey;
                 terminal.paramdownload = data.paramdownload;
                 yield terminal.save();
-                return response.json(data);
+                return response.json(Object.assign(Object.assign({}, data), { parsedParams: terminal.parsedParams }));
             }
             catch (error) {
                 console.log(error);
@@ -87,6 +88,48 @@ class IsoCardContoller {
                     status: false,
                     message: "An error occurred",
                 });
+            }
+        });
+    }
+    requeryTransaction(request, response) {
+        var _a, _b;
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const appVersion = request.header("x-app-version");
+                const terminal = yield terminal_model_1.default.findOne({
+                    serialNo: request.header("x-serial-no"),
+                    deviceModel: ((_a = request.header("x-device-model")) === null || _a === void 0 ? void 0 : _a.toUpperCase()) || null,
+                    brand: ((_b = request.header("x-brand")) === null || _b === void 0 ? void 0 : _b.toUpperCase()) || null,
+                }).populate({
+                    path: "profile",
+                });
+                if (!terminal) {
+                    return response.status(400).json({
+                        status: false,
+                        message: "Unknown terminal",
+                    });
+                }
+                const { rrn } = request.body;
+                const data = yield transaction_model_1.default.find({
+                    rrn,
+                }).exec();
+                return response.json({
+                    status: data.length > 0,
+                    data: data.map((item) => ({
+                        rrn: item.rrn,
+                        stan: item.STAN,
+                        amount: item.amount,
+                        responseCode: item.responseCode,
+                        responseDescription: item.responseDescription,
+                        PAN: item.PAN,
+                        authCode: item.authCode,
+                        processor: item.processor,
+                    }))
+                });
+            }
+            catch (error) {
+                logger_1.default.error(error);
+                return response.status(500).json({ message: "An error occurred" });
             }
         });
     }
@@ -185,64 +228,74 @@ class IsoCardContoller {
     processCard(request, response) {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
+            const serial = request.header("x-serial-no");
+            const brand = request.header("x-brand");
+            const deviceModel = request.header("x-device-model") || "";
+            const appVersion = request.header("x-app-version");
+            const { body } = request;
+            let patchedPayload, terminal, processor, transLog, messageType;
             try {
-                const serial = request.header("x-serial-no");
-                const brand = request.header("x-brand");
-                const deviceModel = request.header("x-device-model") || "";
-                const appVersion = request.header("x-app-version");
-                const terminal = yield terminal_model_1.default.findOne({
+                terminal = yield terminal_model_1.default.findOne({
                     serialNo: serial,
                     deviceModel: (deviceModel === null || deviceModel === void 0 ? void 0 : deviceModel.toUpperCase()) || null,
                     brand: (brand === null || brand === void 0 ? void 0 : brand.toUpperCase()) || null,
                 }).populate({ path: "profile" });
-                const { body } = request;
-                let processor = String(body.processor).toUpperCase();
+                processor = String(body.processor).toUpperCase();
                 processor = processor === "NIBSS" ? "ISO" : processor;
                 if (!terminal || terminal.terminalId !== body.tid)
                     return response
                         .status(404)
                         .json({ message: "Terminal not found/ Provisioned" });
                 const { componentKey1, isoHost, isoPort, isSSL, type } = terminal.profile;
-                const transLog = yield cardTransactionLog_model_1.default.create({
+                transLog = yield cardTransactionLog_model_1.default.create({
                     tid: terminal.terminalId,
                     amount: body.field4,
                     maskedPan: utils_1.default.getMaskPan(body.field2),
                     rrn: body.field37,
                     stan: body.field11,
                 });
-                const messageType = terminal.profile.allowProcessorOverride &&
-                    ["KIMONO", "NIBSS", "BLUESALT", "ISO", "3LINE"].includes(processor)
-                    ? processor
-                    : IsoCardContoller.getMessageType(terminal, Number(body.field4));
-                const patchedPayload = IsoCardContoller.getPayload(messageType, body, terminal);
+                messageType =
+                    terminal.profile.allowProcessorOverride &&
+                        ["KIMONO", "NIBSS", "BLUESALT", "ISO", "3LINE"].includes(processor)
+                        ? processor
+                        : IsoCardContoller.getMessageType(terminal, Number(body.field4));
+                patchedPayload = IsoCardContoller.getPayload(messageType, body, terminal);
                 const socketResponse = messageType === cardsockethelper_1.TransactionTypes.ISO_TRANSACTION &&
                     terminal.profile.isInteliffin
                     ? yield IsoCardContoller.hanldeIntellifin(messageType, patchedPayload, terminal)
                     : yield (0, cardsockethelper_1.performCardSocketTranaction)(messageType, patchedPayload);
                 const { data } = socketResponse;
                 const responseData = data.data || data;
-                const journalPayload = IsoCardContoller.resolveJournal(messageType, type, body, responseData, patchedPayload, terminal);
-                terminal.appVersion = appVersion;
-                terminal.save();
-                transaction_model_1.default
-                    .create(Object.assign(Object.assign({}, journalPayload), { organisationId: terminal.organisationId }))
-                    .then((data) => {
-                    transLog.journalId = data._id;
-                    transLog.save();
-                    return IsoCardContoller.processWebHook(data, terminal);
-                })
-                    .catch((err) => {
-                    console.error("Error: %s \r\n Unable to save transaction: %s", err.message, JSON.stringify(journalPayload));
-                });
+                const journalPayload = IsoCardContoller.saveTransaction(messageType, type, body, responseData, patchedPayload, terminal, appVersion, transLog);
                 return response.json(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign({}, socketResponse), Object.assign(Object.assign({}, (((_a = socketResponse.data) === null || _a === void 0 ? void 0 : _a.data) || {})), { processor: journalPayload.processor })), { data: responseData }), responseData), { processor: journalPayload.processor }));
             }
             catch (error) {
+                const responseData = error.data || error;
+                IsoCardContoller.saveTransaction(messageType, terminal.profile.type, body, responseData, patchedPayload, terminal, appVersion, transLog);
                 console.log("Error: %s", error);
+                if (error.payload) {
+                    console.log("Payload: %s", JSON.stringify(error.payload));
+                }
                 return response
-                    .status(400)
                     .json({ status: false, data: null, message: "An error Occured" });
             }
         });
+    }
+    static saveTransaction(messageType, type, body, responseData, patchedPayload, terminal, appVersion, transLog) {
+        const journalPayload = IsoCardContoller.resolveJournal(messageType, type, body, responseData, patchedPayload, terminal);
+        terminal.appVersion = appVersion;
+        terminal.save();
+        transaction_model_1.default
+            .create(Object.assign(Object.assign({}, journalPayload), { organisationId: terminal.organisationId, webhookData: body.webhookData }))
+            .then((data) => {
+            transLog.journalId = data._id;
+            transLog.save();
+            return IsoCardContoller.processWebHook(data, terminal);
+        })
+            .catch((err) => {
+            console.error("Error: %s \r\n Unable to save transaction: %s", err.message, JSON.stringify(journalPayload));
+        });
+        return journalPayload;
     }
     static resolveJournal(messageType, type, body, responseData, patchedPayload, terminal) {
         switch (messageType) {
@@ -265,7 +318,7 @@ class IsoCardContoller {
             case cardsockethelper_1.TransactionTypes.ISO_TRANSACTION:
                 return Object.assign(Object.assign({}, body), { component: componentKey1, ip: isoHost, ssl: String(isSSL), iso_flavour: type, port: isoPort, clrsesskey: terminal.clrsesskey, clrpin: terminal.clrpinkey, field43: (_a = terminal.parsedParams) === null || _a === void 0 ? void 0 : _a.merchantNameLocation, field42: (_b = terminal.parsedParams) === null || _b === void 0 ? void 0 : _b.mid });
             case cardsockethelper_1.TransactionTypes.THREELINE:
-                return Object.assign(Object.assign({}, body), { component: (_c = terminal.profile) === null || _c === void 0 ? void 0 : _c.threeLineKey, ip: (_d = terminal.profile) === null || _d === void 0 ? void 0 : _d.threeLineHost, ssl: String((_e = terminal.profile) === null || _e === void 0 ? void 0 : _e.threeLineHostSSL), iso_flavour: type, port: (_f = terminal.profile) === null || _f === void 0 ? void 0 : _f.threeLinePort, clrsesskey: terminal.clrsesskey, clrpin: terminal.clrpinkey, field41: terminal.threeLineTid, field43: (_g = terminal.threeLineParsedParams) === null || _g === void 0 ? void 0 : _g.merchantNameLocation, field42: (_h = terminal.threeLineParsedParams) === null || _h === void 0 ? void 0 : _h.mid, threeLineclrPinKey: terminal.threeLineParams.clrPinKey });
+                return Object.assign(Object.assign({}, body), { component: (_c = terminal.profile) === null || _c === void 0 ? void 0 : _c.threeLineKey, ip: (_d = terminal.profile) === null || _d === void 0 ? void 0 : _d.threeLineHost, ssl: String((_e = terminal.profile) === null || _e === void 0 ? void 0 : _e.threeLineHostSSL), iso_flavour: type, port: (_f = terminal.profile) === null || _f === void 0 ? void 0 : _f.threeLinePort, clrsesskey: terminal.clrsesskey, clrpin: terminal.clrpinkey, clrPinKey: terminal.clrpinkey, field41: terminal.threeLineTid, field43: (_g = terminal.threeLineParsedParams) === null || _g === void 0 ? void 0 : _g.merchantNameLocation, field42: (_h = terminal.threeLineParsedParams) === null || _h === void 0 ? void 0 : _h.mid, threeLineclrPinKey: terminal.threeLineParams.clrPinKey, threeLinePinKey: terminal.threeLineParams.clrpinkey });
             case cardsockethelper_1.TransactionTypes.ISW_KIMONO:
                 return IsoCardContoller.patchISWPayload(body, terminal.profile, terminal);
             case cardsockethelper_1.TransactionTypes.BLUESALT:

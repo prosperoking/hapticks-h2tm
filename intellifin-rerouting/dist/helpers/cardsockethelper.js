@@ -23,7 +23,7 @@ function performCardSocketTranaction(transaction, payload) {
         const socket = net_1.default.connect({
             host: process.env.CARD_SERVICE_HOST,
             port: parseInt(process.env.CARD_SERVICE_PORT),
-            timeout: 6000 * 20,
+            timeout: 6000 * 40,
         }, () => {
             logger_1.default.log("Connected to card service socket to perform operation");
             socket.write(Buffer.from(JSON.stringify(Object.assign({ transaction }, payload)) + "\n"), (err) => {
@@ -43,6 +43,7 @@ function performCardSocketTranaction(transaction, payload) {
             socket.end();
             reject({
                 status: false,
+                payload,
                 message: err.message,
             });
         })
@@ -54,12 +55,14 @@ function performCardSocketTranaction(transaction, payload) {
             catch (error) {
                 reject({
                     status: false,
+                    payload,
                     message: error.message,
                 });
             }
         })
             .on("timeout", () => reject({
             status: false,
+            payload,
             message: "Connection timed out",
         }));
     });

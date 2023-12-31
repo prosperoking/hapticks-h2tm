@@ -10,5 +10,6 @@ router.get('/perform-key-exchange', index_controller_1.isoCardController.perform
 router.get('/terminal-info', index_controller_1.isoCardController.getTerminalInfo);
 router.post('/processCard', index_controller_1.isoCardController.processCard);
 router.post('/checkBalance', index_controller_1.isoCardController.checkBalance);
+router.post('/requery', index_controller_1.isoCardController.requeryTransaction);
 exports.default = router;
 //# sourceMappingURL=iso_card.transaction.route.js.map

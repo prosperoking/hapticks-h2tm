@@ -65,6 +65,10 @@ let JournalsSchema = new mongoose.Schema({
     processor: { type: String, default: "NIBSS" },
     meta: {
         type: Object,
+    },
+    webhookData: {
+        type: Object,
+        default: null,
     }
 }, {
     timestamps: true,
