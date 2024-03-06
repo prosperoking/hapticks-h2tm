@@ -22,5 +22,8 @@
   "include": [
     "src/**/*",
     "dist/public"
-  ]
+  ],
+  "ts-node": {
+    "swc": false
+  }
 }

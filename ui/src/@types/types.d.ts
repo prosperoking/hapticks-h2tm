@@ -27,6 +27,7 @@ export type Transaction = {
     organisation?: Organisation;
     createdAt?: string,
     updatedAt?: string,
+    totalTransTime?: number,
 }
 
 export enum Processor {
@@ -74,6 +75,15 @@ export interface Organisation {
     terminals_count?: number,
     transactions_count?: number,
     users_count?: number,
+    createdAt?: string,
+    updatedAt?: string,
+}
+
+export interface GroupTid {
+    _id?: string,
+    terminalId: string,
+    profileId?: string,
+    terminals_count?: number,
     createdAt?: string,
     updatedAt?: string,
 }

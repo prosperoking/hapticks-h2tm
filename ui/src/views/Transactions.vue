@@ -26,6 +26,9 @@
           <option value="all">All</option>
           <option value="kimono">Kimono</option>
           <option value="nibss">NIBSS</option>
+          <option value="isw">ISW</option>
+          <option value="3line">3Line</option>
+          <option value="hydrogen">Hydrogen</option>
         </select>
       </div>
 
@@ -52,6 +55,7 @@
         search
       </button>
       <button
+        v-can="'transactions.export'"
         @click="exportTransactions"
         class="px-6 py-2 font-medium tracking-wide text-white bg-gray-800 rounded-md hover:bg-gray-500 focus:outline-none">
         export
@@ -130,6 +134,11 @@
                           Meaning:
                         </span> {{ u.responseDescription }}
                       </div>
+                      <div v-if="u.totalTransTime" class="text-sm leading-5 text-gray-500">
+                        <span class="inline-flex font-semibold leading-5  rounded-full">
+                          Total Trans Time:
+                        </span> {{ formatSeconds(u.totalTransTime/1000) }}
+                      </div>
                     </div>
                   </div>
                 </td>
@@ -165,7 +174,7 @@
 
                 <td
                   class="px-6 py-4 text-sm font-medium leading-5 text-right border-b border-gray-200 whitespace-nowrap">
-                  <a href="#" class="text-gray-800 hover:text-red-900">print</a>
+                  <a href="#"  v-can="'transactions.print'" class="text-gray-800 hover:text-red-900">print</a>
                 </td>
               </tr>
             </template>
@@ -211,10 +220,11 @@
 import { ref, inject, reactive, onMounted, watch } from 'vue';
 import axios, { AxiosInstance } from "axios"
 import { Transaction, PaginatedData, Organisation } from '../@types/types';
-import { currencyFormatter, dateFormatter } from '../utils/Formatters';
+import { currencyFormatter, dateFormatter, formatSeconds } from '../utils/Formatters';
 import debounce from 'lodash/debounce'
 import { notify } from "@kyvg/vue3-notification";
 import useDebouncedRef from '../utils/DebounceRef';
+import useUserStore from '../stores/user.store';
 
 interface TransactionState {
   loading: boolean,
@@ -238,6 +248,7 @@ interface User {
 
 const request: AxiosInstance | undefined = inject('$axios');
 const filter = useDebouncedRef('', 500);
+const {permissions} = useUserStore()
 const state: TransactionState = reactive<TransactionState>({
   loading: false,
   q: '',

@@ -9,6 +9,7 @@ import './assets/main.css';
 
 import DashboardLayout from './components/DashboardLayout.vue';
 import EmptyLayout from './components/EmptyLayout.vue';
+import UserCan from './directives/UserCan';
 
 const app = createApp(App);
 const pinia = createPinia()
@@ -23,5 +24,7 @@ app.use(AxiosPlugin,{
     router,
     pinia
 })
+
+app.directive('can', UserCan)
 
 app.mount('#app');

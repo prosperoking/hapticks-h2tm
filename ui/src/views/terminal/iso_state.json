@@ -1,0 +1,150 @@
+[
+  {
+    "name": "Abia",
+    "code": "ABNG"
+  },
+  {
+    "name": "Abuja Federal Capital Territory",
+    "code": "FCNG"
+  },
+  {
+    "name": "Adamawa",
+    "code": "ADNG"
+  },
+  {
+    "name": "Akwa Ibom",
+    "code": "AKNG"
+  },
+  {
+    "name": "Anambra",
+    "code": "ANNG"
+  },
+  {
+    "name": "Bauchi",
+    "code": "BANG"
+  },
+  {
+    "name": "Bayelsa",
+    "code": "BYNG"
+  },
+  {
+    "name": "Benue",
+    "code": "BENG"
+  },
+  {
+    "name": "Borno",
+    "code": "BONG"
+  },
+  {
+    "name": "Cross River",
+    "code": "CRNG"
+  },
+  {
+    "name": "Delta",
+    "code": "DENG"
+  },
+  {
+    "name": "Ebonyi",
+    "code": "EBNG"
+  },
+  {
+    "name": "Edo",
+    "code": "EDNG"
+  },
+  {
+    "name": "Ekiti",
+    "code": "EKNG"
+  },
+  {
+    "name": "Enugu",
+    "code": "ENNG"
+  },
+  {
+    "name": "Gombe",
+    "code": "GONG"
+  },
+  {
+    "name": "Imo",
+    "code": "IMNG"
+  },
+  {
+    "name": "Jigawa",
+    "code": "JING"
+  },
+  {
+    "name": "Kaduna",
+    "code": "KDNG"
+  },
+  {
+    "name": "Kano",
+    "code": "KNNG"
+  },
+  {
+    "name": "Katsina",
+    "code": "KTNG"
+  },
+  {
+    "name": "Kebbi",
+    "code": "KENG"
+  },
+  {
+    "name": "Kogi",
+    "code": "KONG"
+  },
+  {
+    "name": "Kwara",
+    "code": "KWNG"
+  },
+  {
+    "name": "Lagos",
+    "code": "LANG"
+  },
+  {
+    "name": "Nasarawa",
+    "code": "NANG"
+  },
+  {
+    "name": "Niger",
+    "code": "NING"
+  },
+  {
+    "name": "Ogun",
+    "code": "OGNG"
+  },
+  {
+    "name": "Ondo",
+    "code": "ONNG"
+  },
+  {
+    "name": "Osun",
+    "code": "OSNG"
+  },
+  {
+    "name": "Oyo",
+    "code": "OYNG"
+  },
+  {
+    "name": "Plateau",
+    "code": "PLNG"
+  },
+  {
+    "name": "Rivers",
+    "code": "RING"
+  },
+  {
+    "name": "Sokoto",
+    "code": "SONG"
+  },
+  {
+    "name": "Taraba",
+    "code": "TANG"
+  },
+  {
+    "name": "Yobe",
+    "code": "YONG"
+  },
+  {
+    "name": "Zamfara",
+    "code": "ZANG"
+  }
+]

@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import Terminal from "../db/models/terminal.model";
 import logger from "../helpers/logger";
 import {
-  performCardSocketTranaction as performCardSocketTransaction,
+  sendSocketMessage as performCardSocketTransaction,
   TransactionTypes,
   CardSocketResponse,
 } from "../helpers/cardsockethelper";
@@ -27,6 +27,7 @@ export interface CardPurchaseResponse {
   stan: string;
   rrn: string;
   meta?: object;
+  reversal?: object;
 }
 
 type TerminalDocument = Document<unknown, any, ITerminalDocument> &
@@ -47,7 +48,7 @@ class IsoCardContoller {
         brand: request.header("x-brand")?.toUpperCase() || null,
       }).populate({
         path: "profile",
-      });
+      }).populate('groupTid');
 
       if (!terminal) {
         return response.status(400).json({
@@ -56,6 +57,7 @@ class IsoCardContoller {
         });
       }
       terminal.appVersion = appVersion; // update app version
+
 
       const { componentKey1, isoHost, isoPort, isSSL, type, hasthreelineSupport } = terminal.profile;
 
@@ -76,6 +78,34 @@ class IsoCardContoller {
           }
         }).catch((err) => {
           console.log(err)
+        })
+      }
+
+      if(terminal.usingGroupedTid) {
+        terminal.save()
+        const {
+          encmasterkey,
+          encpinkey,
+          encsesskey,
+          clrmasterkey,
+          clrsesskey,
+          clrpinkey,
+          paramdownload,
+          parsedParams,
+          terminalId
+        } = terminal.groupTid;
+
+        return response.json({
+          encmasterkey,
+          encpinkey,
+          encsesskey,
+          clrmasterkey,
+          clrsesskey,
+          clrpinkey,
+          paramdownload,
+          parsedParams,
+          tid: terminalId,
+          terminalId,
         })
       }
 
@@ -108,7 +138,28 @@ class IsoCardContoller {
       terminal.paramdownload = data.paramdownload;
 
       await terminal.save();
-      return response.json({...data, parsedParams: terminal.parsedParams});
+      const {encmasterkey,
+        encpinkey,
+        encsesskey,
+        clrmasterkey,
+        clrsesskey,
+        clrpinkey,
+        paramdownload,
+        parsedParams,
+        terminalId,
+      } = terminal
+      return response.json({
+        encmasterkey,
+        encpinkey,
+        encsesskey,
+        clrmasterkey,
+        clrsesskey,
+        clrpinkey,
+        paramdownload,
+        terminalId,
+        tid: terminalId,
+        parsedParams
+      });
     } catch (error) {
       console.log(error);
       return response.status(400).json({
@@ -252,7 +303,8 @@ class IsoCardContoller {
         serialNo: serial,
         deviceModel: request.header("x-device-model")?.toUpperCase() || null,
         brand: request.header("x-brand")?.toUpperCase() || null,
-      }).populate({ path: "profile", select: "title isoHost isoPort isSSL" });
+      }).populate({ path: "profile", select: "title isoHost isoPort isSSL" })
+      .populate({path: 'groupTid'});
 
       if (!terminal)
         return response.status(404).json({ message: "Terminal not found" });
@@ -260,14 +312,61 @@ class IsoCardContoller {
       terminal.appVersion = appVersion;
       terminal.deviceModel = deviceModel;
       terminal.save();
-      return response.json(terminal);
+      const {
+        encmasterkey,
+        encpinkey,
+        encsesskey,
+        clrmasterkey,
+        clrsesskey,
+        clrpinkey,
+        paramdownload,
+        parsedParams,
+        terminalId,
+      } = !terminal.usingGroupedTid? terminal: terminal.groupTid;
+
+      return response.json({
+        encmasterkey,
+        encpinkey,
+        encsesskey,
+        clrmasterkey,
+        clrsesskey,
+        clrpinkey,
+        paramdownload,
+        parsedParams,
+        tid: terminalId,
+        terminalId
+      })
+
     } catch (error) {
       console.log("Error: %s", error.message);
       return response.status(400).json({ message: "An error Occured" });
     }
   }
 
+  public static patchTerminalWithGroupValues(terminal: TerminalDocument): TerminalDocument {
+    const {
+      encmasterkey,
+      encpinkey,
+      encsesskey,
+      clrmasterkey,
+      clrsesskey,
+      clrpinkey,
+      paramdownload,
+      terminalId,
+    } = terminal.groupTid
+    terminal.encmasterkey = encmasterkey
+    terminal.encpinkey = encpinkey
+    terminal.encsesskey = encsesskey
+    terminal.clrmasterkey = clrmasterkey
+    terminal.clrsesskey = clrsesskey
+    terminal.clrpinkey = clrpinkey
+    terminal.paramdownload = paramdownload
+    terminal.terminalId = terminalId
+    return terminal;
+  }
+
   public async processCard(request: Request, response: Response) {
+    const startOfTransaction = performance.now()
     const serial = request.header("x-serial-no");
     const brand = request.header("x-brand");
     const deviceModel = request.header("x-device-model") || "";
@@ -284,17 +383,24 @@ class IsoCardContoller {
         serialNo: serial,
         deviceModel: deviceModel?.toUpperCase() || null,
         brand: brand?.toUpperCase() || null,
-      }).populate({ path: "profile" });
-
+      })
+      .populate({ path: "profile" }).populate({path: 'groupTid'});
 
       processor = String(body.processor).toUpperCase();
       processor = processor === "NIBSS" ? "ISO" : processor;
-
-      if (!terminal || terminal.terminalId !== body.tid)
+      if (
+        !terminal ||
+        ![terminal.terminalId, terminal.groupTid?.terminalId].includes(body.tid) ||
+        body.tid ==null
+       )
         return response
           .status(404)
           .json({ message: "Terminal not found/ Provisioned" });
-      const { componentKey1, isoHost, isoPort, isSSL, type } = terminal.profile;
+      const { type } = terminal.profile;
+      // patch terminal values for the transaction
+      if(terminal.usingGroupedTid) {
+       IsoCardContoller.patchTerminalWithGroupValues(terminal)
+      }
       transLog = await CardLogModel.create({
         tid: terminal.terminalId,
         amount: body.field4,
@@ -305,8 +411,8 @@ class IsoCardContoller {
 
       messageType =
         terminal.profile.allowProcessorOverride &&
-        ["KIMONO", "NIBSS", "BLUESALT", "ISO", "3LINE"].includes(processor)
-          ? (processor as TransactionTypes)
+        ["KIMONO", "NIBSS", "BLUESALT", "ISO", "3LINE", 'ISW', "HYDROGEN"].includes(processor)
+          ? IsoCardContoller.resolveProcessorTransType(processor.toLowerCase())
           : IsoCardContoller.getMessageType(terminal, Number(body.field4));
 
       patchedPayload = IsoCardContoller.getPayload(
@@ -314,6 +420,27 @@ class IsoCardContoller {
         body,
         terminal
       );
+
+      const isDuplicate = await IsoCardContoller.checkIfDuplication(
+        patchedPayload.tid,
+        patchedPayload.rrn,
+        patchedPayload.stan,
+        Utils.getMaskPan(body.field2),
+        messageType,
+      )
+
+      if(isDuplicate) {
+        return response.json({
+          status: false,
+          resp: 26,
+          processor: "",
+          meaning: "Duplicate Transaction",
+          data: {
+            resp: 26,
+            meaning: "Duplicate Transaction"
+          }
+        })
+      }
 
       const socketResponse =
         messageType === TransactionTypes.ISO_TRANSACTION &&
@@ -324,9 +451,10 @@ class IsoCardContoller {
               terminal
             )
           : await performCardSocketTransaction(messageType, patchedPayload);
-      console.log("SOCKET RESPONSE: ",JSON.stringify(socketResponse))
+      const totalTransTime = performance.now() - startOfTransaction;
       const { data } = socketResponse;
       const responseData = data?.data || data;
+      body.totalTransTime = totalTransTime;
       const journalPayload = IsoCardContoller.saveTransaction(messageType, type, body, responseData, patchedPayload, terminal, appVersion, transLog);
       return response.json({
         ...socketResponse,
@@ -337,9 +465,13 @@ class IsoCardContoller {
         data: responseData,
         ...responseData,
         processor: journalPayload.processor,
+        totalTransTime,
       });
     } catch (error) {
+      console.log("Error: %s", error);
       const responseData = error.data || error;
+      const totalTransTime = performance.now() - startOfTransaction;
+      body.totalTransTime = totalTransTime;
       IsoCardContoller.saveTransaction(
         messageType,
         terminal.profile.type,
@@ -349,7 +481,7 @@ class IsoCardContoller {
         terminal,
         appVersion, transLog
       )
-      console.log("Error: %s", error);
+
       if(error.payload) {
         console.log("Payload: %s", JSON.stringify(error.payload));
       }
@@ -377,11 +509,15 @@ class IsoCardContoller {
       patchedPayload,
       terminal
     );
-    terminal.appVersion = appVersion;
-    terminal.save();
+    Terminal.findOneAndUpdate({_id: terminal._id},{appVersion},{new: true})
 
     vasjournalsModel
-      .create({ ...journalPayload, organisationId: terminal.organisationId, webhookData: body.webhookData })
+      .create({
+        ...journalPayload,
+        organisationId: terminal.organisationId,
+        webhookData: body.webhookData,
+        totalTransTime: body.totalTransTime,
+       })
       .then((data) => {
         transLog.journalId = data._id;
         transLog.save();
@@ -431,6 +567,20 @@ class IsoCardContoller {
           terminal,
           IsoCardContoller.getISOProcessor(type)
         );
+      case TransactionTypes.ISW_PURCHASE:
+        return IsoCardContoller.createISWISOJournal(
+          responseData,
+          patchedPayload,
+          terminal,
+          IsoCardContoller.getISOProcessor(type)
+        );
+      case TransactionTypes.HYDROGEN_PURCHASE:
+        return IsoCardContoller.createHydrogenJournal(
+          responseData,
+          patchedPayload,
+          terminal,
+          IsoCardContoller.getISOProcessor(type)
+        );
       default:
         return IsoCardContoller.createNIBBSJournal(
           responseData,
@@ -456,6 +606,7 @@ class IsoCardContoller {
           ...body,
           component: componentKey1,
           ip: isoHost,
+          host: isoHost,
           ssl: String(isSSL),
           iso_flavour: type,
           port: isoPort,
@@ -496,6 +647,14 @@ class IsoCardContoller {
           model: terminal.deviceModel,
           device: terminal.deviceModel,
         };
+      case TransactionTypes.ISW_PURCHASE:
+        return {
+          ... IsoCardContoller.patchISWISOPayload(body, terminal.profile, terminal),
+        }
+      case TransactionTypes.HYDROGEN_PURCHASE:
+        return {
+          ... IsoCardContoller.patchHydrogenPayload(body, terminal.profile, terminal),
+        }
       default:
         throw new Error("Invalid Message Type");
     }
@@ -514,22 +673,29 @@ class IsoCardContoller {
       const deviceModel = request.header("x-device-model") || "";
       const appVersion = request.header("x-app-version");
 
-      const terminal = await Terminal.findOne({
+      let terminal = await Terminal.findOne({
         serialNo: serial,
         deviceModel: deviceModel?.toUpperCase() || null,
         brand: brand?.toUpperCase() || null,
-      }).populate({ path: "profile" });
+      }).populate({ path: "profile" }).populate('groupTid');
 
       const { body } = request;
       let processor = String(body.processor).toUpperCase();
       processor = processor === "NIBSS" ? "ISO" : processor;
       console.log("Processor: %s => %s", terminal.terminalId, body.tid);
-      if (!terminal || terminal.terminalId !== body.tid)
+      if (
+          !terminal ||
+          ![terminal.terminalId, terminal.groupTid?.terminalId].includes(body.tid) ||
+          body.tid ==null
+         )
         return response
           .status(404)
           .json({ message: "Terminal not found/ Provisioned" });
-      const { componentKey1, isoHost, isoPort, isSSL, type } = terminal.profile;
 
+      const { componentKey1, isoHost, isoPort, isSSL, type } = terminal.profile;
+      if(terminal.usingGroupedTid) {
+        terminal = IsoCardContoller.patchTerminalWithGroupValues(terminal)
+       }
       const patchedPayload = {
         ...body,
         component: componentKey1,
@@ -579,7 +745,7 @@ class IsoCardContoller {
     payload: PurchasePayload,
     terminal: ITerminal,
     transType: number | null = null
-  ): Promise<CardSocketResponse> {
+  ): Promise<CardSocketResponse<any>> {
     try {
       const data = await Inteliffin.performTranaction({
         amount: payload.field4,
@@ -633,7 +799,7 @@ class IsoCardContoller {
   private static async handleOtherTransaction(
     type: TransactionTypes,
     payload: any
-  ): Promise<CardSocketResponse> {
+  ): Promise<CardSocketResponse<any>> {
     return await performCardSocketTransaction(type, payload);
   }
 
@@ -661,14 +827,83 @@ class IsoCardContoller {
     };
   }
 
+  private static patchISWISOPayload(
+    data: any,
+    profile: IPTSPProfile,
+    terminal: ITerminal
+  ): object {
+    const {host, port, ssl, zpk, mid, rid, oRid, mcc, ett,settlementAccount } = profile.iswISOConfig
+
+    return {
+      ...data,
+      destInstitutionCode: profile.iswInstitutionCode,
+      destAccountNumber: profile.iswDestinationAccount,
+      merchantLocation:
+        data.terminalLocation ||
+        terminal?.terminalLocation?.location ||
+        terminal.parsedParams?.merchantNameLocation,
+      tid: terminal.iswISOTID,
+      mid: mid,
+      field18: mcc,
+      field41: terminal.iswISOTID,
+      field43:  data.field43 || terminal.parsedParams?.merchantNameLocation,
+      uniqueId: terminal.iswUniqueId,
+      amount: data.field4 || data.amount || 0,
+      totalamount: data.field4 || data.amount || 0,
+      clrsesskey: terminal.clrsesskey,
+      clrpin: terminal.clrpinkey,
+      pinblock: data.pinblock || "",
+      clearZpk: zpk,
+      host,
+      port,
+      rid,
+      oRid,
+      ssl,
+      ett,
+      settlementAccount,
+    };
+  }
+
+  private static patchHydrogenPayload(
+    data: any,
+    profile: IPTSPProfile,
+    terminal: ITerminal
+  ): object {
+    const {host, port, ssl, zpk, mid, acqId, mcc} = profile.hydrogenConfig
+    return {
+      ...data,
+      destInstitutionCode: profile.iswInstitutionCode,
+      destAccountNumber: profile.iswDestinationAccount,
+      merchantLocation:
+        data.terminalLocation ||
+        terminal?.terminalLocation?.location ||
+        terminal?.parsedParams.merchantNameLocation,
+      tid: terminal.hydrogenTID,
+      mid: mid,
+      field18: mcc,
+      field43: terminal.parsedParams?.merchantNameLocation || data.field43,
+      uniqueId: terminal.iswUniqueId,
+      amount: data.field4 || data.amount || 0,
+      totalamount: data.field4 || data.amount || 0,
+      clrsesskey: terminal.clrsesskey,
+      clrpin:  terminal.clrpinkey,
+      pinblock: data.pinblock || "",
+      clearZpk: zpk,
+      host,
+      port,
+      ssl,
+      acqId
+    };
+  }
+
   private static getMessageType(
     terminal: ITerminal,
-    amount: number
+    amount: number,
   ): TransactionTypes {
     const profile = terminal?.profile;
     if (!terminal?.profile?.iswSwitchAmount && !profile.processorSettings)
       return TransactionTypes.ISO_TRANSACTION;
-    if (!profile.processorSettings)
+    if (!profile.processorSettings?.length)
       return amount / 100 >= (terminal?.profile.iswSwitchAmount as number)
         ? TransactionTypes.ISW_KIMONO
         : TransactionTypes.ISO_TRANSACTION;
@@ -676,6 +911,11 @@ class IsoCardContoller {
     const type = profile.processorSettings.find(
       (band) => amount / 100 >= band.minAmount && amount / 100 <= band.maxAmount
     )?.processor;
+    console.log(type)
+    return IsoCardContoller.resolveProcessorTransType(type)
+  }
+
+  private static resolveProcessorTransType(type: string) {
     switch (type) {
       case "nibss":
         return TransactionTypes.ISO_TRANSACTION;
@@ -685,6 +925,10 @@ class IsoCardContoller {
           return TransactionTypes.THREELINE;
       case "bluesalt":
         return TransactionTypes.BLUESALT;
+      case "isw":
+        return TransactionTypes.ISW_PURCHASE;
+      case "hydrogen":
+        return TransactionTypes.HYDROGEN_PURCHASE;
       default:
         return TransactionTypes.ISO_TRANSACTION;
     }
@@ -757,7 +1001,7 @@ class IsoCardContoller {
       STAN: payload.stan,
       cardExpiration: payload.expirydate,
       terminalId: terminal.iswTid,
-      merchantId: terminal.iswUniqueId,
+      merchantId: payload.mid,
       responseCode: response.resp,
       responseDescription: response.meaning,
       authCode: response.auth,
@@ -771,6 +1015,64 @@ class IsoCardContoller {
     };
   }
 
+  private static createISWISOJournal(
+    response: CardPurchaseResponse,
+    payload: KIMONOPayload,
+    terminal: ITerminal,
+    processor: string
+  ): IJournal {
+    return {
+      PAN: Utils.getMaskPan(payload.pan),
+      rrn: payload.rrn,
+      amount: Number.parseFloat(payload.field4),
+      STAN: payload.stan,
+      cardExpiration: payload.expirydate,
+      terminalId: terminal.iswISOTID,
+      merchantId: payload.mid,
+      responseCode: response.resp,
+      responseDescription: response.meaning,
+      authCode: response.auth,
+      merchantName: payload.merchantLocation ?? terminal.parsedParams.merchantNameLocation,
+      merchantCategoryCode: terminal?.parsedParams.mechantCategoryCode,
+      product: "CASHOUT",
+      transactionTime: new Date().toUTCString(),
+      handlerResponseTime: new Date().toUTCString(),
+      isCompleted: true,
+      processor: processor ?? Processor.ISW,
+      reversal: Boolean(response.reversal),
+      reversalData: response.reversal
+    };
+  }
+
+  private static createHydrogenJournal(
+    response: CardPurchaseResponse,
+    payload: KIMONOPayload,
+    terminal: ITerminal,
+    processor: string
+  ): IJournal {
+    return {
+      PAN: Utils.getMaskPan(payload.pan),
+      rrn: payload.rrn,
+      amount: Number.parseFloat(payload.field4),
+      STAN: payload.stan,
+      cardExpiration: payload.expirydate,
+      terminalId: terminal.hydrogenTID,
+      merchantId: payload.mid,
+      responseCode: response.resp,
+      responseDescription: response.meaning,
+      authCode: response.auth,
+      merchantName: payload.merchantLocation ?? payload.field43,
+      merchantCategoryCode: payload.mcc,
+      product: "CASHOUT",
+      transactionTime: new Date().toUTCString(),
+      handlerResponseTime: new Date().toUTCString(),
+      isCompleted: true,
+      processor: processor ?? Processor.HYDROGEN,
+      reversal: Boolean(response.reversal),
+      reversalData: response.reversal
+    };
+  }
+
   private static async processWebHook(
     transaction: IJournalDocument,
     terminal: ITerminal
@@ -781,6 +1083,16 @@ class IsoCardContoller {
       webhookId: terminal.profile.webhookId,
       organisationId: terminal.organisationId,
     });
+  }
+
+  private static async checkIfDuplication(tid, rrn,stan, maskpan,processor): Promise<boolean> {
+    const _id = await vasjournalsModel.exists({
+      terminalId: tid,
+      rrn,
+      STAN:stan,
+      PAN: maskpan,
+    })
+    return _id != null;
   }
 }
 

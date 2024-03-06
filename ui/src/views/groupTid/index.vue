@@ -1,6 +1,6 @@
 <template>
   <div class="mt-8">
-    <h3 class="text-3xl font-medium text-gray-700">Terminals</h3>
+    <h3 class="text-3xl font-medium text-gray-700">Group Terminal Ids</h3>
 
     <div class="flex items-center justify-between mt-6">
       <div class="w-5/12">
@@ -23,18 +23,8 @@
 
         <button v-can="'terminals.create'" @click="open = true"
           class="px-2 py-2 mt-3 text-sm font-medium tracking-wide text-white bg-gray-800 rounded-md hover:bg-gray-500 focus:outline-none">
-          Add Terminal
+          Add New
         </button>
-
-        <button v-can="'terminals.export'" @click="exportTerminals"
-          class="px-2 py-2 text-sm font-medium tracking-wide text-white bg-gray-800 rounded-md hover:bg-gray-500 focus:outline-none">
-          export
-        </button>
-
-        <router-link v-can="'terminals.bulk_upload'" :to="{ name: 'bulk-upload' }">
-          upload csv
-        </router-link>
-
       </div>
     </div>
 
@@ -60,15 +50,11 @@
               </th>
               <th
                 class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-800 uppercase bg-gray-100 border-b-2 border-gray-200">
-                Serial No
-              </th>
-              <th
-                class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-800 uppercase bg-gray-100 border-b-2 border-gray-200">
-                Device Info
-              </th>
-              <th
-                class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-800 uppercase bg-gray-100 border-b-2 border-gray-200">
                 Profile
+              </th>
+              <th
+                class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-800 uppercase bg-gray-100 border-b-2 border-gray-200">
+                Terminals
               </th>
               <th
                 class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-800 uppercase bg-gray-100 border-b-2 border-gray-200">
@@ -87,43 +73,16 @@
                 <td class="px-5 py-5 text-sm bg-white border-b border-gray-200">
                   <div class="flex items-center">
                     <Input type="checkbox" :checked="false" :value="terminal.terminalId" class="inline-flex mr-2" />
-
-                    <div class="ml-3 flex space-x-1">
-                     <template v-if="terminal.usingGroupedTid">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
-                        stroke-width="1.5" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                          d="M2.25 7.125C2.25 6.504 2.754 6 3.375 6h6c.621 0 1.125.504 1.125 1.125v3.75c0 .621-.504 1.125-1.125 1.125h-6a1.125 1.125 0 0 1-1.125-1.125v-3.75ZM14.25 8.625c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125v8.25c0 .621-.504 1.125-1.125 1.125h-5.25a1.125 1.125 0 0 1-1.125-1.125v-8.25ZM3.75 16.125c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125v2.25c0 .621-.504 1.125-1.125 1.125h-5.25a1.125 1.125 0 0 1-1.125-1.125v-2.25Z" />
-                      </svg>
+                    <div class="ml-3">
                       <p class="text-gray-900 whitespace-nowrap">
-                        {{ terminal.groupTid.terminalId }}
-                      </p>
-                     </template>
-                     <p v-else class="text-gray-900 whitespace-nowrap">
                         {{ terminal.terminalId }}
                       </p>
                     </div>
                   </div>
                 </td>
                 <td class="px-5 py-5 text-sm bg-white border-b border-gray-200">
-                  <p class="text-gray-900 whitespace-nowrap">{{ terminal.serialNo }}</p>
-                  <!-- <p class="text-gray-900 whitespace-nowrap">Is SSL: {{ profile?.isSSL? "Yes":"No" }}</p>
                   <p class="text-gray-900 whitespace-nowrap">
-                    Switch Amount: {{ profile.iswSwitchAmount>0 || profile.iswSwitchAmount === null? 'None': profile.iswSwitchAmount }}
-                  </p> -->
-                </td>
-                <td class="px-5 py-5 text-sm bg-white border-b border-gray-200">
-                  <p class="text-gray-900 whitespace-nowrap">Brand: <span class="text-xs text-gray-700">{{
-                    terminal?.brand
-                  }}</span> </p>
-                  <p class="text-gray-900 whitespace-nowrap">Model: <span class="text-xs text-gray-700">{{
-                    terminal?.deviceModel
-                  }}</span></p>
-                  <p class="text-gray-900 whitespace-nowrap">
-                    App version: <span class="text-xs text-gray-700">{{ terminal.appVersion }}</span>
-                  </p>
-                  <p class="text-gray-900 whitespace-nowrap">
-                    Location: <span class="text-xs text-gray-700">{{ terminal.terminalLocation?.location }}</span>
+                    {{ terminal.profile?.title }}
                   </p>
                 </td>
                 <td class="px-5 py-5 text-sm bg-white border-b border-gray-200">
@@ -132,7 +91,7 @@
                   </p>
                 </td>
                 <td class="px-5 py-5 text-sm text-gray-800 bg-white border-b border-gray-200">
-                  <template v-if="terminal.parsedParams != null && !terminal.usingGroupedTid">
+                  <template v-if="terminal.parsedParams != null">
                     <p class=" whitespace-nowrap">
                       MID: <span class="font-bold">{{ terminal?.parsedParams?.mid }}</span>
                     </p>
@@ -141,70 +100,35 @@
                     </p>
                     <p>
                       Last Key Exchange: <span class="font-bold">{{ formatExchangeTime(
-                        terminal?.parsedParams.exchangeTime)
+                          terminal?.parsedParams.exchangeTime)
                       }}</span>
                     </p>
-                  </template>
-                  <template v-if="terminal.usingGroupedTid">
-                    <p class=" whitespace-nowrap">
-                      MID: <span class="font-bold">{{ terminal.groupTid?.parsedParams?.mid }}</span>
-                    </p>
-                    <p class="whitespace-nowrap">
-                      Name: <span class="font-bold">{{ terminal.groupTid?.parsedParams?.merchantNameLocation }}</span>
-                    </p>
-                    <p>
-                      Last Key Exchange: <span class="font-bold">{{ formatExchangeTime(
-                        terminal.groupTid?.parsedParams.exchangeTime)
-                      }}</span>
-                    </p>
+
+
                   </template>
                   <p v-if="terminal?.organisation">
                     Organisation: <span class="font-bold">
                       {{ terminal?.organisation.name }}
                     </span>
                   </p>
-                  <template v-if="terminal?.threeLineTid?.length">
-                    <p class=" whitespace-nowrap">
-                      3Line TID: <span class="font-bold">{{ terminal.threeLineTid }}</span>
-                    </p>
-                  </template>
-                  <template v-if="terminal.threeLineParsedParams != null">
-                    <p class=" whitespace-nowrap">
-                      3Line MID: <span class="font-bold">{{ terminal?.threeLineParsedParams?.mid }}</span>
-                    </p>
-
-                    <p>
-                      3Line Last Key Exchange: <span class="font-bold">{{ formatExchangeTime(
-                        terminal?.threeLineParsedParams.exchangeTime)
-                      }}</span>
-                    </p>
-                  </template>
-                  <template v-if="terminal?.profile?.iswSwitchAmount">
-                    <p class=" whitespace-nowrap">
-                      ISW TID: <span class="font-bold">{{ terminal.iswTid }}</span>
-                    </p>
-                    <p class="whitespace-nowrap">
-                      ISW UNIQUEID: <span class="font-bold">{{ terminal.iswUniqueId }}</span>
-                    </p>
-
-                  </template>
-                  <template v-if="terminal?.hydrogenTID?.length">
-                    <p class=" whitespace-nowrap">
-                      Hydrogen TID: <span class="font-bold">{{ terminal.hydrogenTID }}</span>
-                    </p>
-                  </template>
-                  <template v-if="terminal?.iswISOTID?.length">
-                    <p class=" whitespace-nowrap">
-                      ISW ISO TID: <span class="font-bold">{{ terminal.iswISOTID }}</span>
-                    </p>
-                  </template>
+                  <!-- <template v-if="terminal?.hydrogenTID?.length">
+                      <p class=" whitespace-nowrap">
+                        Hydrogen TID: <span class="font-bold">{{ terminal.hydrogenTID }}</span>
+                      </p>
+                    </template>
+                    <template v-if="terminal?.iswISOTID?.length">
+                      <p class=" whitespace-nowrap">
+                        ISW ISO TID: <span class="font-bold">{{ terminal.iswISOTID }}</span>
+                      </p>
+                    </template> -->
                 </td>
                 <td class="px-5 py-5 text-sm bg-white border-b border-gray-200">
-                  <button v-can="'terminals.trigger-keyexchange'"
-                    :title='terminal?.parsedParams?.exchangeTime.length ? "Refresh Keys" : "Perform keyExchange"'
-                    class="text-green-500 hover:text-green-600"
-                    :class="{ 'animate animate-pulse': busyIds.includes(terminal._id!) }"
-                    @click="performKeyExchange(terminal._id!)">
+                  <button
+                  v-can="'terminals.trigger-keyexchange'"
+                  :title='terminal?.parsedParams?.exchangeTime.length ? "Refresh Keys" : "Perform keyExchange" '
+                  class="text-green-500 hover:text-green-600"
+                  :class="{'animate animate-pulse': busyIds.includes(terminal._id!)}"
+                  @click="performKeyExchange(terminal._id!)">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" view-box="0 0 24 24" stroke-width='1.5'
                       stroke="currentColor" class="w-6 h-6">
                       <path strokeLinecap="round" strokeLinejoin="round"
@@ -212,16 +136,14 @@
                     </svg>
 
                   </button>
-                  <button v-can="'terminals.update'" class="text-gray-500 hover:text-gray-800"
-                    @click="editTerminal(terminal)">
+                  <button v-can="'terminals.update'" class="text-gray-500 hover:text-gray-800" @click="editGroupTid(terminal)">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                       stroke="currentColor" class="w-5 h-5">
                       <path stroke-linecap="round" stroke-linejoin="round"
                         d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
                     </svg>
                   </button>
-                  <button v-can="'terminals.delete'" class="text-gray-500 hover:text-gray-800"
-                    @click="confirmTerminalDelete(terminal)">
+                  <button v-can="'terminals.delete'" class="text-gray-500 hover:text-gray-800" @click="confirmTerminalDelete(terminal)">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                       stroke="currentColor" class="w-5 h-5">
                       <path stroke-linecap="round" stroke-linejoin="round"
@@ -254,9 +176,9 @@
               Page {{ state.data.page }} of {{ state.data.totalPages }}
             </span>
             <span class="text-xs text-gray-900 xs:text-sm">Showing 1 to {{ state.data.limit }} of {{
-              state.data.totalDocs
+                state.data.totalDocs
             }}
-              terminals</span>
+              Grouped Tids</span>
           </div>
           <div class="inline-flex mt-2 xs:mt-0">
             <button :disabled="!state.data.hasPrevPage" @click="() => gotoPage(state.data?.prevPage || 1)"
@@ -273,7 +195,7 @@
     </div>
   </div>
   <div v-if="open" :class="`modal ${!open && 'opacity-0 pointer-events-none'
-    } z-50 fixed w-full h-full top-0 left-0 flex items-center justify-center`">
+  } z-50 fixed w-full h-full top-0 left-0 flex items-center justify-center`">
     <div class="absolute w-full h-full bg-gray-900 opacity-50 modal-overlay"></div>
 
     <div class="z-50 w-11/12 mx-auto  bg-white rounded shadow-lg modal-container md:max-w-md">
@@ -321,43 +243,9 @@
             </div>
           </div>
           <div>
-            <div class="flex items-baseline mb-2 space-x-2">
-              <label class="w-1/5 text-sm font-bold text-gray-700" for="emailAddress">GroupTid:</label>
-              <GroupTidSelect v-model="form.terminalGroupId" />
-            </div>
-          </div>
-          <div>
-            <div v-if="!brandCustom" class="flex items-baseline mb-2 space-x-2">
-              <label class="w-1/5 text-sm font-bold text-gray-700" for="emailAddress">Brand:</label>
-              <select
-                class="w-4/5 p-1 mt-2 border border-gray-200 rounded-md focus:outline-none focus:border-none focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
-                v-model="form.brand">
-                <option :value="null">Select Brand</option>
-                <option v-for="(brand, index) in terminalBrands" :value="brand" :key="index">{{ brand }}</option>
-              </select>
-            </div>
-
-            <Input v-else title="Brand" placeholder="Enter brand name" v-model:value="form.brand" />
-            <div>
-              <button class="text-xs text-gray-400 hover:underline hover:text:text-gray-500"
-                @click="brandCustom = !brandCustom">
-                {{ brandCustom ? 'Pick from options' : 'enter another' }}
-              </button>
-            </div>
-          </div>
-          <div>
-            <Input title="Device Model" v-model:value="form.deviceModel" />
-          </div>
-          <div>
-            <Input title="Serial Number" v-model:value="form.serialNo" />
-          </div>
-          <div>
             <Input title="Terminal Id" v-model:value="form.terminalId" />
           </div>
-          <div>
-            <Input title="3Line Tid" v-model:value="form.threeLineTid" />
-          </div>
-          <div>
+          <!-- <div>
             <Input title="ISW Terminal Id" v-model:value="form.iswTid" />
           </div>
           <div>
@@ -365,21 +253,25 @@
           </div>
           <div>
             <Input title="ISW ISO Tid" v-model:value="form.iswISOTID" />
-          </div>
+          </div> -->
 
-          <div>
+          <!-- <div>
             <Input title="Hydrogen Tid" v-model:value="form.hydrogenTID" />
-          </div>
-          <div class="divide-y space-y-2 mt-2">
+          </div> -->
+          <!-- <div class="divide-y space-y-2 mt-2">
             <h3 class="font-bold text-gray-800 text-center">Terminal Location</h3>
             <section>
               <div>
-                <Input labelClass='w-1/5 text-sm text-gray-700' maxlength="22" title="Name/Address"
-                  v-model:value="form.terminalLocation.name" />
+                <Input
+                  labelClass='w-1/5 text-sm text-gray-700'
+                  maxlength="22"
+                  title="Name/Address" v-model:value="form.terminalLocation.name" />
               </div>
               <div>
-                <Input labelClass='w-1/5 text-sm text-gray-700' title="City" maxlength="12"
-                  v-model:value="form.terminalLocation.city" />
+                <Input
+                  labelClass='w-1/5 text-sm text-gray-700'
+                  title="City"
+                  maxlength="12" v-model:value="form.terminalLocation.city" />
               </div>
               <div>
                 <label class="w-1/5 text-sm text-gray-700" for="emailAddress">State:</label>
@@ -391,7 +283,7 @@
                 </select>
               </div>
             </section>
-          </div>
+          </div> -->
 
         </div>
 
@@ -405,13 +297,13 @@
           </div>
           <div>
             <button :disabled="loading" @click="open = false"
-              class="p-3 px-6 py-3 mr-2 text-gray-500 bg-transparent rounded-lg disabled:pointer-events-none hover:bg-gray-100 hover:text-gray-400 focus:outline-none">
-              Close
-            </button>
-            <button :disabled="loading || $v.$invalid" @click="saveProfileForm"
-              class="px-6 py-3 font-medium tracking-wide text-white bg-gray-800 rounded-md disabled:opacity-25 disabled:pointer-events-none hover:bg-gray-500 focus:outline-none">
-              save
-            </button>
+            class="p-3 px-6 py-3 mr-2 text-gray-500 bg-transparent rounded-lg disabled:pointer-events-none hover:bg-gray-100 hover:text-gray-400 focus:outline-none">
+            Close
+          </button>
+          <button :disabled="loading || $v.$invalid" @click="saveForm"
+            class="px-6 py-3 font-medium tracking-wide text-white bg-gray-800 rounded-md disabled:opacity-25 disabled:pointer-events-none hover:bg-gray-500 focus:outline-none">
+            save
+          </button>
           </div>
         </div>
       </div>
@@ -419,7 +311,7 @@
   </div>
 
   <ConfirmDialog v-model:value="confirmDelete.open" :title="confirmDelete.title" :confirm="confirmDelete.value"
-    :message="confirmDelete.message" @accepted="deleteTerminal" />
+    :message="confirmDelete.message" @accepted="deleteGroupedTid" />
 </template>
 
 <script lang="ts" setup>
@@ -431,15 +323,12 @@ import Input from '../../components/Input.vue'
 import ConfirmDialog from '../../components/ConfirmDialog.vue'
 // @ts-ignore
 import OrganisactionSelect from '../../components/OrganisactionSelect.vue'
-import GroupTidSelect from '../../components/GroupTidSelect.vue'
 import useVuelidate from "@vuelidate/core";
 import { notify } from "@kyvg/vue3-notification"
-import { required, ipAddress, numeric, minLength, maxLength, requiredIf } from "@vuelidate/validators"
+import { required, minLength, maxLength, requiredIf } from "@vuelidate/validators"
 import { parse, format } from "date-fns"
 import { Organisation, PaginatedData } from '../../@types/types';
 import useDebouncedRef from '../../utils/DebounceRef';
-import { keyExchange } from '../../../../intellifin-rerouting/src/queue/queue';
-import states from "./iso_state.json"
 
 interface Profile {
   _id?: string,
@@ -455,21 +344,10 @@ interface Profile {
 }
 
 
-type ParsedParams = {
-    callHomeTimeout: string,
-    countryCode: string,
-    currencyCode: string,
-    exchangeTime: string,
-    mechantCategoryCode: string,
-    merchantNameLocation: string,
-    mid: string,
-    timeout: string,
-  }
-interface Terminal {
+
+interface GroupTid {
   _id?: string,
-  serialNo: string,
   terminalId: string,
-  threeLineTid?: string,
   clrmasterkey?: string,
   encmasterkey?: string,
   encsesskey?: string,
@@ -480,56 +358,40 @@ interface Terminal {
   createdAt?: Date,
   updatedAt?: Date,
   profile?: Profile,
-  iswTid?: string,
+  // iswTid?: string,
   iswUniqueId?: string,
   organisationId?: string,
   organisation?: Organisation,
-  brand?: string,
-  deviceModel?: string,
-  appVersion?: string,
-  usingGroupedTid: boolean,
-  groupTid: {terminalId: string, parsedParams: ParsedParams},
-  terminalGroupId: string,
-  threeLineParsedParams?: ParsedParams,
-  parsedParams?: ParsedParams,
-  hydrogenTID?: string,
-  iswISOTID?: string,
-  terminalLocation: {
-    name: string,
-    city: string,
-    stateCountry: string,
-  } | null
+  parsedParams?: {
+    callHomeTimeout: string,
+    countryCode: string,
+    currencyCode: string,
+    exchangeTime: string,
+    mechantCategoryCode: string,
+    merchantNameLocation: string,
+    mid: string,
+    timeout: string,
+  },
+  // hydrogenTID?: string,
+  // iswISOTID?:string,
 }
 
 interface TerminalForm {
   _id?: string,
-  serialNo: string,
-  terminalId: string | null,
-  threeLineTid?: string,
+  terminalId: string,
   profileId: string,
   iswTid?: string | null,
   iswUniqueId?: string | null,
-  brand?: string | null,
-  deviceModel?: string | null,
   organisationId?: string | null,
-  hydrogenTID?: string | null,
-  iswISOTID?: string | null,
-  terminalGroupId: string | null,
-  terminalLocation: {
-    name: string,
-    city: string,
-    stateCountry: string,
-    location?: string,
-  }
+  // hydrogenTID?: string | null,
+  // iswISOTID?:string | null,
 }
 
 interface State {
-  data: PaginatedData<Terminal>,
+  data: PaginatedData<GroupTid>,
   count: number,
   perPage: number
 }
-
-const terminalBrands = ['HORIZONPAY', 'PAX', 'NEXGO', 'MOREFUN', 'MPOS', "AISINO", 'NEWLAND',].sort();
 
 // @ts-ignore: Unreachable code error
 const $axios: Axios = inject('$axios')
@@ -556,37 +418,21 @@ let selected = ref<string[]>([]);
 const loading = ref(false)
 const confirmDelete = ref(defaultDeleteState)
 const defualtState: TerminalForm = {
-  serialNo: '',
-  terminalId: null,
-  threeLineTid: undefined,
+  terminalId: '',
   profileId: '',
-  iswTid: null,
-  iswUniqueId: null,
-  terminalGroupId: null,
-  brand: null,
-  deviceModel: null,
   organisationId: null,
-  terminalLocation: {
-    name: '',
-    city: '',
-    stateCountry: ''
-  },
 }
 let form = ref<TerminalForm>({ ...defualtState })
 const open = ref(false);
-const brandCustom = ref<boolean>(false);
 const search = useDebouncedRef<string>('', 500);
 const organisation = ref(null);
 
 const rules = computed(() => ({
   _id: {},
-  serialNo: { required },
-  terminalId: { requiredIf: requiredIf(()=>form.value.terminalGroupId === null), minLength: minLength(8), maxLength: maxLength(8), },
+  terminalId: { required, minLength: minLength(8), maxLength: maxLength(8), },
   profileId: { required },
-  iswTid: { minLength: minLength(8) },
-  iswUniqueId: { requiredIf: requiredIf(() => form.value.iswTid !== null || (form.value.iswTid || '')?.length > 0) },
-  brand: { required },
-  deviceModel: { required },
+  // iswTid: { minLength: minLength(8) },
+  // iswUniqueId: { requiredIf: requiredIf(() => form.value.iswTid !== null || (form.value.iswTid || '')?.length > 0) },
 }))
 
 const $v = useVuelidate<TerminalForm>(rules, form, { $autoDirty: true, });
@@ -600,10 +446,10 @@ const fetchData = async () => {
       q: search.value,
       organisation: organisation.value
     }
-    const { data } = await $axios.get('/dashboard/terminals', {
+    const { data } = await $axios.get('/dashboard/group-tids', {
       params
     })
-    state.value = { ...state.value, data: data.data as PaginatedData<Terminal> };
+    state.value = { ...state.value, data: data.data as PaginatedData<GroupTid> };
   } catch (error) {
     console.log(error)
   } finally {
@@ -611,72 +457,29 @@ const fetchData = async () => {
   }
 }
 
-const exportTerminals = async () => {
-  try {
-    loading.value = true;
-    const { limit } = state.value.data;
-    const params: { [key: string]: any } = {
-      page: page.value,
-      limit,
-      q: search.value,
-      organisation: organisation.value
-    }
-    const url = new URL($axios?.defaults.baseURL! + '/dashboard/terminals/export', window.origin);
-    Object.keys(params).forEach(key => {
-      if (![undefined, null].includes(params[key]))
-        url.searchParams.append(key, params[key])
-    });
-    window.open(url, '_blank');
-  } catch (error: any) {
-    let message = error.message
-    if (error.isAxiosError) {
-      message = error.response.data.message;
-    }
-    notify({
-      title: "Error",
-      type: "error",
-      text: message,
-    });
-  } finally {
-    loading.value = false;
-  }
-}
 
-const editTerminal = (terminal: Terminal) => {
+const editGroupTid = (terminal: GroupTid) => {
   form.value = {
     profileId: terminal.profileId,
-    serialNo: terminal.serialNo,
-    terminalId: terminal.terminalId || null,
-    threeLineTid: terminal.threeLineTid,
-    iswTid: terminal.iswTid,
-    iswUniqueId: terminal.iswUniqueId,
-    brand: terminal.brand || null,
-    terminalGroupId: terminal.terminalGroupId || null,
-    organisationId: terminal.organisationId,
-    deviceModel: terminal.deviceModel,
-    hydrogenTID: terminal.hydrogenTID,
-    iswISOTID: terminal.iswISOTID,
-    terminalLocation: {
-      name: '',
-      city: '',
-      stateCountry: '',
-      ...terminal.terminalLocation
-    },
+    terminalId: terminal.terminalId,
+    // iswTid: terminal.iswTid,
+    // iswUniqueId: terminal.iswUniqueId,
+    // hydrogenTID: terminal.hydrogenTID,
+    // iswISOTID: terminal.iswISOTID,
     _id: terminal._id,
   }
   open.value = true;
-  brandCustom.value = terminal.brand?.length ? !terminalBrands.includes(terminal.brand) : false;
 }
 
 
 
-const deleteTerminal = async (confirm: boolean) => {
+const deleteGroupedTid = async (confirm: boolean) => {
   if (!confirm) {
     confirmDelete.value = { ...confirmDelete.value, ...defaultDeleteState }
     return;
   };
   try {
-    const { data } = await $axios.delete('/dashboard/terminals/' + confirmDelete.value.id)
+    const { data } = await $axios.delete('/dashboard/group-tids/' + confirmDelete.value.id)
     notify({
       text: "terminal Deleted",
       title: "Item Deleted",
@@ -695,7 +498,7 @@ const gotoPage = (target: number) => {
 
 
 
-const confirmTerminalDelete = (terminal: Terminal) => {
+const confirmTerminalDelete = (terminal: GroupTid) => {
   confirmDelete.value = {
     ...confirmDelete.value,
     open: true,
@@ -720,14 +523,19 @@ const fetchProfilesData = async () => {
 
 
 
-const saveProfileForm = async () => {
+const saveForm = async () => {
   loading.value = true;
   try {
     const { data } = await (
-      form.value._id?.length ? $axios.put(`/dashboard/terminals/${form.value._id}`, form.value) :
-        $axios.post('/dashboard/terminals', form.value)
+      form.value._id?.length ? $axios.put(`/dashboard/group-tids/${form.value._id}`, form.value) :
+        $axios.post('/dashboard/group-tids', form.value)
     );
     open.value = false;
+    notify({
+      title: "Success",
+      type: "success",
+      text: "Group Tid Saved"
+    })
     fetchData()
   } catch (error: any) {
     notify({
@@ -745,7 +553,7 @@ const performKeyExchange = async (id: string) => {
   loading.value = true;
   busyIds.value = [...busyIds.value, id];
   try {
-    const { data } = await $axios.get(`/dashboard/terminals/trigger-keyexchange/${id}`);
+    const { data } = await $axios.get(`/dashboard/group-tids/trigger-keyexchange/${id}`);
     open.value = false;
     notify({
       title: "Success",

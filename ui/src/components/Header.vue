@@ -50,7 +50,7 @@
           <img
             class="object-cover w-full h-full"
             :src="auth.imageUrl"
-            alt="Your avatar"
+            :alt="auth.user?.username"
           />
         </button>
 

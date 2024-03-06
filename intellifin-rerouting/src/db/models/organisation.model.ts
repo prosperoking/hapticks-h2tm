@@ -1,10 +1,12 @@
 import { Schema, model, Document, PaginateModel } from "mongoose";
 import uniqueValidator from "mongoose-unique-validator";
 import paginate from 'mongoose-paginate-v2';
+import argon2 from 'argon2';
 import * as mongoose from 'mongoose';
 
 export interface OrganisationProfileData {
-    name: string,
+    name: String,
+    apiKey: string,
 }
 
 export interface OrganisationProfile extends Document, OrganisationProfileData { }
@@ -15,6 +17,10 @@ const orgSchema = new mongoose.Schema<OrganisationProfileData>({
         unique: true,
         set: (value)=>String(value).toUpperCase(),
     },
+    apiKey: {
+        type: String,
+        select: false,
+    }
 }, {
     timestamps: true, toJSON: {
         virtuals: true
@@ -54,6 +60,9 @@ orgSchema.virtual('transactions_count', {
     count: true,
 });
 
+orgSchema.pre('save', async function () {
+    this.apiKey = await argon2.hash(this.apiKey);
+});
 
 
 orgSchema.plugin(paginate);

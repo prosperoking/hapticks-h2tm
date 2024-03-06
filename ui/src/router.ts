@@ -7,6 +7,7 @@ import UIElements from "./views/UIElements.vue";
 import Transactions from "./views/Transactions.vue";
 import Profiles from "./views/profiles/Profiles.vue";
 import Terminals from "./views/terminal/Terminals.vue";
+import GroupTid from "./views/groupTid/index.vue";
 import UploadTerminal from "./views/terminal/UploadTerminals.vue";
 import Organisations from "./views/Organisations.vue";
 import WebhookListeners from "./views/WebhookListeners.vue";
@@ -48,6 +49,11 @@ const routes: RouteRecordRaw[] = [
     component: Profiles,
   },
   {
+    path: "/group-tids",
+    name: "group-tids",
+    component: GroupTid,
+  },
+  {
     path: "/terminals",
     name: "terminals",
     component: Terminals,
@@ -57,10 +63,10 @@ const routes: RouteRecordRaw[] = [
     name: "organisations",
     component: Organisations,
   },
-  { 
-    path: "/bulk-upload", 
-    name: "bulk-upload", 
-    component: UploadTerminal 
+  {
+    path: "/bulk-upload",
+    name: "bulk-upload",
+    component: UploadTerminal
   },
   {
     path: "/webhook/listeners",
@@ -122,7 +128,7 @@ router.beforeEach((to, from,next)=>{
 
       next();
     }
-    
+
     if(to.name !== 'Login' && !userStore.isLoggedIn){
       router.push({ name: 'Login' })
     }

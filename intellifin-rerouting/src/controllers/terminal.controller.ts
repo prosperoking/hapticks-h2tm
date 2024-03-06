@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import logger from '../helpers/logger';
 import Terminal from '../db/models/terminal.model';
-import { performCardSocketTranaction, TransactionTypes } from '../helpers/cardsockethelper';
+import { sendSocketMessage, TransactionTypes } from '../helpers/cardsockethelper';
 import {pick} from "lodash"
 import PTSPProfileModel from '../db/models/ptspProfile.model';
 import { keyExchange } from '../queue/queue';
@@ -15,6 +15,8 @@ export default class TerminalController {
                 filter = {
                     $or:[
                         { terminalId: RegExp(`^${q}`,'i') },
+                        { hydrogenTID: RegExp(`^${q}`,'i') },
+                        { iswISOTID: RegExp(`^${q}`,'i') },
                         { serialNo: RegExp(`^${q}`,'i') },
                         { brand: RegExp(`^${q}`,'i') },
                         { deviceModel: RegExp(`^${q}`,'i') },
@@ -27,7 +29,8 @@ export default class TerminalController {
             const data = await Terminal.paginate(filter,{
                 populate: [
                     {path: 'profile', select:'title iswSwitchAmount'},
-                    {path: 'organisation', select:'name'}
+                    {path: 'organisation', select:'name'},
+                    {path: 'groupTid', select:'terminalId paramdownload parsedParams', populate:{path: 'profile', select: "title"}},
                 ],
                 limit: Number.parseInt(`${limit}`) || 30,
                 page: Number.parseInt(`${page}`) || 1,
@@ -62,8 +65,6 @@ export default class TerminalController {
                 return response.status(404).json({message: "Terminal not found"});
             }
 
-            console.log(request.body)
-
             const data = await terminal.update(pick(request.body,[
                 "serialNo",
                 "terminalId",
@@ -73,7 +74,11 @@ export default class TerminalController {
                 "threeLineTid",
                 "organisationId",
                 "brand",
-                "deviceModel"
+                "deviceModel",
+                "iswISOTID",
+                "hydrogenTID",
+                "terminalLocation",
+                "terminalGroupId"
             ]));
 
             try{
@@ -152,7 +157,7 @@ export default class TerminalController {
         let result;
         try {
 
-            result = await performCardSocketTranaction(TransactionTypes.KEY_EXCHANGE, {
+            result = await sendSocketMessage(TransactionTypes.KEY_EXCHANGE, {
                 tid: terminal.terminalId,
                 component: profile.componentKey1,
                 ip: profile.isoHost,

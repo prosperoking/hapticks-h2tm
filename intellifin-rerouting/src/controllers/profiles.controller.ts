@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import PTSPProfileModel from '../db/models/ptspProfile.model';
 import {pick,} from "lodash"
+import { sendSocketMessage, TransactionTypes } from '../helpers/cardsockethelper';
 export default class ProfileController {
     public async create(request: Request, response: Response) {
         try {
@@ -47,7 +48,6 @@ export default class ProfileController {
             const profile = await PTSPProfileModel.findById(request.params?.id);
 
             if(!profile) return response.status(404).json({message: "Profile not found"});
-
             const data = await profile.update(pick(request.body,[
                 "title",
                 "isoHost",
@@ -73,6 +73,8 @@ export default class ProfileController {
                 "blueSaltKey",
                 "blueSaltEnv",
                 "processorSettings",
+                "iswISOConfig",
+                "hydrogenConfig",
             ]));
 
 
@@ -93,6 +95,54 @@ export default class ProfileController {
         } catch (error) {
             console.log(error)
             response.status(400).json({message: error.message})
+        }
+    }
+
+    public async rotateZpk(request: Request, response: Response){
+        try {
+            const profile = await PTSPProfileModel.findById(request.params?.id);
+
+            if(!profile) return response.status(404).json({message: "Profile not found"});
+
+            const type = request.body.type;
+
+            const details:[TransactionTypes, object] = {
+                isw: [TransactionTypes.ISW_KEY_EXCHANGE, {
+                    host: profile.iswISOConfig.host,
+                    port: profile.iswISOConfig.port,
+                    ssl: profile.iswISOConfig.ssl,
+                    zmk: profile.iswISOConfig.zmk
+                }],
+                hydrogen: [TransactionTypes.HYDROGEN_KEY_EXCHANGE ,{
+                    host: profile.hydrogenConfig.host,
+                    port: profile.hydrogenConfig.port,
+                    ssl: profile.hydrogenConfig.ssl,
+                    zmk: profile.hydrogenConfig.zmk
+                },]
+            }[type]
+
+
+            const result = await sendSocketMessage(...details)
+
+            if(!result.status){
+                return response.status(400).json(result.data)
+            }
+
+            profile[type == 'isw'?'iswISOConfig':'hydrogenConfig'].zpk = result.data.clearZPK
+            profile[type == 'isw'?'iswISOConfig':'hydrogenConfig'].lastRotate = new Date()
+            profile[type == 'isw'?'iswISOConfig':'hydrogenConfig'].kcv = result.data.kcv
+            profile.save()
+
+            return response.json({
+                status: true,
+                message: "Key exchange successfull"
+            })
+
+        } catch (error) {
+            console.trace(error)
+            response.status(400).json({
+                message: "Something went wong"
+            })
         }
     }
 

@@ -2,7 +2,7 @@ import routeLog from "../decorators/requestLogger";
 import { Response, Request } from 'express';
 import vasjournalsModel from "../db/models/transaction.model";
 import logger from "../helpers/logger";
-import Termninal from "../db/models/terminal.model";
+import Terminal from "../db/models/terminal.model";
 import moment from "moment"
 export default class DashboardController {
     public async index(request: Request, response: Response){
@@ -27,7 +27,7 @@ export default class DashboardController {
                     $gte: new Date(date),
                 }
             }).sort({_id: -1}).limit(50)
-            const terminalCount = await Termninal.find({}).count()
+            const terminalCount = await Terminal.find({}).count()
             return response.json({
                 totalTransactionsToday,
                 totalFailedTransactionsToday,
@@ -103,20 +103,20 @@ export default class DashboardController {
                         terminalId: RegExp(`^${q}`,'i'),
                     },
                     {
-                      rrn: RegExp(`^${q}`,'i'),  
+                      rrn: RegExp(`^${q}`,'i'),
                     },
                     {
                         merchantName: RegExp(`${q}`,'i'),
                     },
                     {
-                        merchantId: RegExp(`^${q}`,'i'),  
+                        merchantId: RegExp(`^${q}`,'i'),
                     },
                 ]
             }
         }
 
-        if(processor !== undefined && 
-            ["kimono", "nibss"].includes(processor.toLowerCase())
+        if(processor !== undefined &&
+            ["kimono", "nibss",'3line','hydrogen','isw'].includes(processor.toLowerCase())
         ) {
             query = {...query, processor: processor.toUpperCase()}
         }
@@ -127,7 +127,7 @@ export default class DashboardController {
 
         if(Boolean(startDate)) {
             query = {
-                ...query, 
+                ...query,
                 $and:[
                     {
                         transactionTime:  {
@@ -139,7 +139,7 @@ export default class DashboardController {
         }
         if(Boolean(endDate)) {
             query = {
-                ...query, 
+                ...query,
                 $and:[
                     ... query['$and'] || [],
                     {

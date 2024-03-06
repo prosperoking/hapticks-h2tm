@@ -17,7 +17,7 @@
         </div>
       </div>
       <div>
-        <button @click="open = true"
+        <button v-can="'profiles.create'" @click="open = true"
           class="px-6 py-3 mt-3 font-medium tracking-wide text-white bg-gray-800 rounded-md hover:bg-gray-500 focus:outline-none">
           Add profile
         </button>
@@ -107,20 +107,31 @@
                       :class="`absolute inset-0 bg-${profile?.statusColor}-200 opacity-50 rounded-full`"></span>
                     <span class="relative">{{ profile?.status }}</span>
                   </span> -->
-                  <button class="text-gray-500 hover:text-gray-800" @click="editProfile(profile)">
+                  <button v-can="'profiles.update'" class="text-gray-500 hover:text-gray-800" @click="editProfile(profile)">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                       stroke="currentColor" class="w-5 h-5">
                       <path stroke-linecap="round" stroke-linejoin="round"
                         d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
                     </svg>
                   </button>
-                  <button class="text-gray-500 hover:text-gray-800" @click="confirmProfileDelete(profile)">
+                  <button v-can="'profiles.delete'" class="text-gray-500 hover:text-gray-800" @click="confirmProfileDelete(profile)">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                       stroke="currentColor" class="w-5 h-5">
                       <path stroke-linecap="round" stroke-linejoin="round"
                         d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
                     </svg>
                   </button>
+                  <RotateZpk
+                     :key="profile?._id"
+                     :profile="profile"
+                     v-if="profile.iswISOConfig?.host?.length || profile.hydrogenConfig?.host?.length"
+                     v-slot="actions">
+                    <button v-can="'profiles.rotate-key'" class="w-5 h-5 text-green-500 hover:text-green-800" title="Rotate zpk" @click="actions.show" >
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z" />
+                      </svg>
+                    </button>
+                  </RotateZpk>
                 </td>
               </tr>
             </template>
@@ -316,6 +327,85 @@
             </div>
           </DisclosurePanel>
           </Disclosure>
+
+          <div>
+            <Input title="Enable ISW ISO" type="checkbox" v-model:value="enableISWISO" />
+          </div>
+
+          <Disclosure as="div" v-if="enableISWISO" v-slot="{ open }" class="py-2 my-2">
+            <DisclosureButton class="flex justify-between w-full p-1 text-center text-white bg-gray-500 rounded">
+              <span>ISW ISO Settings</span>
+              <ChevronUpIcon :class="open ? 'rotate-180 transform' : ''" class="w-5 h-5 text-white" />
+            </DisclosureButton>
+            <DisclosurePanel>
+              <div>
+                <Input title="Combined Key" v-model:value="form.iswISOConfig.zmk" />
+              </div>
+              <div>
+                <Input title="Host IP" v-model:value="form.iswISOConfig.host" />
+              </div>
+              <div>
+                <Input title="Host PORT" v-model:value="form.iswISOConfig.port" />
+              </div>
+              <div>
+                <Input title="Is SSL" v-model:value="form.iswISOConfig.ssl" type="checkbox" />
+              </div>
+              <div>
+              <Input title="MID" v-model:value="form.iswISOConfig.mid" type="text" />
+              </div>
+              <div>
+              <Input title="MCC" v-model:value="form.iswISOConfig.mcc" type="number" />
+              </div>
+              <div>
+                <Input title="RID" v-model:value="form.iswISOConfig.rid" type="number" />
+              </div>
+              <div>
+                <Input title="ETT" v-model:value="form.iswISOConfig.ett" type="number" />
+              </div>
+              <div>
+                <Input title="Original RID" v-model:value="form.iswISOConfig.oRid" type="number" />
+              </div>
+              <div>
+                <Input title="Settlment Account" v-model:value="form.iswISOConfig.settlementAccount" type="number" />
+              </div>
+            </DisclosurePanel>
+          </Disclosure>
+
+          <div>
+            <Input title="Enable Hydrogen" type="checkbox" v-model:value="enableHydrogen"  />
+          </div>
+
+          <Disclosure v-if="enableHydrogen" as="div" v-slot="{ open }" class="py-2 my-2">
+            <DisclosureButton class="flex justify-between w-full p-1 text-center text-white bg-gray-500 rounded">
+              <span>Hydrogen Settings</span>
+              <ChevronUpIcon :class="open ? 'rotate-180 transform' : ''" class="w-5 h-5 text-white" />
+            </DisclosureButton>
+            <DisclosurePanel>
+              <div>
+                <Input title="Combined Key" v-model:value="form.hydrogenConfig.zmk" />
+              </div>
+              <div>
+                <Input title="Host IP" v-model:value="form.hydrogenConfig.host" />
+              </div>
+              <div>
+                <Input title="Host PORT" v-model:value="form.hydrogenConfig.port" />
+              </div>
+              <div>
+                <Input title="Is SSL" v-model:value="form.hydrogenConfig.ssl" type="checkbox" />
+              </div>
+              <div>
+              <Input title="MID" v-model:value="form.hydrogenConfig.mid" type="text" />
+              </div>
+              <div>
+              <Input title="MCC" v-model:value="form.hydrogenConfig.mcc" type="number" />
+              </div>
+
+              <div>
+                <Input title="Acquirer ID" v-model:value="form.hydrogenConfig.acqId" type="number" />
+              </div>
+            </DisclosurePanel>
+          </Disclosure>
+
           <Disclosure as="div" v-slot="{ open }" class="py-2 my-2">
             <DisclosureButton class="flex justify-between w-full p-1 text-center text-white bg-gray-500 rounded">
               <span class="font-bold text-green-400">Bands</span>
@@ -330,7 +420,9 @@
                   name="processor" id="processor">
                   <option value="nibss">Nibss</option>
                   <option value="kimono">Kimono</option>
-                  <!-- <option value="bluesalt">BlueSalt</option> -->
+                  <option value="bluesalt">BlueSalt</option>
+                  <option value="isw">ISW</option>
+                  <option value="hydrogen">Hydrogen</option>
                   <option value="3line">3line</option>
                 </select>
                 <!-- <label class="block mb-2 text-sm font-bold text-gray-700" for="processor">Processor</label> -->
@@ -412,6 +504,7 @@ import { Organisation, PaginatedData, Webhook } from '../../@types/types';
 import useDebouncedRef from '../../utils/DebounceRef';
 // @ts-ignore
 import WebhookSelect from '../../components/WebhookSelect.vue';
+import RotateZpk from '../../components/RotateZPK.vue'
 // @ts-ignore
 import OrganisactionSelect from '../../components/OrganisactionSelect.vue';
 import {
@@ -422,7 +515,7 @@ import {
 
 import { ChevronUpIcon } from '@heroicons/vue/20/solid'
 
-interface Profile {
+export interface Profile {
   _id?: string,
   title: string,
   isoHost: string,
@@ -445,11 +538,38 @@ interface Profile {
   blueSaltKey: string | null,
   blueSaltEnv: 'staging' | 'live' | null,
   processorSettings?: Band[],
-  threeLineKey?: string,
-    threeLineHost?: string,
-    threeLinePort?: string,
-    threeLineHostSSL?: boolean,
-    hasthreelineSupport: boolean,
+  threeLineKey?: string | null,
+  threeLineHost?: string | null,
+  threeLinePort?: string | null,
+  threeLineHostSSL?: boolean | null,
+  hasthreelineSupport: boolean | null,
+  hydrogenEnabled: boolean,
+  iswISOEnabled: boolean,
+  iswISOConfig?: {
+        zmk: string,
+        host: string,
+        port: number,
+        ssl: boolean,
+        zpk: string | null,
+        lastRotate: Date | null,
+        mid: string,
+        ett: string,
+        mcc: string,
+        rid: string,
+        orid: string,
+        settlementAccount: string
+  } | object
+  hydrogenConfig?: {
+      zmk: string,
+      host: string,
+      port: number,
+      ssl: boolean,
+      zpk: string | null,
+      lastRotate: Date | null,
+      mcc: string,
+      mid: string,
+      acqId: string,
+  } | object
 }
 
 type Band = {
@@ -471,7 +591,9 @@ let state = ref<PaginatedData<Profile>>({
   page: 1,
   totalPages: 1,
 })
-let organisations = ref<Organisation[]>([]);
+
+let enableISWISO = ref(false)
+let enableHydrogen = ref(false)
 const loading = ref(false)
 let defaultDeleteState: { [key: string]: any, id: string | null } = {
   open: false,
@@ -480,7 +602,7 @@ let defaultDeleteState: { [key: string]: any, id: string | null } = {
   id: null,
 }
 const confirmDelete = ref(defaultDeleteState)
-const defualtState = {
+const defualtState: Profile = {
   title: '',
   isoHost: '',
   isoPort: '',
@@ -503,7 +625,9 @@ const defualtState = {
   threeLineHost: null,
   threeLinePort: null,
   threeLineHostSSL: null,
-  hasthreelineSupport: null,
+  hasthreelineSupport: true,
+  iswISOConfig: undefined,
+  hydrogenConfig: undefined
 }
 
 const institutionCodes = [
@@ -516,7 +640,7 @@ const institutionCodes = [
 ]
 
 const confirmType = (value: string) => ['generic', 'intelliffin'].includes(value) || 'Invalid type'
-
+//@ts-ignore
 let form = ref<Profile>({ ...defualtState })
 let bandForm = ref<Band>({
   processor: 'nibss',
@@ -571,27 +695,18 @@ const removeBand = (index: Number) => {
   form.value.processorSettings = form.value.processorSettings?.filter((band, i) => i !== index)
 }
 
-const fetchOrganisations = async () => {
-  try {
-    const { data } = await $axios.get<Organisation[]>('/dashboard/organisations/all')
-    organisations.value = data;
-  } catch (error: any) {
-    console.log(error)
-    notify({
-      title: "Error",
-      type: "error",
-      text: error?.message
-    })
-  }
-}
-
 const gotoPage = (page?: number) => {
   state.value.page = page!;
   fetchData();
 }
 const editProfile = (value: Profile) => {
   open.value = true;
-  console.log(value.blueSaltEnv)
+  if(value.iswISOEnabled) {
+    enableISWISO.value = true
+  }
+  if(value.hydrogenEnabled) {
+    enableHydrogen.value = true
+  }
   form.value = {
     ...form.value,
     ...value,
@@ -643,6 +758,8 @@ const saveProfileForm = async () => {
         )
     );
     open.value = false;
+    enableISWISO.value = false
+    enableHydrogen.value = false
     fetchData()
   } catch (error: any) {
     notify({
@@ -658,12 +775,22 @@ const saveProfileForm = async () => {
 
 watch(open, (value, prevValue) => {
   if (value) return;
+  //@ts-ignore
   form.value = { ...defualtState };
 })
 
 watch(query, (value, prev) => {
   fetchData();
 })
+
+watch(enableHydrogen, (value, prev)=>{
+  form.value.hydrogenConfig = value?{...form.value.hydrogenConfig || {}}:undefined
+})
+
+watch(enableISWISO, (value, prev)=>{
+  form.value.iswISOConfig = value?{...form.value.iswISOConfig || {}}: undefined
+})
+
 
 onMounted(() => {
   fetchData();

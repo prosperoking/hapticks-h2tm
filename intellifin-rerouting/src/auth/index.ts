@@ -1,6 +1,5 @@
 import { Application, NextFunction } from "express";
 import cookeParser from "cookie-parser";
-import bodyParser from "body-parser";
 import session from "express-session";
 import cookieSession from "cookie-session";
 import passport, { use } from "passport";
@@ -41,7 +40,6 @@ passport.use(new RememeberMeStrategy.Strategy(
     function (token, done) {
         User.findOne({ rememberToken: decrypt(token) }).populate('organisation')
             .then(user => {
-                console.log("user: ", user)
                 if (!user) return done(null, false);
                 done(null,user);
             }).catch(err => done(err))
@@ -57,7 +55,12 @@ passport.use(new RememeberMeStrategy.Strategy(
 ));
 
 passport.serializeUser(function (user: any, done) {
-    done(null, {id: user.id});
+   try {
+    done(null, {id: user?.id ?? ''});
+   } catch (error) {
+    console.trace(error)
+    done(error.message)
+   }
 });
 
 passport.deserializeUser(function (user: any, done) {
@@ -70,16 +73,15 @@ passport.deserializeUser(function (user: any, done) {
 export default function applyAuthSetup(app: Application) {
 
     app.use(cookeParser());
-    app.use(cookieSession({
-        name: 'h2tm',
-        maxAge: 60 * 60 * 1000,
-        secret: process.env.APP_SECRET
-    }));
     app.use(session({ secret: process.env.APP_SECRET, resave: true, saveUninitialized: false}))
+    // app.use(cookieSession({
+    //     name: 'h2tm',
+    //     maxAge: 60 * 60 * 1000,
+    //     secret: process.env.APP_SECRET
+    // }));
     app.use(passport.initialize());
     app.use(passport.session())
     app.use(passport.authenticate('remember-me'))
-
     app.post('/api/v1/login',
         passport.authenticate(
             'local',

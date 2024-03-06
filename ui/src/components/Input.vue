@@ -1,6 +1,6 @@
 <template>
   <div class="flex items-baseline mb-2 space-x-2">
-    <label v-if="title?.length" class="w-1/5 text-sm font-bold text-gray-700" for="emailAddress">{{ title }}:</label>
+    <label v-if="title?.length" :class="`${labelClass?? 'w-1/5 text-sm font-bold text-gray-700'}`" for="emailAddress">{{ title }}:</label>
     <input
       v-if="!['checkbox','radio'].includes(type)"
       class="w-4/5 p-1 mt-2 border border-gray-200 rounded-md focus:outline-none focus:border-none focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
@@ -11,13 +11,13 @@
       v-if="isCheckable"
       :checked="value"
       class="p-1 mt-2 border border-gray-200 rounded-md focus:outline-none focus:border-none focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
-      :type="type" @input="updateValue" />  
+      :type="type" @input="updateValue" />
     <input
     v-else
     :value="value"
     class="p-1 mt-2 border border-gray-200 rounded-md focus:outline-none focus:border-none focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
     :type="type" @input="updateValue" />
-    </template>  
+    </template>
     <p v-if="desciption" v-text="desciption"></p>
   </div>
 </template>
@@ -30,10 +30,12 @@ interface Props {
   type?: string,
   desciption?: string,
   placeholder?: string,
+  labelClass?: string,
 }
 
 const props = withDefaults( defineProps<Props>(),{
   type: 'text',
+  labelClass: 'w-1/5 text-sm font-bold text-gray-700',
 })
 
 const emit = defineEmits(['update:value'])

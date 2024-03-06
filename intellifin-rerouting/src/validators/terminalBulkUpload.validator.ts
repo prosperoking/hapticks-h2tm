@@ -1,6 +1,6 @@
 import { createValidatedRequest } from "./index";
 import { checkSchema } from "express-validator/src/middlewares/schema";
-import Termninal from "../db/models/terminal.model";
+import Terminal from "../db/models/terminal.model";
 import PTSPProfileModel from "../db/models/ptspProfile.model";
 import OrganisationModel from "../db/models/organisation.model";
 
@@ -60,7 +60,7 @@ const terminalBulkUploadValidator = createValidatedRequest(
       custom: {
         options: async (terminalId: string, { req, location, path }) => {
           try {
-            const terminal = await Termninal.findOne({
+            const terminal = await Terminal.findOne({
               terminalId: terminalId,
             });
             if (terminal) return Promise.reject("Exists");
@@ -85,7 +85,7 @@ const terminalBulkUploadValidator = createValidatedRequest(
       custom: {
         options: async (threelineTid: string, { req, location, path }) => {
           try {
-            const terminal = await Termninal.findOne({
+            const terminal = await Terminal.findOne({
               threelineTid: threelineTid,
             });
             if (terminal) return Promise.reject("Exists");
@@ -107,7 +107,7 @@ const terminalBulkUploadValidator = createValidatedRequest(
           try {
             const index = path.split(".")[0].split("[")[1].split("]")[0];
             const accData = req.body.terminals[index];
-            const terminalSerial = await Termninal.findOne({
+            const terminalSerial = await Terminal.findOne({
               serialNo,
               deviceModel: accData.deviceModel,
               brand: accData.brand,
@@ -137,9 +137,29 @@ const terminalBulkUploadValidator = createValidatedRequest(
       trim: true,
       custom: {
         options: async (iswTid: string, { req, location, path }) => {
-          if (await Termninal.findOne({ iswTid })) throw Error("Exists");
+          if (await Terminal.findOne({ iswTid })) throw Error("Exists");
         },
         errorMessage: "IswTid alread taken",
+      },
+    },
+    "terminals.*.iswISOTID": {
+      in: ["body"],
+      trim: true,
+      custom: {
+        options: async (iswISOTID: string, { req, location, path }) => {
+          if (await Terminal.findOne({ iswISOTID })) throw Error("Exists");
+        },
+        errorMessage: "iswISOTID alread taken",
+      },
+    },
+    "terminals.*.hydrogenTID": {
+      in: ["body"],
+      trim: true,
+      custom: {
+        options: async (hydrogenTID: string, { req, location, path }) => {
+          if (await Terminal.findOne({ hydrogenTID })) throw Error("Exists");
+        },
+        errorMessage: "hydrogenTID alread taken",
       },
     },
     "terminals.*.iswUniqueId": {
@@ -147,7 +167,7 @@ const terminalBulkUploadValidator = createValidatedRequest(
       trim: true,
       custom: {
         options: async (iswUniqueId: string, { req, location, path }) => {
-          if (await Termninal.findOne({ iswUniqueId })) throw Error("Exists");
+          if (await Terminal.findOne({ iswUniqueId })) throw Error("Exists");
         },
         errorMessage: "Isw UniqueId taken",
       },

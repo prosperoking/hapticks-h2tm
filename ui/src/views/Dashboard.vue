@@ -2,7 +2,7 @@
   <div>
     <h3 class="text-3xl font-medium text-gray-700">Dashboard</h3>
 
-    <div class="mt-4">
+    <div class="mt-4" v-can="'transactions.stats'">
       <div class="flex flex-wrap -mx-6">
         <div class="w-full px-6 sm:w-1/2 xl:w-1/3">
           <div class="flex items-center px-5 py-6 bg-white rounded-md shadow-sm">
@@ -64,7 +64,7 @@
     <div class="mt-8"></div>
 
     <div class="flex flex-col mt-8">
-      <div class="py-2 -my-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+      <div v-can="'transactions.list'" class="py-2 -my-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
         <div class="inline-block min-w-full overflow-hidden align-middle border-b border-gray-200 shadow sm:rounded-lg">
           <table class="min-w-full">
             <thead>

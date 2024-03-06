@@ -7,6 +7,8 @@ import webHookValidator from '../validators/webhook.validator';
 import terminalBulkUploadValidator from '../validators/terminalBulkUpload.validator';
 import webHookUpdateValidator from '../validators/webhookUpdate.validator';
 import terminalCreateValidator from '../validators/terminalCreate.validator';
+import groupTidCreateValidator from '../validators/grouptid.create.validator';
+import groupTidUpdateValidator from '../validators/grouptid.update.validator';
 
 import {
     authController,
@@ -15,102 +17,168 @@ import {
     terminalController,
     OrganisationController,
     WebHookController,
-    UserController
+    UserController,
+    groupTidController,
 } from '../controllers/index.controller';
+import { body } from 'express-validator';
 
 const router = express.Router();
 
 const adminOnly = authMiddleware(['admin'])
-const hasRoleOrPermissions = 
+const hasRoleOrPermissions =
     (roles: string[], permissions: string[])=>authMiddleware(roles, permissions)
 const hasPermissions = (permissions: string[] = [])=>authMiddleware([], permissions)
 
 router.get('/', dashboardController.index);
-router.get('/transactions', 
-    hasRoleOrPermissions(['admin'], ['transactions.list']), 
+router.get('/transactions',
+    hasRoleOrPermissions(['admin'], ['transactions.list']),
     dashboardController.transactions
 );
 router.get('/transactions/export',
-    hasRoleOrPermissions(['admin'], ['transactions.list']),
+    hasRoleOrPermissions(['admin'], ['transactions.export']),
     dashboardController.export
 );
 
-router.get('/organisations', adminOnly, OrganisationController.getOrganisations);
-router.get('/organisations/all', adminOnly, OrganisationController.getAllOrganisations);
+router.get('/organisations', hasRoleOrPermissions(['admin'],['organisations.list']), OrganisationController.getOrganisations);
+router.get('/organisations/all', hasRoleOrPermissions(['admin'],['organisations.list']), OrganisationController.getAllOrganisations);
 router.post('/organisations', [
-    adminOnly,
+    hasRoleOrPermissions(['admin'],['organisations.create']),
     ... organisationValidator
 ], OrganisationController.create);
 router.put('/organisations', [
-    adminOnly,
+    hasRoleOrPermissions(['admin'],['organisations.update']),
     ... organisationValidator
 ], OrganisationController.update);
-router.delete('/organisations/:id', adminOnly, OrganisationController.destroy);
+router.delete('/organisations/:id', hasRoleOrPermissions(['admin'],['users.delete']), OrganisationController.destroy);
 
-router.get('/profiles', profileController.index)
+router.get('/profiles', hasRoleOrPermissions(['admin'],['profiles.list']),profileController.index)
+router.post(
+    '/profiles/:id/rotate-keys',
+    [hasRoleOrPermissions(['admin'],['profiles.rotate-keys']),  body('type').exists().isIn(['isw','hydrogen'])],
+    profileController.rotateZpk
+)
+
 router.post('/profiles',[
-    adminOnly,
+    hasRoleOrPermissions(['admin'],['profiles.create']),
 ], profileController.create)
 router.put('/profiles/:id', [
-    adminOnly,
+    hasRoleOrPermissions(['admin'],['profiles.update']),
     ... profileUpdateValidator
 ], profileController.edit)
 
 router.delete('/profiles/:id', [
-    adminOnly,
+    hasRoleOrPermissions(['admin'],['profiles.delete']),
 ], profileController.delete)
 
-router.get('/terminals', terminalController.index)
+router.get(
+    '/terminals',
+    hasRoleOrPermissions(['admin'],['terminals.list']),
+    terminalController.index
+)
 router.post('/terminals',
 [
-    adminOnly,
+    hasRoleOrPermissions(['admin'],['terminals.create']),
     ... terminalCreateValidator,
 ], terminalController.create)
 router.post('/terminals/bulk-upload',
 [
-    adminOnly,
+    hasRoleOrPermissions(['admin'],['terminals.bulk_upload']),
     ... terminalBulkUploadValidator,
 ], terminalController.bulkUpload)
 
-router.get('/terminals/export',
+router.get(
+    '/terminals/export',
+    [hasRoleOrPermissions(['admin'],['terminals.export'])],
+    terminalController.export
+)
+
+router.put(
+    '/terminals/:id',
+    [hasRoleOrPermissions(['admin'],['terminals.update']), ... terminalUpdateValidator ],
+    terminalController.update
+)
+router.get('/terminals/trigger-keyexchange/:id',
+hasRoleOrPermissions(['admin'],['terminals.trigger-keyexchange'])
+, terminalController.triggerKeyExchange)
+router.delete('/terminals/:id',
+ hasRoleOrPermissions(['admin'],['terminals.delete']),
+ terminalController.destroy
+)
+
+router.get(
+    '/group-tids',
+    hasRoleOrPermissions(['admin'],['groupTid.list']),
+    groupTidController.index
+)
+router.get(
+    '/group-tids/all',
+    hasRoleOrPermissions(['admin'],['groupTid.list']),
+    groupTidController.all
+)
+
+router.post('/group-tids',
 [
-    adminOnly
-], terminalController.export)
+    hasRoleOrPermissions(['admin'],['groupTid.create']),
+    ... groupTidCreateValidator,
+], groupTidController.create)
 
-router.put('/terminals/:id', [adminOnly, ... terminalUpdateValidator ], terminalController.update)
-router.get('/terminals/trigger-keyexchange/:id', [adminOnly ], terminalController.triggerKeyExchange)
-router.delete('/terminals/:id', adminOnly, terminalController.destroy)
+router.put(
+    '/group-tids/:id',
+    [hasRoleOrPermissions(['admin'],['groupTid.update']), ... groupTidUpdateValidator ],
+    groupTidController.update
+)
+
+router.get(
+    '/group-tids/trigger-keyexchange/:id',
+    hasRoleOrPermissions(['admin'],['groupTid.trigger-keyexchange']),
+    groupTidController.triggerKeyExchange
+)
+
+router.delete('/group-tids/:id',
+ hasRoleOrPermissions(['admin'],['groupTid.delete']),
+ groupTidController.destroy
+)
 
 
-router.get('/webhook', WebHookController.getWebhooks);
+router.get('/webhook',hasRoleOrPermissions(['admin'],['webhook_listeners.list']), WebHookController.getWebhooks);
 
 
 router.post('/webhook', [
-    adminOnly,
+    hasRoleOrPermissions(['admin'],['webhook_listeners.create']),
     ... webHookValidator
 ], WebHookController.createWebhook);
 router.post('/webhook/reset-secret/:id', [
-    adminOnly,
+    hasRoleOrPermissions(['admin'],['webhook_listeners.update']),
 ], WebHookController.reCreateSecret);
 router.put('/webhook/:id', [
-    adminOnly,
+    hasRoleOrPermissions(['admin'],['webhook_listeners.update']),
     ... webHookUpdateValidator
 ], WebHookController.updateWebhook);
 
-router.delete('/webhook/:id',adminOnly, WebHookController.deleteWebhook);
+router.delete('/webhook/:id',hasRoleOrPermissions(['admin'],['webhook_listeners.delete']), WebHookController.deleteWebhook);
 
-router.get('/webhook-requests', [ adminOnly ] ,WebHookController.webhookRequests);
-router.get('/webhook-requests/retry/:id', [ adminOnly ] ,WebHookController.retryWebhook);
+router.get('/webhook-requests', hasRoleOrPermissions(['admin'],['webhooks.list']) ,WebHookController.webhookRequests);
+router.get('/webhook-requests/retry/:id', hasRoleOrPermissions(['admin'],['webhooks.retry']) ,WebHookController.retryWebhook);
 
 router.get('/auth/user', authController.getUserInfo)
 router.post('/auth/logout', authController.logout)
 
 
-router.get('/users', adminOnly, UserController.index);
-router.get('/users/permissions', adminOnly, UserController.getAllPermissions);
+router.get('/users', hasRoleOrPermissions(['admin'],['users.list']), UserController.index);
+router.get('/users/permissions', hasRoleOrPermissions(['admin'],['users.create']), UserController.getAllPermissions);
 router.post(
-    '/users', 
-    hasRoleOrPermissions(['admin'],['users.create']), 
+    '/users',
+    hasRoleOrPermissions(['admin'],['users.create']),
     UserController.addUser
+);
+router.put(
+    '/users',
+    hasRoleOrPermissions(['admin'],['users.update']),
+    UserController.deleteUser
+);
+router.delete(
+    '/users',
+    hasRoleOrPermissions(['admin'],['users.delete']),
+    UserController.deleteUser
 );
 export default router;

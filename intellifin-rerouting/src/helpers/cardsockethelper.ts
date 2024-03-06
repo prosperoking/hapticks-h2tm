@@ -1,10 +1,10 @@
 import net from "net";
 import logger from "./logger";
 
-export interface CardSocketResponse {
+export interface CardSocketResponse<T> {
   status: boolean;
   message?: string;
-  data?: any;
+  data?: T | any;
 }
 
 export enum TransactionTypes {
@@ -16,12 +16,20 @@ export enum TransactionTypes {
   BLUESALT = "BLUESALT",
   THREELINE = "3LINE",
   THREELINE_KEY_EXCHANGE = "3LINE_KEY_EXCHANGE",
+  ISW_KEY_EXCHANGE = 'ISW_KEY_EXCHANGE',
+  ISW_PURCHASE = 'ISW_PURCHASE',
+  ISW_CLOSE_CONNECTIONS = 'ISW_CLOSE_CONNECTIONS',
+  ISW_CONNECTIONS_COUNT = 'ISW_CONNECTIONS_COUNT',
+  HYDROGEN_KEY_EXCHANGE = 'HYDROGEN_KEY_EXCHANGE',
+  HYDROGEN_PURCHASE = 'HYDROGEN_PURCHASE',
+  HYDROGEN_CLOSE_CONNECTIONS = 'HYDROGEN_CLOSE_CONNECTIONS',
+  HYDROGEN_CONNECTIONS_COUNT = 'HYDROGEN_CONNECTIONS_COUNT'
 }
 
-export function performCardSocketTranaction(
+export function sendSocketMessage<T>(
   transaction: TransactionTypes,
   payload: any
-): Promise<CardSocketResponse> {
+): Promise<CardSocketResponse<T>> {
   return new Promise((resolve, reject) => {
     let response = [];
     const socket = net.connect(

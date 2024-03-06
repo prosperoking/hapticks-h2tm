@@ -3,6 +3,7 @@ import { checkSchema } from 'express-validator/src/middlewares/schema';
 import PTSPProfileModel from '../db/models/ptspProfile.model';
 import OrganisationModel from '../db/models/organisation.model';
 import webhookModel from '../db/models/webhook.model';
+import { body } from 'express-validator';
 
 const profileUpdateValidator = createValidatedRequest(checkSchema({
     id: {
@@ -145,6 +146,117 @@ const profileUpdateValidator = createValidatedRequest(checkSchema({
             errorMessage: "Webhook not found",
             bail: true,
         }
+    },
+    iswISOConfig: {
+        in: ['body'],
+        optional: {
+            options: {
+                nullable: false
+            }
+        },
+        isObject: {
+            options: {
+                strict: false,
+            }
+        }
+    },
+    "iswISOConfig.host":{
+        in: ["body"],
+        isIP: true,
+        exists: {
+            if: body("iswISOConfig").exists({ checkNull: false })
+        }
+    },
+    "iswISOConfig.zmk":{
+        exists: {
+            if: body("iswISOConfig").exists({ checkNull: false })
+        },
+        in: ["body"],
+        isString: true,
+
+    },
+    "iswISOConfig.port":{
+        exists: {
+            if: body("iswISOConfig").exists({ checkNull: false })
+        },
+        in: ["body"],
+        isNumeric: true,
+    },
+    "iswISOConfig.mcc":{
+        exists: {
+            if: body("iswISOConfig").exists({ checkNull: false })
+        },
+        in: ["body"],
+        isNumeric: true,
+    },
+    "iswISOConfig.mid":{
+        exists: {
+            if: body("iswISOConfig").exists({ checkNull: false })
+        },
+        in: ["body"],
+        isString: true,
+    },
+    "iswISOConfig.rid":{
+        exists: {
+            if: body("iswISOConfig").exists({ checkNull: false })
+        },
+        in: ["body"],
+        isString: true,
+    },
+    "iswISOConfig.oRid":{
+        exists: {
+            if: body("iswISOConfig").exists({ checkNull: false })
+        },
+        in: ["body"],
+        isString: true,
+    },
+    hydrogenConfig: {
+        in: ['body'],
+        optional: {
+            options: {
+                nullable: true,
+            }
+        },
+        isObject: {
+            options: {
+                strict: false,
+            }
+        }
+    },
+    "hydrogenConfig.host":{
+        exists: {
+            if: body("hydrogenConfig").exists({ checkNull: false })
+        },
+        in: ["body"],
+
+    },
+    "hydrogenConfig.zmk":{
+        exists: {
+            if: body("hydrogenConfig").exists({ checkNull: false })
+        },
+        in: ["body"],
+        isString: true
+    },
+    "hydrogenConfig.port":{
+        exists: {
+            if: body("hydrogenConfig").exists({ checkNull: false })
+        },
+        in: ["body"],
+        isNumeric: true,
+    },
+    "hydrogenConfig.mcc":{
+        exists: {
+            if: body("hydrogenConfig").exists({ checkNull: false })
+        },
+        in: ["body"],
+        isNumeric: true,
+    },
+    "hydrogenConfig.mid":{
+        exists: {
+            if: body("hydrogenConfig").exists({ checkNull: false })
+        },
+        in: ["body"],
+        isString: true,
     },
     "processorSettings.*.processor":{
         in: ['body'],

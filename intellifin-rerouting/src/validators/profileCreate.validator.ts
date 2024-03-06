@@ -1,8 +1,9 @@
 import { createValidatedRequest } from './index';
 import { checkSchema } from 'express-validator/src/middlewares/schema';
-import Termninal from '../db/models/terminal.model';
+import Terminal from '../db/models/terminal.model';
 import webhookModel from '../db/models/webhook.model';
 import OrganisationModel from '../db/models/organisation.model';
+import { body } from 'express-validator';
 
 const profileCreateValidator = createValidatedRequest(checkSchema({
     componentKey1: {
@@ -28,7 +29,7 @@ const profileCreateValidator = createValidatedRequest(checkSchema({
         in: ['body'],
         isBoolean: true,
         customSanitizer: {
-            options: 
+            options:
                 value => ['true','false','1','0'].includes(String(value)
                             .toLowerCase())
         },
@@ -118,6 +119,117 @@ const profileCreateValidator = createValidatedRequest(checkSchema({
             errorMessage: "Webhook not found",
             bail: true,
         }
+    },
+    iswISOConfig: {
+        in: ['body'],
+        optional: {
+            options: {
+                nullable: false
+            }
+        },
+        isObject: {
+            options: {
+                strict: false,
+            }
+        }
+    },
+    "iswISOConfig.host":{
+        in: ["body"],
+        isIP: true,
+        exists: {
+            if: body("iswISOConfig").exists({ checkNull: false })
+        }
+    },
+    "iswISOConfig.zmk":{
+        exists: {
+            if: body("iswISOConfig").exists({ checkNull: false })
+        },
+        in: ["body"],
+        isString: true,
+
+    },
+    "iswISOConfig.port":{
+        exists: {
+            if: body("iswISOConfig").exists({ checkNull: false })
+        },
+        in: ["body"],
+        isNumeric: true,
+    },
+    "iswISOConfig.mcc":{
+        exists: {
+            if: body("iswISOConfig").exists({ checkNull: false })
+        },
+        in: ["body"],
+        isNumeric: true,
+    },
+    "iswISOConfig.mid":{
+        exists: {
+            if: body("iswISOConfig").exists({ checkNull: false })
+        },
+        in: ["body"],
+        isString: true,
+    },
+    "iswISOConfig.rid":{
+        exists: {
+            if: body("iswISOConfig").exists({ checkNull: false })
+        },
+        in: ["body"],
+        isString: true,
+    },
+    "iswISOConfig.oRid":{
+        exists: {
+            if: body("iswISOConfig").exists({ checkNull: false })
+        },
+        in: ["body"],
+        isString: true,
+    },
+    hydrogenConfig: {
+        in: ['body'],
+        optional: {
+            options: {
+                nullable: true,
+            }
+        },
+        isObject: {
+            options: {
+                strict: false,
+            }
+        }
+    },
+    "hydrogenConfig.host":{
+        exists: {
+            if: body("hydrogenConfig").exists({ checkNull: false })
+        },
+        in: ["body"],
+
+    },
+    "hydrogenConfig.zmk":{
+        exists: {
+            if: body("hydrogenConfig").exists({ checkNull: false })
+        },
+        in: ["body"],
+        isString: true
+    },
+    "hydrogenConfig.port":{
+        exists: {
+            if: body("hydrogenConfig").exists({ checkNull: false })
+        },
+        in: ["body"],
+        isNumeric: true,
+    },
+    "hydrogenConfig.mcc":{
+        exists: {
+            if: body("hydrogenConfig").exists({ checkNull: false })
+        },
+        in: ["body"],
+        isNumeric: true,
+    },
+    "hydrogenConfig.mid":{
+        exists: {
+            if: body("hydrogenConfig").exists({ checkNull: false })
+        },
+        in: ["body"],
+        isString: true,
     },
     processorSettings:{
         in: ['body'],

@@ -35,7 +35,7 @@
           />
         </label>
         <div v-if="errorMsg !== null" class="flex items-center justify-between mt-4">
-          <div class="text-gray-400">
+          <div class="text-red-400">
             {{ errorMsg }}
           </div>
         </div>

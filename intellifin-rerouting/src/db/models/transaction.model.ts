@@ -33,6 +33,10 @@ export interface IJournal {
     organisationId?: string | any,
     meta?: object,
     webhookData?: object,
+    reversalData?: object,
+    totalTransTime?: number | null,
+    createdAt: Date | string,
+    updatedAt: Date | string,
 }
 
 export interface IJournalDocument extends Document, IJournal {}
@@ -49,17 +53,17 @@ let JournalsSchema = new mongoose.Schema<IJournalDocument>({
     responseCode: { type: String, default: "" },
     responseDescription: { type: String, default: "" },
     isCompleted: Boolean,
-    terminalId: { type: String, default: "" },
+    terminalId: { type: String, default: "", index: true },
     merchantId: { type: String, default: "" },
     cashback: { type: String, default: "" },
     merchantName: { type: String, default: "" },
     merchantCategoryCode: { type: String, default: "" },
     merchantAddress: { type: String, default: "" },
     currencyCode: { type: String, default: "" },
-    rrn: { type: String, default: "" },
+    rrn: { type: String, default: "", index: true },
     MTI: { type: String, default: "0200" },
     STAN: { type: String, default: "" },
-    PAN: { type: String, default: "" },
+    PAN: { type: String, default: "", index: true },
     cardExpiration: {type: String, defualt: ""},
     vasData: {
         type: Object,
@@ -76,6 +80,14 @@ let JournalsSchema = new mongoose.Schema<IJournalDocument>({
     },
     webhookData: {
         type: Object,
+        default: null,
+    },
+    reversalData: {
+        type: Object,
+        default: null,
+    },
+    totalTransTime: {
+        type: Number,
         default: null,
     }
 

@@ -1,8 +1,11 @@
 import { Request, Response } from 'express';
-import  moment from 'moment';
 import logger from '../helpers/logger';
 import OrganisationModel from '../db/models/organisation.model';
+import { encrypt } from '../helpers/crypt';
+import {randomBytes} from "crypto";
+import {promisify} from "util"
 
+const asyncRandomBytes = promisify(randomBytes)
 
 export async function getOrganisations(req: Request, res: Response) {
     try {
@@ -82,6 +85,28 @@ export async function destroy(req: Request, res: Response) {
         organisation.delete();
 
         return res.json(organisation)
+    } catch (error) {
+        logger.error(error.message);
+        res.status(400).json({
+            message: "An error occured"
+        })
+    }
+}
+
+export async function generateApiKey(req: Request, res: Response) {
+    try {
+        const organisation = await OrganisationModel.findById(req.params.id);
+
+        if(!organisation) return res.status(404).json({message: "Organisation not found"})
+
+        const key = (await asyncRandomBytes(16)).toString('base64')
+        organisation.update({ apiKey: key })
+        return res.json({
+            status: true,
+            data: {
+                apiKey: encrypt(organisation.id)+"."+ key
+            }
+        })
     } catch (error) {
         logger.error(error.message);
         res.status(400).json({

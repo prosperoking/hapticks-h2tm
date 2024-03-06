@@ -65,12 +65,17 @@ export interface KIMONOPayload {
     rrn: string;
     totalamount: string;
     field4: string;
+    field43: string;
+    mcc: string;
+    merchantLocation?: string;
 }
 
 export enum Processor {
     NIBSS = "NIBSS",
     KIMONO = "KIMONO",
     THREELINE = "3LINE",
+    ISW = "ISW",
+    HYDROGEN = "HYDROGEN"
 }
 
 
