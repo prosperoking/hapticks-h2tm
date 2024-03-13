@@ -4,6 +4,7 @@ import OrganisationModel from '../db/models/organisation.model';
 import { encrypt } from '../helpers/crypt';
 import {randomBytes} from "crypto";
 import {promisify} from "util"
+import argon2 from 'argon2';
 
 const asyncRandomBytes = promisify(randomBytes)
 
@@ -95,16 +96,19 @@ export async function destroy(req: Request, res: Response) {
 
 export async function generateApiKey(req: Request, res: Response) {
     try {
+
         const organisation = await OrganisationModel.findById(req.params.id);
 
         if(!organisation) return res.status(404).json({message: "Organisation not found"})
-
-        const key = (await asyncRandomBytes(16)).toString('base64')
-        organisation.update({ apiKey: key })
+        const key = await asyncRandomBytes(48)
+        const apiKey = key.toString("base64")
+        const encApiKey =  await argon2.hash(apiKey)
+        organisation.apiKey = encApiKey;
+        organisation.save()
         return res.json({
             status: true,
             data: {
-                apiKey: encrypt(organisation.id)+"."+ key
+                apiKey: encrypt(organisation.id)+"."+ apiKey
             }
         })
     } catch (error) {

@@ -23,7 +23,7 @@ class DBServices implements IDBServices {
 
     }
 
-    public async createTransactionRecord(data: object, product: string): Promise<IDBResponse> {   
+    public async createTransactionRecord(data: object, product: string): Promise<IDBResponse> {
         const dbData = Mappers.mapTransRequestDataToDbSchema(data, product);
         console.log("Formmatted Payload :: ", dbData)
         this.DbrecordInstance = new Journal(dbData);
@@ -86,7 +86,7 @@ class DBServices implements IDBServices {
 
 
 
-     
+
 
 }
 

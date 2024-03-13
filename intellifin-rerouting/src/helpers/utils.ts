@@ -147,10 +147,10 @@ class Utils {
     }
 
     /**
-     * 
-     * @param terminalId 
-     * @param data 
-     * @returns 
+     *
+     * @param terminalId
+     * @param data
+     * @returns
      */
     static fileDataLogger(terminalId, data) {
         let enable = process.env.file_log;

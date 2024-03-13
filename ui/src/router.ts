@@ -10,6 +10,7 @@ import Terminals from "./views/terminal/Terminals.vue";
 import GroupTid from "./views/groupTid/index.vue";
 import UploadTerminal from "./views/terminal/UploadTerminals.vue";
 import Organisations from "./views/Organisations.vue";
+import GeneratedTid from "./views/GeneratedTids.vue";
 import WebhookListeners from "./views/WebhookListeners.vue";
 import Webhooks from "./views/WebHooks.vue";
 import Users from "./views/Users.vue";
@@ -57,6 +58,11 @@ const routes: RouteRecordRaw[] = [
     path: "/terminals",
     name: "terminals",
     component: Terminals,
+  },
+  {
+    path: "/generated-tids",
+    name: "generated-tids",
+    component: GeneratedTid,
   },
   {
     path: "/organisations",

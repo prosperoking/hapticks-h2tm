@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import ApiResponse from '../helpers/apiResponse';
 import { apiStatusCodes } from '../helpers/constants';
-import VasServices from '../services/vas.services';
 import { IUserData } from '../db/models/user.model';
 
 

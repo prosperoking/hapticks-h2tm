@@ -75,6 +75,7 @@ export interface Organisation {
     terminals_count?: number,
     transactions_count?: number,
     users_count?: number,
+    hasApiKey: boolean,
     createdAt?: string,
     updatedAt?: string,
 }
@@ -120,4 +121,20 @@ export interface WebhookRequest {
     verifySignature: string,
     createdAt?: string,
     updatedAt?: string,
+}
+
+export interface GeneratedTid {
+    _id?: string,
+    tid : string,
+    linkedTo: string,
+    type: 'isw' | 'hydrogen',
+    rangeGenerated: string,
+    prefix: string,
+    terminal?: {
+        _id: string,
+        terminalId: string,
+        brand: string,
+        model: string,
+        serial: string,
+    }
 }

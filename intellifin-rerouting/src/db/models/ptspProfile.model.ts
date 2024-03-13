@@ -42,7 +42,8 @@ export interface IPTSPProfileData {
         rid: string,
         oRid: string,
         settlementAccount: string
-        kcv: string | null
+        kcv: string | null,
+        tidPrefix: string,
     }
     hydrogenConfig?: {
         zmk: string,
@@ -55,6 +56,7 @@ export interface IPTSPProfileData {
         mcc: string,
         mid: string,
         acqId: string,
+        tidPrefix: string,
     }
     processorSettings?: {
         minAmount: number,
@@ -212,7 +214,13 @@ const ptspProfileSchema = new mongoose.Schema<IPTSPProfileData>({
             default: null,
             set: (value: string)=> (value !== null && value?.length) ? encrypt(value) : null,
             get: (value: string)=> (value !== null && value?.length) ? decrypt(value) : null,
-        }
+        },
+        tidPrefix: {
+            type: String,
+            default: null,
+            maxlength: 4,
+            minlength: 4
+        },
     },
     hydrogenConfig: {
         zmk: {
@@ -251,6 +259,12 @@ const ptspProfileSchema = new mongoose.Schema<IPTSPProfileData>({
         },
         acqId: {
             type: String,
+        },
+        tidPrefix: {
+            type: String,
+            default: null,
+            maxlength: 4,
+            minlength: 4
         },
     },
     processorSettings: [SchemaTypes.Mixed]

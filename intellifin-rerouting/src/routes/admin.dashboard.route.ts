@@ -45,6 +45,10 @@ router.post('/organisations', [
     hasRoleOrPermissions(['admin'],['organisations.create']),
     ... organisationValidator
 ], OrganisationController.create);
+
+router.get('/organisations/generate-api-key/:id', [
+    hasRoleOrPermissions(['admin'],['organisations.create-api-key']),
+], OrganisationController.generateApiKey);
 router.put('/organisations', [
     hasRoleOrPermissions(['admin'],['organisations.update']),
     ... organisationValidator
@@ -137,6 +141,23 @@ router.get(
 router.delete('/group-tids/:id',
  hasRoleOrPermissions(['admin'],['groupTid.delete']),
  groupTidController.destroy
+)
+
+router.get(
+    '/generated-tids',
+    hasRoleOrPermissions(['admin'],['generate-tids.list']),
+    terminalController.generatedTids
+)
+router.get(
+    '/generated-tids/stats',
+    hasRoleOrPermissions(['admin'],['generate-tids.list']),
+    terminalController.generatedTidStat
+)
+
+router.post(
+    '/generate-tids',
+    hasRoleOrPermissions(['admin'],['generate-tids.generate']),
+    terminalController.generateTids
 )
 
 

@@ -10,17 +10,19 @@ const terminalCreateValidator = createValidatedRequest(checkSchema({
     terminalId: {
         in: ['body'],
         trim: true,
-        optional: true,
         custom: {
             options: async (terminalId: string, {req, location, path}) =>{
-                if(
-                    await Terminal.findOne({terminalId: terminalId})
-                ) return Promise.reject();
-
-                if(!terminalId?.length &&  !req.body.terminalGroupId?.length)
-                    return Promise.reject();
+                try {
+                    if(
+                        ! await Terminal.findOne({terminalId: terminalId}) &&
+                        ! req.body.terminalGroupId?.length
+                    ) return false;
+                    return true;
+                } catch (error) {
+                    return false;
+                }
             },
-            errorMessage: "Terminal",
+            errorMessage: "Invalid/Existing Terminal ID",
         }
     },
     terminalGroupId: {

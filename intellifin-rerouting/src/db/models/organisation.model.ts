@@ -7,6 +7,7 @@ import * as mongoose from 'mongoose';
 export interface OrganisationProfileData {
     name: String,
     apiKey: string,
+    hasApiKey: boolean,
 }
 
 export interface OrganisationProfile extends Document, OrganisationProfileData { }
@@ -20,11 +21,17 @@ const orgSchema = new mongoose.Schema<OrganisationProfileData>({
     apiKey: {
         type: String,
         select: false,
+        default: null,
     }
 }, {
-    timestamps: true, toJSON: {
+    timestamps: true,
+    toJSON: {
         virtuals: true
     }
+})
+
+orgSchema.virtual('hasApiKey').get(function(){
+    return this.apiKey !== null;
 })
 
 orgSchema.virtual('terminals', {
@@ -59,11 +66,6 @@ orgSchema.virtual('transactions_count', {
     foreignField: 'organisationId',
     count: true,
 });
-
-orgSchema.pre('save', async function () {
-    this.apiKey = await argon2.hash(this.apiKey);
-});
-
 
 orgSchema.plugin(paginate);
 orgSchema.plugin(uniqueValidator);

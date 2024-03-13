@@ -6,6 +6,7 @@ export async function index(req: Request, res: Response) {
     try{
         const query = req.query.q;
         const terminals = await Transactions.paginate({
+            //@ts-ignore
             organisationId: req.user._id,
             $or: [
                 {terminalId: query},

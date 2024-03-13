@@ -5,6 +5,9 @@ import { sendSocketMessage, TransactionTypes } from '../helpers/cardsockethelper
 import {pick} from "lodash"
 import PTSPProfileModel from '../db/models/ptspProfile.model';
 import { keyExchange } from '../queue/queue';
+import TerminalID from '../db/models/terminalIds.model';
+import { generateTidRange } from '../helpers/appUtils';
+import Config from '../config/config';
 export default class TerminalController {
     public async index(request: Request, response: Response) {
         try {
@@ -207,6 +210,141 @@ export default class TerminalController {
             .pipe(Terminal.csvTransformStream()).pipe(response);
         } catch (error) {
             console.log(error)
+            response.status(400).json({message: error.message})
+        }
+    }
+
+    public async generatedTidStat(request: Request, response: Response) {
+        try {
+            const data = await TerminalID.aggregate([
+                {
+                    $group : {
+                        "count":{$sum : 1},
+                         _id: {
+                            type: "$type",
+                            linkedTo: "$linkedTo",
+                         }
+                    },
+                },
+                {
+                    $group: {
+                        _id: "$_id.type",
+                        total:{
+                            $sum: 1,
+                        },
+                        assigned: {
+                            $sum: {
+                                $cond:{
+                                    if: {$ne: ["$_id.linkedTo", null]},
+                                    else: 0,
+                                    then: 1
+                                }
+                            }
+                        },
+                        unAssined: {
+                            $sum: {
+                                $cond:{
+                                    if: {$eq: ["$_id.linkedTo", null]},
+                                    else: 0,
+                                    then: 1
+                                }
+                            }
+                        }
+                    }
+                },
+            ]);
+            response.json({data})
+        } catch (error) {
+            response.status(400).json({message: error.message})
+        }
+    }
+
+    public async generatedTids(request: Request, response: Response) {
+        try {
+
+            const {q,limit,page, organisation} = request.query;
+            let filter:{[key:string]: any} = {}
+            if(q?.length) {
+                filter = {
+                    $or:[
+                        { tid: RegExp(`^${q}`,'i') },
+                        { type: RegExp(`^${q}`,'i') },
+                    ]
+                };
+            };
+            // @ts-ignore
+            const orgId = !request.user.organisaitonId ? organisation : request.user.organisationId;
+            if(orgId?.length) filter = {...filter, organisationId: orgId };
+            const data = await TerminalID.paginate(filter,{
+                populate: [
+                    {path: 'terminal', select:'serialNo brand deviceModel'},
+                 ],
+                limit: Number.parseInt(`${limit}`) || 30,
+                page: Number.parseInt(`${page}`) || 1,
+                sort:{
+                    updatedAt: 1,
+                }
+            });
+            response.json({data, count: data.length})
+        } catch (error) {
+            console.log(error)
+            response.status(400).json({message: error.message})
+        }
+    }
+
+    public async generateTids(request: Request, response: Response) {
+        try {
+            let {
+                start,
+                end,
+                // iswPrefix,
+                // hydrogenPrefix
+            }:{
+                start: string,
+                end: string,
+                // iswPrefix: string,
+                // hydrogenPrefix: string
+            } = request.body;
+            if(start?.length !== 4 || end?.length!== 4)
+                return response.json({message: "Invalid start and end"})
+            start = start.toUpperCase()
+            end = end.toUpperCase()
+            const rangeGenerated = `${start}-${end}`;
+            let tids:any[] =[];
+            const mapForSave = (tids:string[], type: 'isw'|'hydrogen')=>{
+                return tids.map(tid=>({
+                    tid,
+                    type,
+                    rangeGenerated,
+                }))
+            }
+            const {processorPrefixes} =(new  Config()).configObject
+            console.log(processorPrefixes)
+            if(!processorPrefixes.isw?.length || !processorPrefixes.hydrogen?.length) return response.status(400).json({
+                message: "Processor Prefix not configured"
+            })
+            tids = tids.concat(
+                mapForSave( generateTidRange(start, end, processorPrefixes.isw), 'isw')
+            ).concat(
+                mapForSave(
+                    generateTidRange(start, end, processorPrefixes.hydrogen),
+                    'hydrogen'
+                )
+            )
+
+            try{
+                await TerminalID.insertMany(tids,{ordered: false, })
+            }catch(e) {
+
+            }
+
+
+            return response.json({
+                data:{
+                    totalGenerated: tids.length,
+                },
+            });
+        } catch (error) {
             response.status(400).json({message: error.message})
         }
     }

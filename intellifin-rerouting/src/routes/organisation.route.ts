@@ -23,9 +23,10 @@ const authenticator = async (req: Request, res: Response , next : NextFunction)=
             return res.status(401).json({message:"Invalid Token"})
         }
         const [encId, key] = token[1].split('.')
-        const organisation = await OrganisationModel.findById(decrypt(encId));
-        if (!organisation || !await argon2.verify(organisation.apiKey, key))
-            return res.status(403).json({ message: "Invalid Token" });
+        const organisation = await OrganisationModel.findById(decrypt(encId),{_id:1, apiKey:1});
+
+        if (!organisation || organisation.apiKey === null || !await argon2.verify(organisation.apiKey, key))
+            return res.status(403).json({ message: "Invalid auth Token" });
         req.user = organisation;
         next();
     } catch (error) {
@@ -42,7 +43,7 @@ router.get('/terminals/tid/:tid',  TerminalController.getByTid);
 router.get('/terminals/:id',  TerminalController.getById);
 router.get('/group-tids',  TerminalController.getGroupedTids);
 router.post('/terminals', [... terminalCreateValidator],  TerminalController.createTerminal);
-router.put('/terminals', [... terminalUpdateValidator],  TerminalController.updateTermial);
+router.put('/terminals/:id', [... terminalUpdateValidator],  TerminalController.updateTermial);
 router.get('/terminals/:id',  TerminalController.deleteTerminal);
 
 // end terminals

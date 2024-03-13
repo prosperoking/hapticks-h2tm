@@ -5,6 +5,7 @@ import logger from "../../helpers/logger";
 export async function index(req: Request, res: Response) {
   try {
     const profiles = await PtspProfile.paginate(
+        //@ts-ignore
         {organisationId: req.user?._id},
         {
             select:  '_id name',

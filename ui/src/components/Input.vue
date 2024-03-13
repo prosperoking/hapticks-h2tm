@@ -15,6 +15,8 @@
     <input
     v-else
     :value="value"
+    :minlength="minLength"
+    :maxlength="maxLength"
     class="p-1 mt-2 border border-gray-200 rounded-md focus:outline-none focus:border-none focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
     :type="type" @input="updateValue" />
     </template>
@@ -31,11 +33,15 @@ interface Props {
   desciption?: string,
   placeholder?: string,
   labelClass?: string,
+  minLength?: string,
+  maxLength?: string,
 }
 
 const props = withDefaults( defineProps<Props>(),{
   type: 'text',
   labelClass: 'w-1/5 text-sm font-bold text-gray-700',
+  minLength: '',
+  maxLength: ''
 })
 
 const emit = defineEmits(['update:value'])

@@ -6,6 +6,7 @@ import paginate from "mongoose-paginate-v2";
 import * as mongoose from "mongoose";
 import csv from "mongoose-csv-export";
 import groupTidModel, {IGroupTid} from "./groupTid.model";
+import { getAvailableTid } from "../../helpers/appUtils";
 
 type TerminalLocation = {
   name: string;
@@ -188,9 +189,15 @@ const terminalSchema = new mongoose.Schema<ITerminal>(
     },
     iswTid: {
       type: String,
-      unique: true,
       default: null,
-      sparse: true,
+      index:{
+        unique: true,
+        sparse: true,
+        partialFilterExpression: {
+          iswTid: {$type: "string"}
+        }
+      },
+      set: (value)=> value?.length? value: null,
       get: function (value) {
         return value?.length ? value : this.terminalId;
       },
@@ -201,8 +208,14 @@ const terminalSchema = new mongoose.Schema<ITerminal>(
     iswUniqueId: {
       type: String,
       default: null,
-      unique: true,
-      sparse: true,
+      index:{
+        unique: true,
+        sparse: true,
+        partialFilterExpression: {
+          iswUniqueId: {$type: "string"}
+        }
+      },
+      set: (value)=> value?.length? value: null,
       get: function (value) {
         return value?.length ? value : this.serialNo;
       },
@@ -212,9 +225,15 @@ const terminalSchema = new mongoose.Schema<ITerminal>(
     },
     threeLineTid: {
       type: String,
-      unique: true,
       default: null,
-      sparse: true,
+      index:{
+        unique: true,
+        sparse: true,
+        partialFilterExpression: {
+          threeLineTid: {$type: "string"}
+        }
+      },
+      set: (value)=> value?.length? value: null
     },
     threeLineParams: {
       type: Object,
@@ -222,15 +241,27 @@ const terminalSchema = new mongoose.Schema<ITerminal>(
     },
     hydrogenTID: {
       type: String,
-      unique: true,
       default: null,
-      sparse: true,
+      index:{
+        unique: true,
+        sparse: true,
+        partialFilterExpression: {
+          hydrogenTID: {$type: "string"}
+        }
+      },
+      set: (value)=> value?.length? value: null
     },
     iswISOTID: {
       type: String,
-      unique: true,
       default: null,
-      sparse: true,
+      index:{
+        unique: true,
+        sparse: true,
+        partialFilterExpression: {
+          iswISOTID: {$type: "string"}
+        }
+      },
+      set: (value)=> value?.length? value: null
     }
   },
   {
@@ -334,6 +365,17 @@ terminalSchema.virtual("usingGroupedTid").get(function(){
 })
 
 terminalSchema.plugin(paginate);
+
+terminalSchema.pre('save', async function(){
+  if(!this.iswISOTID?.length) {
+    const iswTid = await getAvailableTid(this.id, "isw")
+    this.iswISOTID = iswTid?.tid;
+  }
+  if(!this.hydrogenTID?.length) {
+    const hyTid = await getAvailableTid(this.id, "hydrogen");
+    this.hydrogenTID = hyTid?.tid;
+  }
+})
 
 terminalSchema.plugin(csv, {
   headers: [

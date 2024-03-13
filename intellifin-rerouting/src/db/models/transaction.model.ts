@@ -35,8 +35,8 @@ export interface IJournal {
     webhookData?: object,
     reversalData?: object,
     totalTransTime?: number | null,
-    createdAt: Date | string,
-    updatedAt: Date | string,
+    createdAt?: Date | string,
+    updatedAt?: Date | string,
 }
 
 export interface IJournalDocument extends Document, IJournal {}

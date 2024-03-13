@@ -1,12 +1,13 @@
 import { Request, Response } from "express";
 import GroupTidModel from "../../db/models/groupTid.model";
-import TerminalModel from "../../db/models/groupTid.model";
+import TerminalModel from "../../db/models/terminal.model";
 import logger from "../../helpers/logger";
-import { pick } from "lodash-es";
+import  pick  from "lodash/pick";
 
 export async function getGroupedTids(req: Request, res: Response) {
     try{
         const groupedTids = await GroupTidModel.paginate({
+            //@ts-ignore
             organisationId: req.user._id
         }, {
             select: "_id terminalId"
@@ -21,6 +22,7 @@ export async function getGroupedTids(req: Request, res: Response) {
 export async function terminalIds(req: Request, res: Response) {
     try{
         const terminals = await TerminalModel.paginate({
+            //@ts-ignore
             organisationId: req.user._id
         }, {
             select: "_id terminalId"
@@ -35,6 +37,7 @@ export async function terminalIds(req: Request, res: Response) {
 export async function getById(req: Request, res: Response) {
     try{
         const terminals = await TerminalModel.findOne({
+            //@ts-ignore
             organisationId: req.user._id,
             _id: req.params.id,
         })
@@ -47,11 +50,12 @@ export async function getById(req: Request, res: Response) {
 
 export async function getByTid(req: Request, res: Response) {
     try{
-        const terminals = await TerminalModel.findOne({
+        const data = await TerminalModel.findOne({
+            //@ts-ignore
             organisationId: req.user._id,
             terminalId: req.params.tid,
-        })
-        res.json(terminals)
+        }).exec()
+        res.json({status: data !== null, data})
     }catch (error){
         logger.error(error)
         res.status(400).json({message:"Something went wrong"})
@@ -60,7 +64,8 @@ export async function getByTid(req: Request, res: Response) {
 
 export async function updateTermial(req: Request, res: Response) {
     try{
-        const terminal = await TerminalModel.findOne({
+        let terminal = await TerminalModel.findOne({
+            //@ts-ignore
             organisationId: req.user._id,
             _id: req.params.id,
         })
@@ -82,7 +87,11 @@ export async function updateTermial(req: Request, res: Response) {
             "terminalLocation",
             "terminalGroupId"
         ]));
-
+        terminal = await TerminalModel.findOne({
+            //@ts-ignore
+            organisationId: req.user._id,
+            _id: req.params.id,
+        });
         res.json({status: true, data: terminal})
     }catch (error){
         logger.error(error)
@@ -95,6 +104,7 @@ export  async function createTerminal(request: Request, response: Response) {
     try {
         const data = await TerminalModel.create({
             ...request.body,
+            //@ts-ignore
             organisationId: request.user._id
         });
 
@@ -108,7 +118,8 @@ export  async function createTerminal(request: Request, response: Response) {
 export  async function deleteTerminal(request: Request, response: Response) {
     try {
         const data = await TerminalModel.deleteOne({
-            ...request.params.id,
+            _id: request.params.id,
+            //@ts-ignore
             organisationId: request.user._id
         });
 

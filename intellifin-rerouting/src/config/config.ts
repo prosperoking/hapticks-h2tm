@@ -22,6 +22,10 @@ export interface AppConfig {
     password: string,
     port: number,
     tls: boolean,
+  },
+  processorPrefixes: {
+    isw?: string,
+    hydrogen?: string,
   }
 }
 export default class Config {
@@ -49,6 +53,10 @@ export default class Config {
                 password: process.env.REDIS_PASSWORD || '',
                 port: Number.parseInt(process.env.REDIS_PORT) || 6379,
                 tls: [1,'1','true',true].includes(process.env.REDIS_TLS) || false,
+              },
+              processorPrefixes: {
+                isw: process.env.ISW_TID_PREFIX,
+                hydrogen: process.env.HYDROGEN_TID_PREFIX
               }
             };
         }
