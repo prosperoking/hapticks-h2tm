@@ -282,7 +282,7 @@ export default class TerminalController {
                 limit: Number.parseInt(`${limit}`) || 30,
                 page: Number.parseInt(`${page}`) || 1,
                 sort:{
-                    updatedAt: 1,
+                    _id: -1,
                 }
             });
             response.json({data, count: data.length})

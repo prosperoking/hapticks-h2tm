@@ -56,6 +56,7 @@ const UserSchema = new Schema<IUserData>({
     organisation_id: {
         default: null,
         type: SchemaTypes.ObjectId,
+        index: true,
     },
     role: {
         type: SchemaTypes.String,

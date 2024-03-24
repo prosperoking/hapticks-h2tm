@@ -162,6 +162,7 @@ const terminalSchema = new mongoose.Schema<ITerminal>(
     profileId: {
       type: SchemaTypes.ObjectId,
       ref: PTSPProfileModel,
+      index: true,
     },
     terminalGroupId: {
       type: SchemaTypes.ObjectId,
@@ -171,6 +172,7 @@ const terminalSchema = new mongoose.Schema<ITerminal>(
     organisationId: {
       type: SchemaTypes.ObjectId,
       ref: OrganisationModel,
+      index: true,
     },
     brand: {
       type: String,
@@ -192,7 +194,6 @@ const terminalSchema = new mongoose.Schema<ITerminal>(
       default: null,
       index:{
         unique: true,
-        sparse: true,
         partialFilterExpression: {
           iswTid: {$type: "string"}
         }
@@ -210,7 +211,6 @@ const terminalSchema = new mongoose.Schema<ITerminal>(
       default: null,
       index:{
         unique: true,
-        sparse: true,
         partialFilterExpression: {
           iswUniqueId: {$type: "string"}
         }
@@ -228,7 +228,6 @@ const terminalSchema = new mongoose.Schema<ITerminal>(
       default: null,
       index:{
         unique: true,
-        sparse: true,
         partialFilterExpression: {
           threeLineTid: {$type: "string"}
         }
@@ -244,7 +243,6 @@ const terminalSchema = new mongoose.Schema<ITerminal>(
       default: null,
       index:{
         unique: true,
-        sparse: true,
         partialFilterExpression: {
           hydrogenTID: {$type: "string"}
         }
@@ -256,7 +254,6 @@ const terminalSchema = new mongoose.Schema<ITerminal>(
       default: null,
       index:{
         unique: true,
-        sparse: true,
         partialFilterExpression: {
           iswISOTID: {$type: "string"}
         }

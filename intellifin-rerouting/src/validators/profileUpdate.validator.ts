@@ -162,7 +162,9 @@ const profileUpdateValidator = createValidatedRequest(checkSchema({
     },
     "iswISOConfig.host":{
         in: ["body"],
-        isIP: true,
+        isIP: {
+            if: body("iswISOConfig").exists({ checkNull: false })
+        },
         exists: {
             if: body("iswISOConfig").exists({ checkNull: false })
         }

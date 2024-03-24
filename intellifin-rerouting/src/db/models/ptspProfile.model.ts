@@ -17,6 +17,7 @@ export interface IPTSPProfileData {
     iswInstitutionCode?: string,
     iswDestinationAccount?: string,
     organisationId?: string | any,
+    linkedProfileId: mongoose.ObjectId | null,
     threeLineKey?: string,
     threeLineHost?: string,
     threeLinePort?: string,
@@ -29,6 +30,7 @@ export interface IPTSPProfileData {
     blueSaltEnv: "staging" | "live"  | null,
     hydrogenEnabled: boolean,
     iswISOEnabled: boolean,
+    linkedProfile?: IPTSPProfileData,
     iswISOConfig?: {
         zmk: string,
         host: string,
@@ -43,7 +45,6 @@ export interface IPTSPProfileData {
         oRid: string,
         settlementAccount: string
         kcv: string | null,
-        tidPrefix: string,
     }
     hydrogenConfig?: {
         zmk: string,
@@ -57,12 +58,13 @@ export interface IPTSPProfileData {
         mid: string,
         acqId: string,
         tidPrefix: string,
-    }
+    },
     processorSettings?: {
         minAmount: number,
         maxAmount: number,
         processor: 'nibss' | 'kimono' | 'bluesalt' | '3line' | 'isw' | 'hydrogen',
-    }[]
+    }[],
+    isLinked: boolean,
 }
 
 export interface IPTSPProfile extends Document, IPTSPProfileData { }
@@ -71,6 +73,8 @@ const ptspProfileSchema = new mongoose.Schema<IPTSPProfileData>({
     title: {
         type: String,
         unique: true,
+        required: true,
+        set: (value: string)=>value.toUpperCase()
     },
     isoHost: {
         type: String,
@@ -159,7 +163,6 @@ const ptspProfileSchema = new mongoose.Schema<IPTSPProfileData>({
         default: null,
     },
     iswISOConfig: {
-
         zmk: {
             type: String,
             set: (value: string)=> (value !== null && value?.length) ? encrypt(value) : null,
@@ -267,7 +270,11 @@ const ptspProfileSchema = new mongoose.Schema<IPTSPProfileData>({
             minlength: 4
         },
     },
-    processorSettings: [SchemaTypes.Mixed]
+    processorSettings: [SchemaTypes.Mixed],
+    linkedProfileId: {
+        type: SchemaTypes.ObjectId,
+        default: null
+    }
 }, {
     timestamps: true,
     toJSON: {
@@ -315,12 +322,23 @@ ptspProfileSchema.virtual('webhook', {
     justOne: true,
 });
 
+ptspProfileSchema.virtual('linkedProfile', {
+    ref: 'ptspProfile',
+    localField: 'linkedProfileId',
+    foreignField: '_id',
+    justOne: true,
+});
+
 ptspProfileSchema.virtual('iswISOEnabled').get(function(){
-    return this.iswISOConfig?.host !== null
+    return this.iswISOConfig?.host?.length > 0
 })
 
 ptspProfileSchema.virtual('hydrogenEnabled').get(function(){
-    return this.iswISOConfig?.host !== null
+    return this.iswISOConfig?.host?.length > 0
+})
+
+ptspProfileSchema.virtual('isLinked').get(function(){
+    return this.linkedProfileId !== null
 })
 
 

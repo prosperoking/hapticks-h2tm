@@ -40,7 +40,8 @@ const groupTidUpdateValidator = createValidatedRequest(checkSchema({
         notEmpty: true,
         custom: {
             options: async (terminalId: string, {req, location, path}) =>{
-                if(await Terminal.findOne({terminalId: terminalId})) return Promise.reject();
+                const terminal = await Terminal.findOne({terminalId: terminalId});
+                if(terminal && terminal.id !== req.params.id) return Promise.reject();
             },
             errorMessage: "Terminal",
         }

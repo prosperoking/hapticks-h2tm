@@ -86,6 +86,14 @@ groupTidSchema.virtual("profile", {
     justOne: true,
 });
 
+groupTidSchema.virtual("terminals_count", {
+  ref: 'terminal',
+  localField: '_id',
+  foreignField: 'terminalGroupId',
+  count: true,
+});
+
+
 groupTidSchema.virtual("organisation", {
     ref: "organisationProfile",
     localField: "organisationId",

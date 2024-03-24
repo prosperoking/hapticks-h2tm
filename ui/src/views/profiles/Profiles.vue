@@ -57,6 +57,13 @@
               <tr v-for="(profile) in state.docs" :key="profile._id">
                 <td class="px-5 py-5 text-sm bg-white border-b border-gray-200">
                   <div class="flex items-end">
+                    <div class="ml-3" v-if="profile.isLinked" title="This profile is linked to another profile. Click to unlink">
+                      <button v-can="'profiles.uodate'" class="text-gray-400 hover:text-gray-700" @click="confirmProfileUnlink(profile)">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
+                        </svg>
+                      </button>
+                    </div>
                     <div class="ml-3 mr-2">
                       <span class="text-gray-900 whitespace-nowrap">
                         {{ profile.title }}
@@ -125,17 +132,22 @@
                         d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
                     </svg>
                   </button>
-                  <button v-can="'profiles.delete'" class="text-gray-500 hover:text-gray-800" @click="confirmProfileDelete(profile)">
+                  <button v-can="'profiles.delete'" class="text-red-500 hover:text-red-800" @click="confirmProfileDelete(profile)">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                       stroke="currentColor" class="w-5 h-5">
                       <path stroke-linecap="round" stroke-linejoin="round"
                         d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
                     </svg>
                   </button>
+                  <button title="clone" v-can="'profiles.create'" class="text-gray-500 hover:text-gray-800" @click="openCloneModal(profile)">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M11.35 3.836c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m8.9-4.414c.376.023.75.05 1.124.08 1.131.094 1.976 1.057 1.976 2.192V16.5A2.25 2.25 0 0 1 18 18.75h-2.25m-7.5-10.5H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V18.75m-7.5-10.5h6.375c.621 0 1.125.504 1.125 1.125v9.375m-8.25-3 1.5 1.5 3-3.75" />
+                    </svg>
+                  </button>
                   <RotateZpk
                      :key="profile?._id"
                      :profile="profile"
-                     v-if="profile.iswISOConfig?.host?.length || profile.hydrogenConfig?.host?.length"
+                     v-if="(profile.iswISOConfig?.host?.length || profile.hydrogenConfig?.host?.length) && !profiel.isLinked"
                      v-slot="actions">
                     <button v-can="'profiles.rotate-key'" class="w-5 h-5 text-green-500 hover:text-green-800" title="Rotate zpk" @click="actions.show" >
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
@@ -497,8 +509,59 @@
     </div>
   </div>
 
+  <div :class="`modal ${!cloneProfileState.formOpen && 'opacity-0 pointer-events-none'
+    } z-50 fixed w-full h-full top-0 left-0 flex items-center justify-center`">
+    <div class="absolute w-full h-full bg-gray-900 opacity-50 modal-overlay"></div>
+
+    <div class="z-50 w-full mx-auto overflow-y-auto bg-white rounded shadow-lg modal-container md:max-w-md">
+      <div @click="closeCloneModal"
+        class="absolute top-0 right-0 z-50 flex flex-col items-center mt-4 mr-4 text-sm text-white cursor-pointer modal-close">
+        <svg class="text-white fill-current" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+          viewBox="0 0 18 18">
+          <path
+            d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z" />
+        </svg>
+        <span class="text-sm">(Esc)</span>
+      </div>
+      <!-- Add margin if you want to see some of the overlay behind the modal-->
+      <div class="px-6 py-4 text-left modal-content">
+        <!--Title-->
+        <div class="flex items-center justify-between pb-3">
+          <p class="text-2xl font-bold">Clone this profile <span> {{cloneProfileState.profile?.title}} </span> </p>
+          <div class="z-50 cursor-pointer modal-close" @click="closeCloneModal">
+            <svg class="text-black fill-current" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+              viewBox="0 0 18 18">
+              <path
+                d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z" />
+            </svg>
+          </div>
+        </div>
+
+        <!--Body-->
+        <div class="flex flex-col">
+          <div>
+            <Input title="Title" v-model:value="cloneProfileState.title" />
+          </div>
+        </div>
+        <!--Footer-->
+        <div class="flex justify-end py-2">
+            <button :disabled="loading" @click="closeCloneModal"
+              class="p-3 px-6 py-3 mr-2 text-indigo-500 bg-transparent rounded-lg disabled:pointer-events-none hover:bg-gray-100 hover:text-indigo-400 focus:outline-none">
+              Close
+            </button>
+            <button :disabled="loading || !cloneProfileState.title?.length" @click="cloneProfile"
+              class="px-6 py-3 font-medium tracking-wide text-white bg-indigo-600 rounded-md disabled:opacity-25 disabled:pointer-events-none hover:bg-indigo-500 focus:outline-none">
+              save
+            </button>
+          </div>
+      </div>
+    </div>
+  </div>
+
   <ConfirmDialog v-model:value="confirmDelete.open" :title="confirmDelete.title" :confirm="confirmDelete.value"
     :message="confirmDelete.message" @accepted="deleteProfile" />
+  <ConfirmDialog key="unlink-confirm" v-model:value="confirmUnlink.open" :title="confirmUnlink.title" :confirm="confirmUnlink.value"
+    :message="confirmUnlink.message" @accepted="unLinkProfile" />
 </template>
 
 <script lang="ts" setup>
@@ -555,8 +618,9 @@ export interface Profile {
   threeLinePort?: string | null,
   threeLineHostSSL?: boolean | null,
   hasthreelineSupport: boolean | null,
-  hydrogenEnabled: boolean,
-  iswISOEnabled: boolean,
+  hydrogenEnabled?: boolean,
+  iswISOEnabled?: boolean,
+  isLinked?: boolean,
   iswISOConfig?: {
         zmk: string,
         host: string,
@@ -613,7 +677,21 @@ let defaultDeleteState: { [key: string]: any, id: string | null } = {
   value: '',
   id: null,
 }
+
+let defaultUnlinkState: { [key: string]: any, id: string | null } = {
+  open: false,
+  title: "You want really want to from parent?",
+  value: '',
+  id: null,
+}
+const cloneProfileState = ref<{formOpen: boolean, profile: Profile | null, title: string | null}>({
+  formOpen: false,
+  profile: null,
+  title: null,
+});
+
 const confirmDelete = ref(defaultDeleteState)
+const confirmUnlink = ref(defaultUnlinkState)
 const defualtState: Profile = {
   title: '',
   isoHost: '',
@@ -713,7 +791,7 @@ const gotoPage = (page?: number) => {
 }
 const editProfile = (value: Profile) => {
   open.value = true;
-  if(value.iswISOEnabled) {
+  if(value.iswISOEnabled === true) {
     enableISWISO.value = true
   }
   if(value.hydrogenEnabled) {
@@ -738,6 +816,79 @@ const confirmProfileDelete = (profile: Profile) => {
   }
 }
 
+const confirmProfileUnlink = (profile: Profile) => {
+  confirmUnlink.value = {
+    ...confirmUnlink.value,
+    open: true,
+    value: profile.title,
+    id: profile._id || null,
+    message: `To Unlink this profile confirm by typing: ${profile.title}`
+  }
+}
+
+const openCloneModal = (profile: Profile) => {
+  cloneProfileState.value = {
+      formOpen: true,
+      profile,
+      title: null,
+  }
+}
+
+const cloneProfile = async () => {
+  try {
+    const { data } = await $axios.post('/dashboard/profiles/clone',{
+      title:  cloneProfileState.value.title,
+      profileId:  cloneProfileState.value.profile?._id,
+    })
+    notify({
+      text: "Profile Clone",
+      title: "Profile has been cloned successfully",
+      type: "success"
+    })
+    closeCloneModal()
+    fetchData();
+  } catch (error) {
+    console.log(error)
+    notify({
+      text: "Profile Clone",
+      title: "Profile cloning failed",
+      type: "error"
+    })
+  }
+}
+
+const closeCloneModal = ()=>{
+  cloneProfileState.value = {
+      formOpen: false,
+      profile: null,
+      title: null,
+    }
+}
+
+const unLinkProfile = async (confirm: boolean) => {
+  if (!confirm) {
+    confirmUnlink.value = { ...confirmUnlink.value, ...defaultUnlinkState }
+    return;
+  };
+  try {
+    const { data } = await $axios.put(`/dashboard/profiles/unlink/${confirmUnlink.value.id}`)
+    notify({
+      text: "Profile Unlink",
+      title: "Profile has been unlinked successfully",
+      type: "success"
+    })
+    fetchData();
+  } catch (error) {
+    console.log(error)
+    notify({
+      text: "Profile Unlink",
+      title: "Profile Unlinking failed",
+      type: "error"
+    })
+  }
+
+}
+
 const deleteProfile = async (confirm: boolean) => {
   if (!confirm) {
     confirmDelete.value = { ...confirmDelete.value, ...defaultDeleteState }
@@ -751,8 +902,14 @@ const deleteProfile = async (confirm: boolean) => {
       type: "success"
     })
     fetchData();
+    confirmDelete.value = { ...confirmDelete.value, ...defaultDeleteState }
   } catch (error) {
     console.log(error)
+    notify({
+      text: "Profile Delete",
+      title: "Profile deleting failed",
+      type: "error"
+    })
   }
 }
 

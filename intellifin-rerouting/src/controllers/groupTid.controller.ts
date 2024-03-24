@@ -28,7 +28,8 @@ export default class GroupTidController {
             const data = await GroupTid.paginate(filter,{
                 populate: [
                     {path: 'profile', select:'title iswSwitchAmount'},
-                    {path: 'organisation', select:'name'}
+                    {path: 'organisation', select:'name'},
+                    {path: 'terminals_count'}
                 ],
                 limit: Number.parseInt(`${limit}`) || 30,
                 page: Number.parseInt(`${page}`) || 1,
@@ -89,7 +90,7 @@ export default class GroupTidController {
             console.log(request.body)
 
             const data = await groupTId.update(pick(request.body,[
-
+                "profileId",
                 "terminalId",
                 "iswISOTID",
                 "hydrogenTID",

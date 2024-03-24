@@ -94,7 +94,7 @@ const terminalBulkUploadValidator = createValidatedRequest(
             return false;
           }
         },
-        errorMessage: "threelineTid Id already exists",
+        errorMessage: "threelineTid already exists",
       },
     },
 

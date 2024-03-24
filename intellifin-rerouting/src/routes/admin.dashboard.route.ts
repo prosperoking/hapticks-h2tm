@@ -9,6 +9,7 @@ import webHookUpdateValidator from '../validators/webhookUpdate.validator';
 import terminalCreateValidator from '../validators/terminalCreate.validator';
 import groupTidCreateValidator from '../validators/grouptid.create.validator';
 import groupTidUpdateValidator from '../validators/grouptid.update.validator';
+import profileCreateValidator from '../validators/profileCreate.validator';
 
 import {
     authController,
@@ -64,11 +65,22 @@ router.post(
 
 router.post('/profiles',[
     hasRoleOrPermissions(['admin'],['profiles.create']),
+    ... profileCreateValidator,
 ], profileController.create)
+
+router.post('/profiles/clone',[
+    hasRoleOrPermissions(['admin'],['profiles.create']),
+], profileController.cloneProfile)
+
+
 router.put('/profiles/:id', [
     hasRoleOrPermissions(['admin'],['profiles.update']),
     ... profileUpdateValidator
 ], profileController.edit)
+
+router.put('/profiles/unlink/:id', [
+    hasRoleOrPermissions(['admin'],['profiles.update']),
+], profileController.unlink)
 
 router.delete('/profiles/:id', [
     hasRoleOrPermissions(['admin'],['profiles.delete']),

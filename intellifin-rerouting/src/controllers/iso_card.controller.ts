@@ -691,8 +691,10 @@ class IsoCardContoller {
         return response
           .status(404)
           .json({ message: "Terminal not found/ Provisioned" });
-
+      terminal.appVersion = appVersion;
+      await terminal.save().catch(console.log);
       const { componentKey1, isoHost, isoPort, isSSL, type } = terminal.profile;
+
       if(terminal.usingGroupedTid) {
         terminal = IsoCardContoller.patchTerminalWithGroupValues(terminal)
        }
@@ -700,6 +702,7 @@ class IsoCardContoller {
         ...body,
         component: componentKey1,
         ip: isoHost,
+        host: isoHost,
         ssl: String(isSSL),
         port: isoPort,
         clrsesskey: terminal.clrsesskey,
@@ -723,8 +726,6 @@ class IsoCardContoller {
 
       const { data } = socketResponse;
       const responseData = data.data || data;
-      terminal.appVersion = appVersion;
-      terminal.save();
 
       return response.json({
         ...socketResponse,

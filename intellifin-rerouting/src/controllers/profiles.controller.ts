@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import PTSPProfileModel from '../db/models/ptspProfile.model';
 import {pick,} from "lodash"
 import { sendSocketMessage, TransactionTypes } from '../helpers/cardsockethelper';
+import Terminal from '../db/models/terminal.model';
 export default class ProfileController {
     public async create(request: Request, response: Response) {
         try {
@@ -48,7 +49,10 @@ export default class ProfileController {
             const profile = await PTSPProfileModel.findById(request.params?.id);
 
             if(!profile) return response.status(404).json({message: "Profile not found"});
-            const data = await profile.update(pick(request.body,[
+            let {body} = request;
+            body.iswISOConfig = body.iswISOConfig === undefined?null: body.iswISOConfig
+            body.hydrogenConfig = body.hydrogenConfig === undefined?null: body.hydrogenConfig
+            const data = await profile.update(pick(body,[
                 "title",
                 "isoHost",
                 "isoPort",
@@ -76,8 +80,6 @@ export default class ProfileController {
                 "iswISOConfig",
                 "hydrogenConfig",
             ]));
-
-
             response.json({status: true, data})
         } catch (error) {
             console.log(error)
@@ -91,6 +93,10 @@ export default class ProfileController {
 
             if(!profile) return response.status(404).json({message: "Profile not found"});
 
+            const inUse = await Terminal.countDocuments({profileId: profile._id});
+
+            if(inUse > 0) return response.status(400).json({message: "Profile in use."});
+            profile.deleteOne()
             response.json({status: true,data: {_id: profile.id}, message: "Profile deleted successfully"})
         } catch (error) {
             console.log(error)
@@ -103,7 +109,7 @@ export default class ProfileController {
             const profile = await PTSPProfileModel.findById(request.params?.id);
 
             if(!profile) return response.status(404).json({message: "Profile not found"});
-
+            if(profile.linkedProfileId !== null) return response.status(422).json({message: "Sorry you can't rotate keys on a linked profile"})
             const type = request.body.type;
 
             const details:[TransactionTypes, object] = {
@@ -132,6 +138,10 @@ export default class ProfileController {
             profile[type == 'isw'?'iswISOConfig':'hydrogenConfig'].lastRotate = new Date()
             profile[type == 'isw'?'iswISOConfig':'hydrogenConfig'].kcv = result.data.kcv
             profile.save()
+            PTSPProfileModel.updateMany({linkedProfileId: profile._id},{$set:{
+                iswISOConfig: profile.iswISOConfig,
+                hydrogenConfig: profile.hydrogenConfig
+            }});
 
             return response.json({
                 status: true,
@@ -146,4 +156,45 @@ export default class ProfileController {
         }
     }
 
+    public async cloneProfile(request: Request, response: Response){
+        try {
+            const profile = await PTSPProfileModel.findById(request.body?.profileId);
+            if(!profile) return response.status(404).json({message: "Profile not found"});
+            let oldData = JSON.parse(JSON.stringify(profile));
+            delete oldData._id;
+            delete oldData.id;
+            delete oldData.__v;
+            console.log("old data: ", oldData);
+            const newProfile = new PTSPProfileModel({
+                ...oldData,
+                title: request.body.title,
+                linkedProfileId: request.body.profileId,
+            });
+            newProfile.save();
+
+            return response.json({message: "Profile cloned"})
+        } catch (error) {
+            console.trace(error);
+            response.json({
+                status: false,
+                message: "Something went wrong"
+             })
+        }
+    }
+
+    public async unlink(request: Request, response: Response){
+        try {
+            const profile = await PTSPProfileModel.findById(request.params?.id);
+            if(!profile) return response.status(404).json({message: "Profile not found"});
+            profile.linkedProfileId = null;
+            await profile.save();
+            return response.json({message: "Profile Unlinked"})
+        } catch (error) {
+            console.trace(error);
+            response.json({
+                status: false,
+                message: "Something went wrong"
+             })
+        }
+    }
 }
