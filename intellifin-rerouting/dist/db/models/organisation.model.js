@@ -35,10 +35,19 @@ const orgSchema = new mongoose.Schema({
         unique: true,
         set: (value) => String(value).toUpperCase(),
     },
+    apiKey: {
+        type: String,
+        select: false,
+        default: null,
+    }
 }, {
-    timestamps: true, toJSON: {
+    timestamps: true,
+    toJSON: {
         virtuals: true
     }
+});
+orgSchema.virtual('hasApiKey').get(function () {
+    return this.apiKey !== null;
 });
 orgSchema.virtual('terminals', {
     ref: 'terminal',

@@ -34,6 +34,8 @@ const ptspProfileSchema = new mongoose.Schema({
     title: {
         type: String,
         unique: true,
+        required: true,
+        set: (value) => value.toUpperCase()
     },
     isoHost: {
         type: String,
@@ -121,13 +123,170 @@ const ptspProfileSchema = new mongoose.Schema({
         type: String,
         default: null,
     },
-    processorSettings: [mongoose_1.SchemaTypes.Mixed]
+    iswISOConfig: {
+        zmk: {
+            type: String,
+            set: (value) => (value !== null && (value === null || value === void 0 ? void 0 : value.length)) ? (0, crypt_1.encrypt)(value) : null,
+            get: (value) => (value !== null && (value === null || value === void 0 ? void 0 : value.length)) ? (0, crypt_1.decrypt)(value) : null,
+        },
+        host: {
+            type: String,
+        },
+        port: {
+            type: Number,
+        },
+        ssl: {
+            type: Boolean,
+        },
+        zpk: {
+            type: String,
+            default: null,
+            set: (value) => (value !== null && (value === null || value === void 0 ? void 0 : value.length)) ? (0, crypt_1.encrypt)(value) : null,
+            get: (value) => (value !== null && (value === null || value === void 0 ? void 0 : value.length)) ? (0, crypt_1.decrypt)(value) : null,
+        },
+        lastRotate: {
+            type: Date,
+            default: null
+        },
+        mid: {
+            type: String,
+        },
+        ett: {
+            type: String,
+        },
+        mcc: {
+            type: String,
+        },
+        kcv: {
+            type: String,
+            default: null,
+        },
+        rid: {
+            type: String,
+            default: null,
+            set: (value) => (value !== null && (value === null || value === void 0 ? void 0 : value.length)) ? (0, crypt_1.encrypt)(value) : null,
+            get: (value) => (value !== null && (value === null || value === void 0 ? void 0 : value.length)) ? (0, crypt_1.decrypt)(value) : null,
+        },
+        oRid: {
+            type: String,
+            default: null,
+            set: (value) => (value !== null && (value === null || value === void 0 ? void 0 : value.length)) ? (0, crypt_1.encrypt)(value) : null,
+            get: (value) => (value !== null && (value === null || value === void 0 ? void 0 : value.length)) ? (0, crypt_1.decrypt)(value) : null,
+        },
+        settlementAccount: {
+            type: String,
+            default: null,
+            set: (value) => (value !== null && (value === null || value === void 0 ? void 0 : value.length)) ? (0, crypt_1.encrypt)(value) : null,
+            get: (value) => (value !== null && (value === null || value === void 0 ? void 0 : value.length)) ? (0, crypt_1.decrypt)(value) : null,
+        },
+        tidPrefix: {
+            type: String,
+            default: null,
+            maxlength: 4,
+            minlength: 4
+        },
+    },
+    hydrogenConfig: {
+        zmk: {
+            type: String,
+            set: (value) => (value !== null && (value === null || value === void 0 ? void 0 : value.length)) ? (0, crypt_1.encrypt)(value) : null,
+            get: (value) => (value !== null && (value === null || value === void 0 ? void 0 : value.length)) ? (0, crypt_1.decrypt)(value) : null,
+        },
+        host: {
+            type: String,
+        },
+        port: {
+            type: Number,
+        },
+        ssl: {
+            type: Boolean,
+        },
+        zpk: {
+            type: String,
+            default: null,
+            set: (value) => (value !== null && (value === null || value === void 0 ? void 0 : value.length)) ? (0, crypt_1.encrypt)(value) : null,
+            get: (value) => (value !== null && (value === null || value === void 0 ? void 0 : value.length)) ? (0, crypt_1.decrypt)(value) : null,
+        },
+        kcv: {
+            type: String,
+            default: null,
+        },
+        lastRotate: {
+            type: Date,
+            default: null
+        },
+        mid: {
+            type: String,
+        },
+        mcc: {
+            type: Number,
+        },
+        acqId: {
+            type: String,
+        },
+        tidPrefix: {
+            type: String,
+            default: null,
+            maxlength: 4,
+            minlength: 4
+        },
+    },
+    habariConfig: {
+        zmk: {
+            type: String,
+            set: (value) => (value !== null && (value === null || value === void 0 ? void 0 : value.length)) ? (0, crypt_1.encrypt)(value) : null,
+            get: (value) => (value !== null && (value === null || value === void 0 ? void 0 : value.length)) ? (0, crypt_1.decrypt)(value) : null,
+        },
+        host: {
+            type: String,
+        },
+        port: {
+            type: Number,
+        },
+        ssl: {
+            type: Boolean,
+        },
+        zpk: {
+            type: String,
+            default: null,
+            set: (value) => (value !== null && (value === null || value === void 0 ? void 0 : value.length)) ? (0, crypt_1.encrypt)(value) : null,
+            get: (value) => (value !== null && (value === null || value === void 0 ? void 0 : value.length)) ? (0, crypt_1.decrypt)(value) : null,
+        },
+        kcv: {
+            type: String,
+            default: null,
+        },
+        lastRotate: {
+            type: Date,
+            default: null
+        },
+        mid: {
+            type: String,
+        },
+        mcc: {
+            type: Number,
+        },
+        acqId: {
+            type: String,
+        },
+        tidPrefix: {
+            type: String,
+            default: null,
+            maxlength: 4,
+            minlength: 4
+        },
+    },
+    processorSettings: [mongoose_1.SchemaTypes.Mixed],
+    linkedProfileId: {
+        type: mongoose_1.SchemaTypes.ObjectId,
+        default: null
+    }
 }, {
     timestamps: true,
     toJSON: {
         virtuals: true,
         getters: true,
-    }
+    },
 });
 ptspProfileSchema.virtual('terminals', {
     ref: 'terminal',
@@ -154,6 +313,27 @@ ptspProfileSchema.virtual('webhook', {
     localField: 'webhookId',
     foreignField: '_id',
     justOne: true,
+});
+ptspProfileSchema.virtual('linkedProfile', {
+    ref: 'ptspProfile',
+    localField: 'linkedProfileId',
+    foreignField: '_id',
+    justOne: true,
+});
+ptspProfileSchema.virtual('iswISOEnabled').get(function () {
+    var _a, _b;
+    return ((_b = (_a = this.iswISOConfig) === null || _a === void 0 ? void 0 : _a.host) === null || _b === void 0 ? void 0 : _b.length) > 0;
+});
+ptspProfileSchema.virtual('hydrogenEnabled').get(function () {
+    var _a, _b;
+    return ((_b = (_a = this.hydrogenConfig) === null || _a === void 0 ? void 0 : _a.host) === null || _b === void 0 ? void 0 : _b.length) > 0;
+});
+ptspProfileSchema.virtual('habariEnabled').get(function () {
+    var _a, _b;
+    return ((_b = (_a = this.habariConfig) === null || _a === void 0 ? void 0 : _a.host) === null || _b === void 0 ? void 0 : _b.length) > 0;
+});
+ptspProfileSchema.virtual('isLinked').get(function () {
+    return this.linkedProfileId !== null;
 });
 ptspProfileSchema.virtual('blueSaltUrl').get(function () {
     return this.blueSaltEnv === 'staging' ? 'https://dev-wallets.bluesalt.net' : undefined;

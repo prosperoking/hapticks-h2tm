@@ -6,6 +6,8 @@ import Inquirer from 'inquirer'
 import User from '../db/models/user.model';
 import Terminal from '../db/models/terminal.model';
 import { getAvailableTid } from '../helpers/appUtils';
+import Profile from '../db/models/ptspProfile.model';
+import { RotateKeys } from '../queue/queue';
 const config = new Config();
 const dbConfig = config.getConfig(process.env.NODE_ENV);
 
@@ -165,5 +167,60 @@ cli.command("tid")
         });
     })
 
+cli.command("rotate-keys")
+    .description("rotate keys for specified profile and processor")
+    .action(async (str, opt) => {
+        await connectDatabase();
+
+        const {profileId, processor} = await Inquirer.prompt([
+            {
+                'type': 'input',
+                'name':'profileId',
+                validate: (value)=>{
+                    return value? true : 'Profile ID is required';
+                },
+                message:'Profile ID',
+            },
+            {
+                type: "list",
+                name:"processor",
+                choices:[
+                    "isw",
+                    "hydrogen",
+                    "habari",
+                ],
+                message:"Processor"
+            }
+        ])
+        let profile = null;
+        try {
+            profile = await Profile.findOne({
+                _id: profileId,
+                linkedProfile: null
+            })
+
+        } catch (error) {
+            console.log(error.message)
+            process.exit(0)
+            return;
+        }
+        if(!profile) {
+            console.log("Profile not found or not supported")
+            return process.exit(0)
+        }
+        const removed = await RotateKeys.remove(profileId);
+        console.log("Removed jobs: ", removed)
+        RotateKeys.add("rotateKeys",{
+            id: profileId,
+            type: processor,
+        },{
+            repeat: {
+                cron: '0 0 * * *'
+            },
+            jobId: profileId,
+        })
+        console.log("Scheduled rotation")
+        process.exit(0)
+    })
 
 cli.parse();

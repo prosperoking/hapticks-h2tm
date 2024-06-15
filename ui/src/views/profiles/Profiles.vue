@@ -112,6 +112,9 @@
                   <p v-if="profile?.webhook" class="text-gray-900 whitespace-nowrap">
                     Webhook: {{ profile.webhook?.name }}
                   </p>
+                  <p v-if="profile?.iswISOConfig?.zpk?.length" class="text-gray-900 whitespace-nowrap">
+                    KCV: {{ profile?.iswISOConfig?.kcv }}
+                  </p>
                 </td>
                 <td class="px-5 py-5 text-sm bg-white border-b border-gray-200">
                   <p class="text-gray-900 whitespace-nowrap">
@@ -147,7 +150,7 @@
                   <RotateZpk
                      :key="profile?._id"
                      :profile="profile"
-                     v-if="(profile.iswISOConfig?.host?.length || profile.hydrogenConfig?.host?.length) && !profiel.isLinked"
+                     v-if="(profile.iswISOConfig?.host?.length || profile.hydrogenConfig?.host?.length) && !profile.isLinked"
                      v-slot="actions">
                     <button v-can="'profiles.rotate-key'" class="w-5 h-5 text-green-500 hover:text-green-800" title="Rotate zpk" @click="actions.show" >
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
@@ -211,7 +214,7 @@
       <div class="px-6 py-4 text-left modal-content">
         <!--Title-->
         <div class="flex items-center justify-between pb-3">
-          <p class="text-2xl font-bold">Add Profile</p>
+          <p class="text-2xl text-gray-700 font-bold">{{form.id?.length? "Update Profile":"Add Profile"}}</p>
           <div class="z-50 cursor-pointer modal-close" @click="open = false">
             <svg class="text-black fill-current" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
               viewBox="0 0 18 18">
@@ -391,6 +394,9 @@
               <div>
                 <Input title="Settlment Account" v-model:value="form.iswISOConfig.settlementAccount" type="number" />
               </div>
+              <div v-if="form?.id?.length">
+                <Input title="ZPK" v-model:value="form.iswISOConfig.zpk" max-length="32" />
+              </div>
             </DisclosurePanel>
           </Disclosure>
 
@@ -422,9 +428,48 @@
               <div>
               <Input title="MCC" v-model:value="form.hydrogenConfig.mcc" type="number" />
               </div>
-
+              <div v-if="form?._id.length">
+                <Input title="ZPK" v-model:value="form.hydrogenConfig.zpk" max-length="32" />
+              </div>
               <div>
                 <Input title="Acquirer ID" v-model:value="form.hydrogenConfig.acqId" type="number" />
+              </div>
+            </DisclosurePanel>
+          </Disclosure>
+
+          <div>
+            <Input title="Enable Habari" type="checkbox" v-model:value="enableHabari"  />
+          </div>
+
+          <Disclosure v-if="enableHabari" as="div" v-slot="{ open }" class="py-2 my-2">
+            <DisclosureButton class="flex justify-between w-full p-1 text-center text-white bg-gray-500 rounded">
+              <span>Habari Settings</span>
+              <ChevronUpIcon :class="open ? 'rotate-180 transform' : ''" class="w-5 h-5 text-white" />
+            </DisclosureButton>
+            <DisclosurePanel>
+              <div>
+                <Input title="Combined Key" v-model:value="form.habariConfig.zmk" />
+              </div>
+              <div>
+                <Input title="Host IP" v-model:value="form.habariConfig.host" />
+              </div>
+              <div>
+                <Input title="Host PORT" v-model:value="form.habariConfig.port" />
+              </div>
+              <div>
+                <Input title="Is SSL" v-model:value="form.habariConfig.ssl" type="checkbox" />
+              </div>
+              <div>
+              <Input title="MID" v-model:value="form.habariConfig.mid" type="text" />
+              </div>
+              <div>
+              <Input title="MCC" v-model:value="form.habariConfig.mcc" type="number" />
+              </div>
+              <div v-if="form?._id.length">
+                <Input title="ZPK" v-model:value="form.habariConfig.zpk" max-length="32" />
+              </div>
+              <div>
+                <Input title="Acquirer ID" v-model:value="form.habariConfig.acqId" type="number" />
               </div>
             </DisclosurePanel>
           </Disclosure>
@@ -446,6 +491,7 @@
                   <option value="bluesalt">BlueSalt</option>
                   <option value="isw">ISW</option>
                   <option value="hydrogen">Hydrogen</option>
+                  <option value="habari">Habari</option>
                   <option value="3line">3line</option>
                 </select>
                 <!-- <label class="block mb-2 text-sm font-bold text-gray-700" for="processor">Processor</label> -->
@@ -619,14 +665,17 @@ export interface Profile {
   threeLineHostSSL?: boolean | null,
   hasthreelineSupport: boolean | null,
   hydrogenEnabled?: boolean,
+  habariEnabled?: boolean,
   iswISOEnabled?: boolean,
   isLinked?: boolean,
+  linkedProfileId?: string,
   iswISOConfig?: {
         zmk: string,
         host: string,
         port: number,
         ssl: boolean,
         zpk: string | null,
+        kcv: string | null,
         lastRotate: Date | null,
         mid: string,
         ett: string,
@@ -641,6 +690,19 @@ export interface Profile {
       port: number,
       ssl: boolean,
       zpk: string | null,
+      kcv: string | null,
+      lastRotate: Date | null,
+      mcc: string,
+      mid: string,
+      acqId: string,
+  } | object
+  habariConfig?: {
+      zmk: string,
+      host: string,
+      port: number,
+      ssl: boolean,
+      zpk: string | null,
+      kcv: string | null,
       lastRotate: Date | null,
       mcc: string,
       mid: string,
@@ -649,7 +711,7 @@ export interface Profile {
 }
 
 type Band = {
-  processor: 'nibss' | 'kimono' | 'bluesalt' | '3line',
+  processor: 'nibss' | 'kimono' | 'bluesalt' | '3line' | 'hydrogen' | 'isw' | 'habari',
   minAmount: number,
   maxAmount: number,
 }
@@ -670,6 +732,7 @@ let state = ref<PaginatedData<Profile>>({
 
 let enableISWISO = ref(false)
 let enableHydrogen = ref(false)
+let enableHabari = ref(false)
 const loading = ref(false)
 let defaultDeleteState: { [key: string]: any, id: string | null } = {
   open: false,
@@ -715,9 +778,10 @@ const defualtState: Profile = {
   threeLineHost: null,
   threeLinePort: null,
   threeLineHostSSL: null,
-  hasthreelineSupport: true,
-  iswISOConfig: undefined,
-  hydrogenConfig: undefined
+  hasthreelineSupport: false,
+  iswISOConfig: {},
+  hydrogenConfig: {},
+  habariConfig: {},
 }
 
 const institutionCodes = [
@@ -727,6 +791,7 @@ const institutionCodes = [
   { title: "Unity bank", value: 639609 },
   { title: "Zenith", value: 627629 },
   { title: "Providus", value: 506146 },
+  { title: "GtBank", value: 506146 },
 ]
 
 const confirmType = (value: string) => ['generic', 'intelliffin'].includes(value) || 'Invalid type'
@@ -797,12 +862,18 @@ const editProfile = (value: Profile) => {
   if(value.hydrogenEnabled) {
     enableHydrogen.value = true
   }
+  if(value.habariEnabled) {
+    enableHabari.value = true
+  }
   form.value = {
     ...form.value,
     ...value,
     organisationId: value.organisationId,
     webhookId: value.webhookId,
     _id: value._id,
+    iswISOConfig: enableISWISO.value? {...form.value, ...value.iswISOConfig}: undefined,
+    hydrogenConfig: enableHydrogen.value? {...form.value,...value.hydrogenConfig}: undefined,
+    habariConfig: enableHabari.value? {...form.value,...value.habariConfig}: undefined,
   }
 }
 
@@ -913,12 +984,25 @@ const deleteProfile = async (confirm: boolean) => {
   }
 }
 
+const cleanUpProfile = ()=>{
+  if(!enableISWISO.value){
+    form.value.iswISOConfig = undefined
+  }
+  if(!enableHydrogen.value){
+    form.value.hydrogenConfig = undefined
+  }
+
+  if(!enableHabari.value){
+    form.value.habariConfig = undefined
+  }
+}
+
 const saveProfileForm = async () => {
   // @ts-ignore: Unreachable code error
   if (!await $v?.$valid)
     loading.value = true;
   try {
-    console.log(form.value._id)
+    cleanUpProfile();
     const { data } = await (
       !form.value._id?.length ? $axios.post('/dashboard/profiles', form.value) :
         $axios.put(
@@ -929,6 +1013,7 @@ const saveProfileForm = async () => {
     open.value = false;
     enableISWISO.value = false
     enableHydrogen.value = false
+    enableHabari.value = false
     fetchData()
   } catch (error: any) {
     notify({
@@ -954,6 +1039,10 @@ watch(query, (value, prev) => {
 
 watch(enableHydrogen, (value, prev)=>{
   form.value.hydrogenConfig = value?{...form.value.hydrogenConfig || {}}:undefined
+})
+
+watch(enableHabari, (value, prev)=>{
+  form.value.habariConfig = value?{...form.value.habariConfig || {}}:undefined
 })
 
 watch(enableISWISO, (value, prev)=>{

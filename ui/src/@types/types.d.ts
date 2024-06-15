@@ -30,6 +30,17 @@ export type Transaction = {
     totalTransTime?: number,
 }
 
+export type ProcessorStats = {
+    approved: number;
+    incorrectPin: number
+    insufficientFund: number
+    issuerInOperative: number;
+    noResponse: number;
+    others: number;
+    processor: string;
+    total: number;
+}
+
 export enum Processor {
     Nibss = "NIBSS",
     ISW = "ISW"

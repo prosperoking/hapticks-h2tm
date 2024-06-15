@@ -38,7 +38,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.authMiddleware = void 0;
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const express_session_1 = __importDefault(require("express-session"));
-const cookie_session_1 = __importDefault(require("cookie-session"));
 const passport_1 = __importDefault(require("passport"));
 const passport_local_1 = __importDefault(require("passport-local"));
 const passport_remember_me_1 = __importDefault(require("passport-remember-me"));
@@ -70,7 +69,6 @@ passport_1.default.use(new passport_local_1.default.Strategy(function (username,
 passport_1.default.use(new passport_remember_me_1.default.Strategy(function (token, done) {
     user_model_1.default.findOne({ rememberToken: (0, crypt_1.decrypt)(token) }).populate('organisation')
         .then(user => {
-        console.log("user: ", user);
         if (!user)
             return done(null, false);
         done(null, user);
@@ -84,7 +82,14 @@ passport_1.default.use(new passport_remember_me_1.default.Strategy(function (tok
         .catch(err => done(err));
 }));
 passport_1.default.serializeUser(function (user, done) {
-    done(null, { id: user.id });
+    var _a;
+    try {
+        done(null, { id: (_a = user === null || user === void 0 ? void 0 : user.id) !== null && _a !== void 0 ? _a : '' });
+    }
+    catch (error) {
+        console.trace(error);
+        done(error.message);
+    }
 });
 passport_1.default.deserializeUser(function (user, done) {
     user_model_1.default.findById(user.id).then(user => {
@@ -95,12 +100,12 @@ passport_1.default.deserializeUser(function (user, done) {
 });
 function applyAuthSetup(app) {
     app.use((0, cookie_parser_1.default)());
-    app.use((0, cookie_session_1.default)({
-        name: 'h2tm',
-        maxAge: 60 * 60 * 1000,
-        secret: process.env.APP_SECRET
-    }));
     app.use((0, express_session_1.default)({ secret: process.env.APP_SECRET, resave: true, saveUninitialized: false }));
+    // app.use(cookieSession({
+    //     name: 'h2tm',
+    //     maxAge: 60 * 60 * 1000,
+    //     secret: process.env.APP_SECRET
+    // }));
     app.use(passport_1.default.initialize());
     app.use(passport_1.default.session());
     app.use(passport_1.default.authenticate('remember-me'));

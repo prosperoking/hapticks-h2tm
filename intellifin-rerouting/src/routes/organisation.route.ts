@@ -44,7 +44,7 @@ router.get('/terminals/:id',  TerminalController.getById);
 router.get('/group-tids',  TerminalController.getGroupedTids);
 router.post('/terminals', [... terminalCreateValidator],  TerminalController.createTerminal);
 router.put('/terminals/:id', [... terminalUpdateValidator],  TerminalController.updateTermial);
-router.get('/terminals/:id',  TerminalController.deleteTerminal);
+router.delete('/terminals/:id',  TerminalController.deleteTerminal);
 
 // end terminals
 

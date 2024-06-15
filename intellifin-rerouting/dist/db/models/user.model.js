@@ -48,6 +48,7 @@ const UserSchema = new mongoose_1.Schema({
     organisation_id: {
         default: null,
         type: mongoose_1.SchemaTypes.ObjectId,
+        index: true,
     },
     role: {
         type: mongoose_1.SchemaTypes.String,

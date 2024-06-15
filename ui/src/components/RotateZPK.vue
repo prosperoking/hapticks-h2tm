@@ -39,13 +39,20 @@
                 <!--Body-->
                 <div class="grid grid-cols-3 gap-3">
                    <button
+                        v-if="profile.iswISOEnabled"
                         :disabled="rotating.has('isw')"
                         @click="rotateKPK('isw')"
                         class="text-red-600 px-3 py-2 border border-red-100  rounded shadow bg-white hover:shadow-sm disabled:bg-gray-200">ISW ZPK</button>
                    <button
+                        v-if="profile.hydrogenEnabled"
                         :disabled="rotating.has('hydrogen')"
                         @click="rotateKPK('hydrogen')"
                         class="text-orange-600 px-3 py-2 border border-orange-100  rounded shadow bg-white hover:shadow-sm disabled:bg-gray-200">Hydrogen ZPK</button>
+                    <button
+                        v-if="profile.habariEnabled"
+                        :disabled="rotating.has('habari')"
+                        @click="rotateKPK('habari')"
+                        class="text-orange-600 px-3 py-2 border border-orange-100  rounded shadow bg-white hover:shadow-sm disabled:bg-gray-200">Habari ZPK</button>
                 </div>
                 <!--Footer-->
                 <div class="flex justify-end pt-2">
@@ -72,7 +79,7 @@ type Props  = {
     profile: Profile
 }
 const {profile} = defineProps<Props>()
-const rotating = ref<Set<'isw'|'hydrogen'>>(new Set());
+const rotating = ref<Set<'isw'|'hydrogen'|'habari'>>(new Set());
 const show = ref<boolean>(false);
 const emmitter = defineEmits(['update:value', 'accepted']);
 const $axios: Axios = inject('$axios')
@@ -81,11 +88,16 @@ const toggleModal = (state: boolean) => {
     show.value = state
 }
 
-const rotateKPK = async (type: 'isw'| 'hydrogen')=> {
+const rotateKPK = async (type: 'isw'| 'hydrogen'| 'habari')=> {
     try {
         rotating.value.add(type)
         const {data} = await $axios.post(`/dashboard/profiles/${profile._id}/rotate-keys`,{
             type
+        })
+        notify({
+            title: "Success",
+            type: "success",
+            text: "ZPK rotated",
         })
     } catch (error) {
         notify({

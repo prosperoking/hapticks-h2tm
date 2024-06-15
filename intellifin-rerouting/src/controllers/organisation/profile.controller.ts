@@ -8,7 +8,7 @@ export async function index(req: Request, res: Response) {
         //@ts-ignore
         {organisationId: req.user?._id},
         {
-            select:  '_id name',
+            select:  '_id title',
             limit: 50,
         });
 

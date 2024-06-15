@@ -75,7 +75,8 @@ export enum Processor {
     KIMONO = "KIMONO",
     THREELINE = "3LINE",
     ISW = "ISW",
-    HYDROGEN = "HYDROGEN"
+    HYDROGEN = "HYDROGEN",
+    HABARI = "HABARI"
 }
 
 

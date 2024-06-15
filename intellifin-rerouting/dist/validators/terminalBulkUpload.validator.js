@@ -113,7 +113,7 @@ const terminalBulkUploadValidator = (0, index_1.createValidatedRequest)((0, sche
                     return false;
                 }
             }),
-            errorMessage: "threelineTid Id already exists",
+            errorMessage: "threelineTid already exists",
         },
     },
     "terminals.*.serialNo": {
@@ -160,6 +160,28 @@ const terminalBulkUploadValidator = (0, index_1.createValidatedRequest)((0, sche
                     throw Error("Exists");
             }),
             errorMessage: "IswTid alread taken",
+        },
+    },
+    "terminals.*.iswISOTID": {
+        in: ["body"],
+        trim: true,
+        custom: {
+            options: (iswISOTID, { req, location, path }) => __awaiter(void 0, void 0, void 0, function* () {
+                if (yield terminal_model_1.default.findOne({ iswISOTID }))
+                    throw Error("Exists");
+            }),
+            errorMessage: "iswISOTID alread taken",
+        },
+    },
+    "terminals.*.hydrogenTID": {
+        in: ["body"],
+        trim: true,
+        custom: {
+            options: (hydrogenTID, { req, location, path }) => __awaiter(void 0, void 0, void 0, function* () {
+                if (yield terminal_model_1.default.findOne({ hydrogenTID }))
+                    throw Error("Exists");
+            }),
+            errorMessage: "hydrogenTID alread taken",
         },
     },
     "terminals.*.iswUniqueId": {

@@ -69,6 +69,7 @@ const webhookRequestSchema = new mongoose.Schema({
     organisationId: {
         type: mongoose_1.SchemaTypes.ObjectId,
         default: null,
+        index: true,
     },
     verifyString: {
         type: String,

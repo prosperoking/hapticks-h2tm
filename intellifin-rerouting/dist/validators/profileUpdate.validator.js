@@ -17,6 +17,7 @@ const schema_1 = require("express-validator/src/middlewares/schema");
 const ptspProfile_model_1 = __importDefault(require("../db/models/ptspProfile.model"));
 const organisation_model_1 = __importDefault(require("../db/models/organisation.model"));
 const webhook_model_1 = __importDefault(require("../db/models/webhook.model"));
+const express_validator_1 = require("express-validator");
 const profileUpdateValidator = (0, index_1.createValidatedRequest)((0, schema_1.checkSchema)({
     id: {
         in: ['params'],
@@ -165,6 +166,164 @@ const profileUpdateValidator = (0, index_1.createValidatedRequest)((0, schema_1.
             errorMessage: "Webhook not found",
             bail: true,
         }
+    },
+    iswISOConfig: {
+        in: ['body'],
+        optional: {
+            options: {
+                nullable: false
+            }
+        },
+        isObject: {
+            options: {
+                strict: false,
+            }
+        }
+    },
+    "iswISOConfig.host": {
+        in: ["body"],
+        isIP: {
+            if: (0, express_validator_1.body)("iswISOConfig").exists({ checkNull: false })
+        },
+        exists: {
+            if: (0, express_validator_1.body)("iswISOConfig").exists({ checkNull: false })
+        }
+    },
+    "iswISOConfig.zmk": {
+        exists: {
+            if: (0, express_validator_1.body)("iswISOConfig").exists({ checkNull: false })
+        },
+        in: ["body"],
+        isString: true,
+    },
+    "iswISOConfig.port": {
+        exists: {
+            if: (0, express_validator_1.body)("iswISOConfig").exists({ checkNull: false })
+        },
+        in: ["body"],
+        isNumeric: true,
+    },
+    "iswISOConfig.mcc": {
+        exists: {
+            if: (0, express_validator_1.body)("iswISOConfig").exists({ checkNull: false })
+        },
+        in: ["body"],
+        isNumeric: true,
+    },
+    "iswISOConfig.mid": {
+        exists: {
+            if: (0, express_validator_1.body)("iswISOConfig").exists({ checkNull: false })
+        },
+        in: ["body"],
+        isString: true,
+    },
+    "iswISOConfig.rid": {
+        exists: {
+            if: (0, express_validator_1.body)("iswISOConfig").exists({ checkNull: false })
+        },
+        in: ["body"],
+        isString: true,
+    },
+    "iswISOConfig.oRid": {
+        exists: {
+            if: (0, express_validator_1.body)("iswISOConfig").exists({ checkNull: false })
+        },
+        in: ["body"],
+        isString: true,
+    },
+    hydrogenConfig: {
+        in: ['body'],
+        optional: {
+            options: {
+                nullable: true,
+            }
+        },
+        isObject: {
+            options: {
+                strict: false,
+            }
+        }
+    },
+    "hydrogenConfig.host": {
+        exists: {
+            if: (0, express_validator_1.body)("hydrogenConfig").exists({ checkNull: false })
+        },
+        in: ["body"],
+    },
+    "hydrogenConfig.zmk": {
+        exists: {
+            if: (0, express_validator_1.body)("hydrogenConfig").exists({ checkNull: false })
+        },
+        in: ["body"],
+        isString: true
+    },
+    "hydrogenConfig.port": {
+        exists: {
+            if: (0, express_validator_1.body)("hydrogenConfig").exists({ checkNull: false })
+        },
+        in: ["body"],
+        isNumeric: true,
+    },
+    "hydrogenConfig.mcc": {
+        exists: {
+            if: (0, express_validator_1.body)("hydrogenConfig").exists({ checkNull: false })
+        },
+        in: ["body"],
+        isNumeric: true,
+    },
+    "hydrogenConfig.mid": {
+        exists: {
+            if: (0, express_validator_1.body)("hydrogenConfig").exists({ checkNull: false })
+        },
+        in: ["body"],
+        isString: true,
+    },
+    habariConfig: {
+        in: ['body'],
+        optional: {
+            options: {
+                nullable: true,
+            }
+        },
+        isObject: {
+            options: {
+                strict: false,
+            }
+        }
+    },
+    "habariConfig.host": {
+        exists: {
+            if: (0, express_validator_1.body)("habariConfig").exists({ checkNull: false })
+        },
+        in: ["body"],
+    },
+    "habariConfig.zmk": {
+        exists: {
+            if: (0, express_validator_1.body)("habariConfig").exists({ checkNull: false })
+        },
+        in: ["body"],
+        isString: true
+    },
+    "habariConfig.port": {
+        exists: {
+            if: (0, express_validator_1.body)("habariConfig").exists({ checkNull: false })
+        },
+        in: ["body"],
+        isNumeric: true,
+    },
+    "habariConfig.mcc": {
+        exists: {
+            if: (0, express_validator_1.body)("habariConfig").exists({ checkNull: false })
+        },
+        in: ["body"],
+        isNumeric: true,
+    },
+    "habariConfig.mid": {
+        exists: {
+            if: (0, express_validator_1.body)("habariConfig").exists({ checkNull: false })
+        },
+        in: ["body"],
+        isString: true,
     },
     "processorSettings.*.processor": {
         in: ['body'],

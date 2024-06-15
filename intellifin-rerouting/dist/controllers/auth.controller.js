@@ -11,12 +11,16 @@ class AuthContoller {
     //         return response.status(apiStatusCodes.serverError).json({responseCode: 100, responseMessage: 'An error has occured'});
     //     }
     // }
+    // create a function to save session to mongodb
     getUserInfo(request, response) {
         const { id, username, email, role, permissions, imageUrl } = request.user;
         return response.json({ id, username, email, role, permissions, imageUrl });
     }
     logout(request, response) {
-        request.logOut();
+        request.logOut((err) => {
+            if (err)
+                console.log(err);
+        });
         return response.json({ message: "done" });
     }
 }

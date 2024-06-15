@@ -18,6 +18,9 @@ const cardsockethelper_1 = require("../helpers/cardsockethelper");
 const lodash_1 = require("lodash");
 const ptspProfile_model_1 = __importDefault(require("../db/models/ptspProfile.model"));
 const queue_1 = require("../queue/queue");
+const terminalIds_model_1 = __importDefault(require("../db/models/terminalIds.model"));
+const appUtils_1 = require("../helpers/appUtils");
+const config_1 = __importDefault(require("../config/config"));
 class TerminalController {
     index(request, response) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -28,6 +31,9 @@ class TerminalController {
                     filter = {
                         $or: [
                             { terminalId: RegExp(`^${q}`, 'i') },
+                            { hydrogenTID: RegExp(`^${q}`, 'i') },
+                            { habariTID: RegExp(`^${q}`, 'i') },
+                            { iswISOTID: RegExp(`^${q}`, 'i') },
                             { serialNo: RegExp(`^${q}`, 'i') },
                             { brand: RegExp(`^${q}`, 'i') },
                             { deviceModel: RegExp(`^${q}`, 'i') },
@@ -42,7 +48,8 @@ class TerminalController {
                 const data = yield terminal_model_1.default.paginate(filter, {
                     populate: [
                         { path: 'profile', select: 'title iswSwitchAmount' },
-                        { path: 'organisation', select: 'name' }
+                        { path: 'organisation', select: 'name' },
+                        { path: 'groupTid', select: 'terminalId paramdownload parsedParams', populate: { path: 'profile', select: "title" } },
                     ],
                     limit: Number.parseInt(`${limit}`) || 30,
                     page: Number.parseInt(`${page}`) || 1,
@@ -74,7 +81,6 @@ class TerminalController {
                 if (!terminal) {
                     return response.status(404).json({ message: "Terminal not found" });
                 }
-                console.log(request.body);
                 const data = yield terminal.update((0, lodash_1.pick)(request.body, [
                     "serialNo",
                     "terminalId",
@@ -84,7 +90,12 @@ class TerminalController {
                     "threeLineTid",
                     "organisationId",
                     "brand",
-                    "deviceModel"
+                    "deviceModel",
+                    "iswISOTID",
+                    "hydrogenTID",
+                    "habariTID",
+                    "terminalLocation",
+                    "terminalGroupId"
                 ]));
                 try {
                     //    ProfileController.performKeyExchange(request.body, request.params.id);
@@ -163,7 +174,7 @@ class TerminalController {
             const terminal = yield terminal_model_1.default.findById(terminalId);
             let result;
             try {
-                result = yield (0, cardsockethelper_1.performCardSocketTranaction)(cardsockethelper_1.TransactionTypes.KEY_EXCHANGE, {
+                result = yield (0, cardsockethelper_1.sendSocketMessage)(cardsockethelper_1.TransactionTypes.KEY_EXCHANGE, {
                     tid: terminal.terminalId,
                     component: profile.componentKey1,
                     ip: profile.isoHost,
@@ -215,6 +226,133 @@ class TerminalController {
             }
             catch (error) {
                 console.log(error);
+                response.status(400).json({ message: error.message });
+            }
+        });
+    }
+    generatedTidStat(request, response) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const data = yield terminalIds_model_1.default.aggregate([
+                    {
+                        $group: {
+                            "count": { $sum: 1 },
+                            _id: {
+                                type: "$type",
+                                linkedTo: "$linkedTo",
+                            }
+                        },
+                    },
+                    {
+                        $group: {
+                            _id: "$_id.type",
+                            total: {
+                                $sum: 1,
+                            },
+                            assigned: {
+                                $sum: {
+                                    $cond: {
+                                        if: { $ne: ["$_id.linkedTo", null] },
+                                        else: 0,
+                                        then: 1
+                                    }
+                                }
+                            },
+                            unAssined: {
+                                $sum: {
+                                    $cond: {
+                                        if: { $eq: ["$_id.linkedTo", null] },
+                                        else: 0,
+                                        then: 1
+                                    }
+                                }
+                            }
+                        }
+                    },
+                ]);
+                response.json({ data });
+            }
+            catch (error) {
+                response.status(400).json({ message: error.message });
+            }
+        });
+    }
+    generatedTids(request, response) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { q, limit, page, organisation } = request.query;
+                let filter = {};
+                if (q === null || q === void 0 ? void 0 : q.length) {
+                    filter = {
+                        $or: [
+                            { tid: RegExp(`^${q}`, 'i') },
+                            { type: RegExp(`^${q}`, 'i') },
+                        ]
+                    };
+                }
+                ;
+                // @ts-ignore
+                const orgId = !request.user.organisaitonId ? organisation : request.user.organisationId;
+                if (orgId === null || orgId === void 0 ? void 0 : orgId.length)
+                    filter = Object.assign(Object.assign({}, filter), { organisationId: orgId });
+                const data = yield terminalIds_model_1.default.paginate(filter, {
+                    populate: [
+                        { path: 'terminal', select: 'serialNo brand deviceModel' },
+                    ],
+                    limit: Number.parseInt(`${limit}`) || 30,
+                    page: Number.parseInt(`${page}`) || 1,
+                    sort: {
+                        _id: -1,
+                    }
+                });
+                response.json({ data, count: data.length });
+            }
+            catch (error) {
+                console.log(error);
+                response.status(400).json({ message: error.message });
+            }
+        });
+    }
+    generateTids(request, response) {
+        var _a, _b;
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                let { start, end,
+                // iswPrefix,
+                // hydrogenPrefix
+                 } = request.body;
+                if ((start === null || start === void 0 ? void 0 : start.length) !== 4 || (end === null || end === void 0 ? void 0 : end.length) !== 4)
+                    return response.json({ message: "Invalid start and end" });
+                start = start.toUpperCase();
+                end = end.toUpperCase();
+                const rangeGenerated = `${start}-${end}`;
+                let tids = [];
+                const mapForSave = (tids, type) => {
+                    return tids.map(tid => ({
+                        tid,
+                        type,
+                        rangeGenerated,
+                    }));
+                };
+                const { processorPrefixes } = (new config_1.default()).configObject;
+                console.log(processorPrefixes);
+                if (!((_a = processorPrefixes.isw) === null || _a === void 0 ? void 0 : _a.length) || !((_b = processorPrefixes.hydrogen) === null || _b === void 0 ? void 0 : _b.length))
+                    return response.status(400).json({
+                        message: "Processor Prefix not configured"
+                    });
+                tids = tids.concat(mapForSave((0, appUtils_1.generateTidRange)(start, end, processorPrefixes.isw), 'isw')).concat(mapForSave((0, appUtils_1.generateTidRange)(start, end, processorPrefixes.hydrogen), 'hydrogen'));
+                try {
+                    yield terminalIds_model_1.default.insertMany(tids, { ordered: false, });
+                }
+                catch (e) {
+                }
+                return response.json({
+                    data: {
+                        totalGenerated: tids.length,
+                    },
+                });
+            }
+            catch (error) {
                 response.status(400).json({ message: error.message });
             }
         });

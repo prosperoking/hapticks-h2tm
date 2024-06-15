@@ -23,7 +23,11 @@ export enum TransactionTypes {
   HYDROGEN_KEY_EXCHANGE = 'HYDROGEN_KEY_EXCHANGE',
   HYDROGEN_PURCHASE = 'HYDROGEN_PURCHASE',
   HYDROGEN_CLOSE_CONNECTIONS = 'HYDROGEN_CLOSE_CONNECTIONS',
-  HYDROGEN_CONNECTIONS_COUNT = 'HYDROGEN_CONNECTIONS_COUNT'
+  HYDROGEN_CONNECTIONS_COUNT = 'HYDROGEN_CONNECTIONS_COUNT',
+  HABARI_KEY_EXCHANGE = 'HABARI_KEY_EXCHANGE',
+  HABARI_PURCHASE = 'HABARI_PURCHASE',
+  HABARI_CLOSE_CONNECTIONS = 'HABARI_CLOSE_CONNECTIONS',
+  HABARI_CONNECTIONS_COUNT = 'HABARI_CONNECTIONS_COUNT'
 }
 
 export function sendSocketMessage<T>(
@@ -36,7 +40,7 @@ export function sendSocketMessage<T>(
       {
         host: process.env.CARD_SERVICE_HOST,
         port: parseInt(process.env.CARD_SERVICE_PORT),
-        timeout: 6000 * 40,
+        timeout: 60000 * 16,
       },
       () => {
         logger.log("Connected to card service socket to perform operation");

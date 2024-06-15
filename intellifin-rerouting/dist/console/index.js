@@ -18,6 +18,8 @@ const config_1 = __importDefault(require("../config/config"));
 const logger_1 = __importDefault(require("../helpers/logger"));
 const inquirer_1 = __importDefault(require("inquirer"));
 const user_model_1 = __importDefault(require("../db/models/user.model"));
+const terminal_model_1 = __importDefault(require("../db/models/terminal.model"));
+const appUtils_1 = require("../helpers/appUtils");
 const config = new config_1.default();
 const dbConfig = config.getConfig(process.env.NODE_ENV);
 /** connection mongodb */
@@ -117,6 +119,60 @@ cli.command('user')
             logger_1.default.log(error.message);
         }
         connection.disconnect();
+    }));
+});
+cli.command("tid")
+    .description("Generate tid for terminals missing iswiso, hydogen tids")
+    .argument("generate", "")
+    .action((str, options) => {
+    connectDatabase().then((connection) => __awaiter(void 0, void 0, void 0, function* () {
+        const terminals = yield terminal_model_1.default.find({
+            $or: [
+                { iswISOTID: null },
+                { hydrogenTID: null },
+            ]
+        });
+        let total = terminals.length;
+        let result = yield inquirer_1.default.prompt([{
+                type: 'confirm',
+                name: 'continue',
+                prefix: "1.",
+                message: `Are you sure to generate ${total} affected TIDs?`,
+            }]);
+        if (!result.continue) {
+            console.log(result);
+            logger_1.default.log("Cancelled");
+            return process.exit(0);
+        }
+        logger_1.default.log("Total affected terminals: " + total);
+        if (!total) {
+            logger_1.default.log("No Terminal is affected");
+            process.exit(0);
+        }
+        const dbSession = yield terminal_model_1.default.startSession();
+        yield dbSession.withTransaction(() => __awaiter(void 0, void 0, void 0, function* () {
+            const allActivities = terminals.map((terminal) => __awaiter(void 0, void 0, void 0, function* () {
+                var _a, _b;
+                const [isw, hygdrogen] = yield Promise.all([
+                    (0, appUtils_1.getAvailableTid)(terminal.id, 'isw'),
+                    (0, appUtils_1.getAvailableTid)(terminal.id, 'hydrogen'),
+                ]);
+                terminal.iswISOTID = (_a = terminal.iswISOTID) !== null && _a !== void 0 ? _a : isw === null || isw === void 0 ? void 0 : isw.tid;
+                terminal.hydrogenTID = (_b = terminal.hydrogenTID) !== null && _b !== void 0 ? _b : hygdrogen === null || hygdrogen === void 0 ? void 0 : hygdrogen.tid;
+                return terminal;
+            }));
+            yield Promise.all(allActivities);
+            return terminal_model_1.default.bulkSave(terminals);
+        })).then((result) => {
+            console.log(result);
+            logger_1.default.log(result);
+            dbSession.endSession();
+            logger_1.default.log("Terminal TIDs attached");
+        }).catch((error) => {
+            logger_1.default.log(error);
+        }).finally(() => {
+            process.exit(0);
+        });
     }));
 });
 cli.parse();

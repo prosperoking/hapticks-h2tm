@@ -12,9 +12,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.destroy = exports.update = exports.create = exports.getAllOrganisations = exports.getOrganisations = void 0;
+exports.generateApiKey = exports.destroy = exports.update = exports.create = exports.getAllOrganisations = exports.getOrganisations = void 0;
 const logger_1 = __importDefault(require("../helpers/logger"));
 const organisation_model_1 = __importDefault(require("../db/models/organisation.model"));
+const crypt_1 = require("../helpers/crypt");
+const crypto_1 = require("crypto");
+const util_1 = require("util");
+const argon2_1 = __importDefault(require("argon2"));
+const asyncRandomBytes = (0, util_1.promisify)(crypto_1.randomBytes);
 function getOrganisations(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -108,6 +113,33 @@ function destroy(req, res) {
     });
 }
 exports.destroy = destroy;
+function generateApiKey(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const organisation = yield organisation_model_1.default.findById(req.params.id);
+            if (!organisation)
+                return res.status(404).json({ message: "Organisation not found" });
+            const key = yield asyncRandomBytes(48);
+            const apiKey = key.toString("base64");
+            const encApiKey = yield argon2_1.default.hash(apiKey);
+            organisation.apiKey = encApiKey;
+            organisation.save();
+            return res.json({
+                status: true,
+                data: {
+                    apiKey: (0, crypt_1.encrypt)(organisation.id) + "." + apiKey
+                }
+            });
+        }
+        catch (error) {
+            logger_1.default.error(error.message);
+            res.status(400).json({
+                message: "An error occured"
+            });
+        }
+    });
+}
+exports.generateApiKey = generateApiKey;
 function filterGen({ q }) {
     let query = {};
     if (q !== undefined) {

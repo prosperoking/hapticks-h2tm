@@ -23,16 +23,19 @@ export default {
             const {response} = error;
             const {router, pinia} = options;
             const auth = useUserStore(pinia)
-            
+
             if(response?.status === 401 && auth.user) {
-                
+
                 notify({
                     title: "Authentication Error",
                     text: "Not Authenticated /Session timeout"
                 })
                 auth.clearState();
                 return await router.push({
-                    name: "Login"
+                    name: "Login",
+                    query:{
+                        prevUrl: router.currentRoute.value.fullPath
+                    }
                 });
             }
             return Promise.reject(error);

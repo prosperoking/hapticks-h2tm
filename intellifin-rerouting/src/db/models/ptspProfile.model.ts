@@ -29,6 +29,7 @@ export interface IPTSPProfileData {
     blueSaltKey: string | null,
     blueSaltEnv: "staging" | "live"  | null,
     hydrogenEnabled: boolean,
+    habariEnabled: boolean,
     iswISOEnabled: boolean,
     linkedProfile?: IPTSPProfileData,
     iswISOConfig?: {
@@ -59,10 +60,23 @@ export interface IPTSPProfileData {
         acqId: string,
         tidPrefix: string,
     },
+    habariConfig?: {
+        zmk: string,
+        host: string,
+        port: number,
+        ssl: boolean,
+        zpk: string | null,
+        kcv: string | null
+        lastRotate: Date | null,
+        mcc: string,
+        mid: string,
+        acqId: string,
+        tidPrefix: string,
+    },
     processorSettings?: {
         minAmount: number,
         maxAmount: number,
-        processor: 'nibss' | 'kimono' | 'bluesalt' | '3line' | 'isw' | 'hydrogen',
+        processor: 'nibss' | 'kimono' | 'bluesalt' | '3line' | 'isw' | 'hydrogen' | 'habari',
     }[],
     isLinked: boolean,
 }
@@ -270,6 +284,51 @@ const ptspProfileSchema = new mongoose.Schema<IPTSPProfileData>({
             minlength: 4
         },
     },
+    habariConfig: {
+        zmk: {
+            type: String,
+            set: (value: string)=> (value !== null && value?.length) ? encrypt(value) : null,
+            get: (value: string)=> (value !== null && value?.length) ? decrypt(value) : null,
+        },
+        host: {
+            type: String,
+        },
+        port: {
+            type: Number,
+        },
+        ssl: {
+            type: Boolean,
+        },
+        zpk: {
+            type: String,
+            default: null,
+            set: (value: string)=> (value !== null && value?.length) ? encrypt(value) : null,
+            get: (value: string)=> (value !== null && value?.length) ? decrypt(value) : null,
+        },
+        kcv:{
+            type: String,
+            default: null,
+        },
+        lastRotate: {
+            type: Date,
+            default: null
+        },
+        mid: {
+            type: String,
+        },
+        mcc: {
+            type: Number,
+        },
+        acqId: {
+            type: String,
+        },
+        tidPrefix: {
+            type: String,
+            default: null,
+            maxlength: 4,
+            minlength: 4
+        },
+    },
     processorSettings: [SchemaTypes.Mixed],
     linkedProfileId: {
         type: SchemaTypes.ObjectId,
@@ -280,14 +339,6 @@ const ptspProfileSchema = new mongoose.Schema<IPTSPProfileData>({
     toJSON: {
         virtuals: true,
         getters: true,
-        transform(doc: IPTSPProfileData, ret, options) {
-            if(doc.iswISOConfig){
-                delete doc.iswISOConfig.zpk;
-            }
-            if(doc.hydrogenConfig){
-               delete doc.hydrogenConfig.zpk;
-            }
-        },
     },
 })
 
@@ -334,7 +385,11 @@ ptspProfileSchema.virtual('iswISOEnabled').get(function(){
 })
 
 ptspProfileSchema.virtual('hydrogenEnabled').get(function(){
-    return this.iswISOConfig?.host?.length > 0
+    return this.hydrogenConfig?.host?.length > 0
+})
+
+ptspProfileSchema.virtual('habariEnabled').get(function(){
+    return this.habariConfig?.host?.length > 0
 })
 
 ptspProfileSchema.virtual('isLinked').get(function(){

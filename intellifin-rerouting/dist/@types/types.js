@@ -6,5 +6,8 @@ var Processor;
     Processor["NIBSS"] = "NIBSS";
     Processor["KIMONO"] = "KIMONO";
     Processor["THREELINE"] = "3LINE";
+    Processor["ISW"] = "ISW";
+    Processor["HYDROGEN"] = "HYDROGEN";
+    Processor["HABARI"] = "HABARI";
 })(Processor = exports.Processor || (exports.Processor = {}));
 //# sourceMappingURL=types.js.map

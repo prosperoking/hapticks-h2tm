@@ -1,7 +1,7 @@
 import { Queue, Worker } from 'bullmq';
 import logger from '../helpers/logger';
 import appConfig, { AppConfig } from '../config/config';
-import {keyExchangeWorker, GroupKeyExchangeWorker} from './processors/keyexchange';
+import {keyExchangeWorker, GroupKeyExchangeWorker, RotateKeysWorker} from './processors/keyexchange';
 import webhookWorker from './processors/webhook';
 import { Application } from 'express';
 import { ExpressAdapter } from '@bull-board/express';
@@ -19,16 +19,20 @@ const workers = [
     keyExchangeWorker,
     webhookWorker,
     GroupKeyExchangeWorker,
+    RotateKeysWorker,
 ];
 
 export const webhookQueue = new Queue('webhook', {  connection })
 
 export const keyExchange = new Queue('keyexchange', { connection });
 export const Groupkeyexchange = new Queue('groupkeyexchange', { connection });
+export const RotateKeys = new Queue('rotateKeys', { connection });
 
 export const bullQueues = [
     webhookQueue,
     keyExchange,
+    Groupkeyexchange,
+    RotateKeys,
 ];
 
 export const startQueWorkers = async () =>{

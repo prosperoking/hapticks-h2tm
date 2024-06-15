@@ -260,6 +260,54 @@ const profileUpdateValidator = createValidatedRequest(checkSchema({
         in: ["body"],
         isString: true,
     },
+    habariConfig: {
+        in: ['body'],
+        optional: {
+            options: {
+                nullable: true,
+            }
+        },
+        isObject: {
+            options: {
+                strict: false,
+            }
+        }
+    },
+    "habariConfig.host":{
+        exists: {
+            if: body("habariConfig").exists({ checkNull: false })
+        },
+        in: ["body"],
+
+    },
+    "habariConfig.zmk":{
+        exists: {
+            if: body("habariConfig").exists({ checkNull: false })
+        },
+        in: ["body"],
+        isString: true
+    },
+    "habariConfig.port":{
+        exists: {
+            if: body("habariConfig").exists({ checkNull: false })
+        },
+        in: ["body"],
+        isNumeric: true,
+    },
+    "habariConfig.mcc":{
+        exists: {
+            if: body("habariConfig").exists({ checkNull: false })
+        },
+        in: ["body"],
+        isNumeric: true,
+    },
+    "habariConfig.mid":{
+        exists: {
+            if: body("habariConfig").exists({ checkNull: false })
+        },
+        in: ["body"],
+        isString: true,
+    },
     "processorSettings.*.processor":{
         in: ['body'],
         custom: {

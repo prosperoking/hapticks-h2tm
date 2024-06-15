@@ -41,17 +41,17 @@ let JournalsSchema = new mongoose.Schema({
     responseCode: { type: String, default: "" },
     responseDescription: { type: String, default: "" },
     isCompleted: Boolean,
-    terminalId: { type: String, default: "" },
+    terminalId: { type: String, default: "", index: true },
     merchantId: { type: String, default: "" },
     cashback: { type: String, default: "" },
     merchantName: { type: String, default: "" },
     merchantCategoryCode: { type: String, default: "" },
     merchantAddress: { type: String, default: "" },
     currencyCode: { type: String, default: "" },
-    rrn: { type: String, default: "" },
+    rrn: { type: String, default: "", index: true },
     MTI: { type: String, default: "0200" },
     STAN: { type: String, default: "" },
-    PAN: { type: String, default: "" },
+    PAN: { type: String, default: "", index: true },
     cardExpiration: { type: String, defualt: "" },
     vasData: {
         type: Object,
@@ -69,11 +69,19 @@ let JournalsSchema = new mongoose.Schema({
     webhookData: {
         type: Object,
         default: null,
+    },
+    reversalData: {
+        type: Object,
+        default: null,
+    },
+    totalTransTime: {
+        type: Number,
+        default: null,
     }
 }, {
     timestamps: true,
     toJSON: {
-        virtuals: ['terminal', 'organisation']
+        virtuals: ['terminal', 'organisation', 'amount_naira'],
     }
 });
 JournalsSchema.virtual('terminal', {
@@ -86,9 +94,12 @@ JournalsSchema.virtual('organisation', {
     localField: 'organisationId',
     foreignField: '_id',
 });
+JournalsSchema.virtual('amount_naira').get(function () {
+    return this.amount / 100;
+});
 JournalsSchema.plugin(mongoose_paginate_v2_1.default);
 JournalsSchema.plugin(mongoose_csv_export_1.default, {
-    headers: ["MTI", 'TerminalId', "STAN", "RRN", "RESPONSE CODE", "RESPONSE MEANING", "MASKED PAN", "AUTH CODE", "AMOUNT", "CASHBACK", "TRANSACTION TIME", "PROCESSOR", "MERCHANT NAME", "MERCHANT ID", "MERCHANT ADDRESS", "MERCHANT CATEGORY CODE", "CURRENCY CODE",],
+    headers: ["MTI", 'TerminalId', "STAN", "RRN", "RESPONSE CODE", "RESPONSE MEANING", "MASKED PAN", "AUTH CODE", "AMOUNT IN KOBO", "AMOUNT IN NAIRA", "CASHBACK", "TRANSACTION TIME", "PROCESSOR", "MERCHANT NAME", "MERCHANT ID", "MERCHANT ADDRESS", "MERCHANT CATEGORY CODE", "CURRENCY CODE",],
     alias: {
         "MTI": "MTI",
         "TerminalId": "terminalId",
@@ -98,7 +109,8 @@ JournalsSchema.plugin(mongoose_csv_export_1.default, {
         "RESPONSE MEANING": "responseDescription",
         "MASKED PAN": "PAN",
         "AUTH CODE": "authCode",
-        "AMOUNT": "amount",
+        "AMOUNT IN KOBO": "amount",
+        "AMOUNT IN NAIRA": "amount_naira",
         "CASHBACK": "cashback",
         "TRANSACTION TIME": "transactionTime",
         "PROCESSOR": "processor",

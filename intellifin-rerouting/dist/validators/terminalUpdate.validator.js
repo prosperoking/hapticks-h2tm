@@ -17,6 +17,8 @@ const schema_1 = require("express-validator/src/middlewares/schema");
 const terminal_model_1 = __importDefault(require("../db/models/terminal.model"));
 const ptspProfile_model_1 = __importDefault(require("../db/models/ptspProfile.model"));
 const organisation_model_1 = __importDefault(require("../db/models/organisation.model"));
+const express_validator_1 = require("express-validator");
+const groupTid_model_1 = __importDefault(require("../db/models/groupTid.model"));
 const terminalUpdateValidator = (0, index_1.createValidatedRequest)((0, schema_1.checkSchema)({
     id: {
         in: ['params'],
@@ -38,11 +40,12 @@ const terminalUpdateValidator = (0, index_1.createValidatedRequest)((0, schema_1
     terminalId: {
         in: ['body'],
         trim: true,
-        notEmpty: true,
         custom: {
             options: (terminalId, { req, location, path }) => __awaiter(void 0, void 0, void 0, function* () {
+                var _a;
                 try {
-                    if (!(yield terminal_model_1.default.findOne({ terminalId: terminalId })))
+                    if (!(yield terminal_model_1.default.findOne({ terminalId: terminalId, _id: { $ne: req.body._id } })) &&
+                        !((_a = req.body.terminalGroupId) === null || _a === void 0 ? void 0 : _a.length))
                         return false;
                     return true;
                 }
@@ -50,7 +53,21 @@ const terminalUpdateValidator = (0, index_1.createValidatedRequest)((0, schema_1
                     return false;
                 }
             }),
-            errorMessage: "Terminal",
+            errorMessage: "Invalid/Existing Terminal ID",
+        }
+    },
+    terminalGroupId: {
+        in: ['body'],
+        optional: true,
+        custom: {
+            options: (value, { req, location, path }) => __awaiter(void 0, void 0, void 0, function* () {
+                if (!(value === null || value === void 0 ? void 0 : value.length))
+                    return;
+                if (!(yield groupTid_model_1.default.findById(value)))
+                    return Promise.reject();
+            }),
+            errorMessage: "Group Tid not Found",
+            bail: true,
         }
     },
     serialNo: {
@@ -82,6 +99,18 @@ const terminalUpdateValidator = (0, index_1.createValidatedRequest)((0, schema_1
         notEmpty: true
     },
     iswTid: {
+        in: ['body'],
+        trim: true,
+    },
+    hydrogenTID: {
+        in: ['body'],
+        trim: true,
+    },
+    habariTID: {
+        in: ['body'],
+        trim: true,
+    },
+    iswISOTID: {
         in: ['body'],
         trim: true,
     },
@@ -123,7 +152,59 @@ const terminalUpdateValidator = (0, index_1.createValidatedRequest)((0, schema_1
             bail: true,
         },
         notEmpty: true
-    }
+    },
+    terminalLocation: {
+        in: ['body'],
+        isObject: true,
+    },
+    "terminalLocation.name": {
+        in: ["body"],
+        exists: {
+            if: (0, express_validator_1.body)("terminalLocation").exists({ checkNull: false })
+        },
+        trim: true,
+        toUpperCase: true,
+        isLength: {
+            if: (value) => value.length,
+            errorMessage: "Name must be less than or equal to  22",
+            options: {
+                max: 22,
+                min: 3
+            }
+        }
+    },
+    "terminalLocation.city": {
+        in: ["body"],
+        exists: {
+            if: (0, express_validator_1.body)("terminalLocation").exists({ checkNull: false })
+        },
+        trim: true,
+        toUpperCase: true,
+        isLength: {
+            if: (value) => value.length,
+            errorMessage: "City must be less than or equal to  12",
+            options: {
+                max: 12,
+                min: 3
+            }
+        }
+    },
+    "terminalLocation.stateCountry": {
+        in: ["body"],
+        exists: {
+            if: (0, express_validator_1.body)("terminalLocation").exists({ checkNull: false })
+        },
+        trim: true,
+        toUpperCase: true,
+        isLength: {
+            if: (value) => value.length,
+            errorMessage: "State/Country must be exactly of length 4",
+            options: {
+                max: 4,
+                min: 4,
+            }
+        }
+    },
 }));
 exports.default = terminalUpdateValidator;
 //# sourceMappingURL=terminalUpdate.validator.js.map

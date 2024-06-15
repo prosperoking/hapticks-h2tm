@@ -12,12 +12,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.keyExchangeWorker = void 0;
+exports.GroupKeyExchangeWorker = exports.keyExchangeWorker = void 0;
 const bullmq_1 = require("bullmq");
 const terminal_model_1 = __importDefault(require("../../db/models/terminal.model"));
 const cardsockethelper_1 = require("../../helpers/cardsockethelper");
 const config_1 = __importDefault(require("../../config/config"));
 const inteliffin_1 = __importDefault(require("../../services/inteliffin"));
+const groupTid_model_1 = __importDefault(require("../../db/models/groupTid.model"));
 const config = (new config_1.default()).getConfig('');
 const connection = {
     host: config.redis.host,
@@ -31,7 +32,7 @@ exports.keyExchangeWorker = new bullmq_1.Worker('keyexchange', (job) => __awaite
         throw Error("Terminal Not found");
     const profile = terminal.profile;
     if (terminal.profile.hasthreelineSupport && ((_a = terminal.threeLineTid) === null || _a === void 0 ? void 0 : _a.length)) {
-        const threeResult = yield (0, cardsockethelper_1.performCardSocketTranaction)(cardsockethelper_1.TransactionTypes.THREELINE_KEY_EXCHANGE, {
+        const threeResult = yield (0, cardsockethelper_1.sendSocketMessage)(cardsockethelper_1.TransactionTypes.THREELINE_KEY_EXCHANGE, {
             tid: terminal.threeLineTid,
             component: terminal.profile.threeLineKey,
             ip: terminal.profile.threeLineHost,
@@ -40,12 +41,24 @@ exports.keyExchangeWorker = new bullmq_1.Worker('keyexchange', (job) => __awaite
         });
         if (threeResult.status) {
             terminal.threeLineParams = threeResult.data;
+            if (terminal.threeLineTid == terminal.terminalId && terminal.profile.type == "3line") {
+                const data = threeResult.data;
+                terminal.encmasterkey = data.encmasterkey;
+                terminal.encpinkey = data.encpinkey;
+                terminal.encsesskey = data.encsesskey;
+                terminal.clrmasterkey = data.clrmasterkey;
+                terminal.clrsesskey = data.clrsesskey;
+                terminal.clrpinkey = data.clrpinkey;
+                terminal.paramdownload = data.paramdownload;
+                yield terminal.save();
+                return;
+            }
         }
     }
     if (profile.isInteliffin) {
         return handleIntelifinKeyExchange(terminal);
     }
-    let result = yield (0, cardsockethelper_1.performCardSocketTranaction)(cardsockethelper_1.TransactionTypes.KEY_EXCHANGE, {
+    let result = yield (0, cardsockethelper_1.sendSocketMessage)(cardsockethelper_1.TransactionTypes.KEY_EXCHANGE, {
         tid: terminal.terminalId,
         component: profile.componentKey1,
         ip: profile.isoHost,
@@ -64,6 +77,52 @@ exports.keyExchangeWorker = new bullmq_1.Worker('keyexchange', (job) => __awaite
     terminal.clrpinkey = data.clrpinkey;
     terminal.paramdownload = data.paramdownload;
     yield terminal.save();
+}), {
+    autorun: false,
+    connection,
+});
+exports.GroupKeyExchangeWorker = new bullmq_1.Worker('groupkeyexchange', (job) => __awaiter(void 0, void 0, void 0, function* () {
+    const groupTid = yield groupTid_model_1.default.findById(job.data._id).populate('profile');
+    if (!groupTid)
+        throw Error("Group Tid Not found");
+    const profile = groupTid.profile;
+    // if(groupTid.profile.hasthreelineSupport && groupTid.threeLineTid?.length) {
+    //     const threeResult = await sendSocketMessage(
+    //       TransactionTypes.THREELINE_KEY_EXCHANGE,
+    //       {
+    //         tid: groupTid.threeLineTid,
+    //         component: groupTid.profile.threeLineKey,
+    //         ip: groupTid.profile.threeLineHost,
+    //         ssl: String(groupTid.profile.threeLineHostSSL),
+    //         port: groupTid.profile.threeLinePort,
+    //       }
+    //     )
+    //     if(threeResult.status) {
+    //       groupTid.threeLineParams = threeResult.data
+    //     }
+    //   }
+    // if(profile.isInteliffin) {
+    //     return handleIntelifinKeyExchange(groupTid);
+    // }
+    let result = yield (0, cardsockethelper_1.sendSocketMessage)(cardsockethelper_1.TransactionTypes.KEY_EXCHANGE, {
+        tid: groupTid.terminalId,
+        component: profile.componentKey1,
+        ip: profile.isoHost,
+        ssl: String(profile.isSSL),
+        port: profile.isoPort
+    });
+    console.log("", result);
+    if (!(result === null || result === void 0 ? void 0 : result.status))
+        throw Error(result.message);
+    const { data } = result;
+    groupTid.encmasterkey = data.encmasterkey;
+    groupTid.encpinkey = data.encpinkey;
+    groupTid.encsesskey = data.encsesskey;
+    groupTid.clrmasterkey = data.clrmasterkey;
+    groupTid.clrsesskey = data.clrsesskey;
+    groupTid.clrpinkey = data.clrpinkey;
+    groupTid.paramdownload = data.paramdownload;
+    yield groupTid.save();
 }), {
     autorun: false,
     connection,
@@ -87,16 +146,6 @@ function handleIntelifinKeyExchange(terminal) {
             terminal.clrmasterkey = data.pin_key;
             terminal.clrsesskey = data.pin_key;
             terminal.clrpinkey = data.pin_key;
-            console.log([
-                ["020", padLeadingZeros(datetime.length), datetime],
-                ["030", padLeadingZeros(merchantid.length), merchantid],
-                ["040", padLeadingZeros(timeout.length), timeout],
-                ["050", padLeadingZeros(currency_code.length), currency_code,],
-                ["060", padLeadingZeros(country_code.length), country_code],
-                ["070", padLeadingZeros(callhome.length), callhome],
-                ["080", padLeadingZeros(merchant_category_code.length), merchant_category_code],
-                ["520", padLeadingZeros(merchant_address.length), merchant_address],
-            ]);
             terminal.paramdownload = [
                 ["020", padLeadingZeros(datetime.length), datetime],
                 ["030", padLeadingZeros(merchantid.length), merchantid],
@@ -114,5 +163,5 @@ function handleIntelifinKeyExchange(terminal) {
         }
     });
 }
-exports.default = exports.keyExchangeWorker;
+exports.default = { keyExchangeWorker: exports.keyExchangeWorker, GroupKeyExchangeWorker: exports.GroupKeyExchangeWorker };
 //# sourceMappingURL=keyexchange.js.map

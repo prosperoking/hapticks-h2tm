@@ -64,7 +64,9 @@ export interface ITerminal {
   deviceModel?: string;
   organisation?: OrganisationProfile;
   hydrogenTID?: string;
+  habariTID?: string;
   iswISOTID?: string;
+  maxTransAmount: number;
 }
 
 export interface ITerminalDocument extends Document, ITerminal {}
@@ -249,6 +251,17 @@ const terminalSchema = new mongoose.Schema<ITerminal>(
       },
       set: (value)=> value?.length? value: null
     },
+    habariTID: {
+      type: String,
+      default: null,
+      index:{
+        unique: true,
+        partialFilterExpression: {
+          habariTID: {$type: "string"}
+        }
+      },
+      set: (value)=> value?.length? value: null
+    },
     iswISOTID: {
       type: String,
       default: null,
@@ -309,13 +322,14 @@ terminalSchema.virtual("parsedParams").get(function () {
   };
 
   let message: string = rawParam + "";
-  let data = {};
+  let data:{[key:string]: string} = {};
   while (message.length) {
     const tag = message.substr(0, 2);
     const length = parseInt(message.substr(2, 3));
     data = { ...data, [tags[tag]]: message.substr(5, length) };
     message = message.substring(5 + length, message.length);
   }
+  data.merchantCategoryCode = data.mechantCategoryCode;
   return data;
 });
 
@@ -338,13 +352,14 @@ terminalSchema.virtual("threeLineParsedParams").get(function () {
   };
 
   let message: string = rawParam + "";
-  let data = {};
+  let data:{[key:string]:string} = {};
   while (message.length) {
     const tag = message.substr(0, 2);
     const length = parseInt(message.substr(2, 3));
     data = { ...data, [tags[tag]]: message.substr(5, length) };
     message = message.substring(5 + length, message.length);
   }
+  data.merchantCategoryCode = data.mechantCategoryCode;
   return data;
 });
 

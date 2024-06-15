@@ -3,6 +3,7 @@ import PTSPProfileModel from '../db/models/ptspProfile.model';
 import {pick,} from "lodash"
 import { sendSocketMessage, TransactionTypes } from '../helpers/cardsockethelper';
 import Terminal from '../db/models/terminal.model';
+import logger from '../helpers/logger';
 export default class ProfileController {
     public async create(request: Request, response: Response) {
         try {
@@ -52,6 +53,7 @@ export default class ProfileController {
             let {body} = request;
             body.iswISOConfig = body.iswISOConfig === undefined?null: body.iswISOConfig
             body.hydrogenConfig = body.hydrogenConfig === undefined?null: body.hydrogenConfig
+            body.habariConfig = body.habariConfig === undefined?null: body.habariConfig
             const data = await profile.update(pick(body,[
                 "title",
                 "isoHost",
@@ -79,6 +81,8 @@ export default class ProfileController {
                 "processorSettings",
                 "iswISOConfig",
                 "hydrogenConfig",
+                "habariConfig",
+                "zpk",
             ]));
             response.json({status: true, data})
         } catch (error) {
@@ -124,9 +128,25 @@ export default class ProfileController {
                     port: profile.hydrogenConfig.port,
                     ssl: profile.hydrogenConfig.ssl,
                     zmk: profile.hydrogenConfig.zmk
-                },]
+                },],
+                habari: [TransactionTypes.HABARI_KEY_EXCHANGE ,{
+                    host: profile.habariConfig.host,
+                    port: profile.habariConfig.port,
+                    ssl: profile.habariConfig.ssl,
+                    zmk: profile.habariConfig.zmk
+                },],
             }[type]
-
+            const getConfigKey = (type): string | undefined=>({
+                isw: "iswISOConfig",
+                hydrogen: "hydrogenConfig",
+                habari: "habariConfig",
+            })[type]
+            const configKey = getConfigKey(type)
+            if(!configKey?.length) {
+                return response.status(400).json({
+                    message: "Invalid type"
+                })
+            }
 
             const result = await sendSocketMessage(...details)
 
@@ -134,13 +154,14 @@ export default class ProfileController {
                 return response.status(400).json(result.data)
             }
 
-            profile[type == 'isw'?'iswISOConfig':'hydrogenConfig'].zpk = result.data.clearZPK
-            profile[type == 'isw'?'iswISOConfig':'hydrogenConfig'].lastRotate = new Date()
-            profile[type == 'isw'?'iswISOConfig':'hydrogenConfig'].kcv = result.data.kcv
-            profile.save()
-            PTSPProfileModel.updateMany({linkedProfileId: profile._id},{$set:{
-                iswISOConfig: profile.iswISOConfig,
-                hydrogenConfig: profile.hydrogenConfig
+
+            profile[configKey].zpk = result.data.clearZPK
+            profile[configKey].lastRotate = new Date()
+            profile[configKey].kcv = result.data.kcv
+            await profile.save()
+            let oProfile = profile.toJSON()
+            await PTSPProfileModel.updateMany({linkedProfileId: profile._id},{$set:{
+                [configKey]: oProfile[configKey],
             }});
 
             return response.json({

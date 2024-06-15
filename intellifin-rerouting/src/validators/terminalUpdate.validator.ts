@@ -87,6 +87,10 @@ const terminalUpdateValidator = createValidatedRequest(checkSchema({
         in: ['body'],
         trim: true,
     },
+    habariTID: {
+        in: ['body'],
+        trim: true,
+    },
     iswISOTID:{
         in: ['body'],
         trim: true,

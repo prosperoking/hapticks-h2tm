@@ -19,6 +19,7 @@ export default class TerminalController {
                     $or:[
                         { terminalId: RegExp(`^${q}`,'i') },
                         { hydrogenTID: RegExp(`^${q}`,'i') },
+                        { habariTID: RegExp(`^${q}`,'i') },
                         { iswISOTID: RegExp(`^${q}`,'i') },
                         { serialNo: RegExp(`^${q}`,'i') },
                         { brand: RegExp(`^${q}`,'i') },
@@ -80,6 +81,7 @@ export default class TerminalController {
                 "deviceModel",
                 "iswISOTID",
                 "hydrogenTID",
+                "habariTID",
                 "terminalLocation",
                 "terminalGroupId"
             ]));
@@ -140,7 +142,7 @@ export default class TerminalController {
 
             try{
             // await   TerminalController.performKeyExchange(request.body, request.params.id);
-            await keyExchange.add('keyexchange', {_id: terminal.id});
+                await keyExchange.add('keyexchange', {_id: terminal.id});
             }catch(e){
                 console.log("Unable to trigger key exchange", e)
             }

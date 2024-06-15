@@ -6,6 +6,7 @@ import * as mongoose from 'mongoose';
 
 export interface IJournal {
     amount: number,
+    amount_naira?: number,
     authCode: string,
     product: string,
     transactionTime: string,
@@ -94,7 +95,7 @@ let JournalsSchema = new mongoose.Schema<IJournalDocument>({
 },{
     timestamps: true,
     toJSON:{
-        virtuals: ['terminal','organisation']
+        virtuals: ['terminal','organisation', 'amount_naira'],
     }
 });
 
@@ -110,10 +111,14 @@ JournalsSchema.virtual('organisation', {
     foreignField: '_id',
 })
 
+JournalsSchema.virtual('amount_naira').get(function(){
+    return this.amount / 100;
+})
+
 JournalsSchema.plugin(paginate)
 
 JournalsSchema.plugin(csv, {
-    headers: [ "MTI",'TerminalId', "STAN", "RRN", "RESPONSE CODE", "RESPONSE MEANING", "MASKED PAN", "AUTH CODE", "AMOUNT", "CASHBACK", "TRANSACTION TIME", "PROCESSOR", "MERCHANT NAME", "MERCHANT ID", "MERCHANT ADDRESS", "MERCHANT CATEGORY CODE", "CURRENCY CODE", ],
+    headers: [ "MTI",'TerminalId', "STAN", "RRN", "RESPONSE CODE", "RESPONSE MEANING", "MASKED PAN", "AUTH CODE", "AMOUNT IN KOBO", "AMOUNT IN NAIRA", "CASHBACK", "TRANSACTION TIME", "PROCESSOR", "MERCHANT NAME", "MERCHANT ID", "MERCHANT ADDRESS", "MERCHANT CATEGORY CODE", "CURRENCY CODE", ],
     alias: {
         "MTI": "MTI",
         "TerminalId": "terminalId",
@@ -123,7 +128,8 @@ JournalsSchema.plugin(csv, {
         "RESPONSE MEANING": "responseDescription",
         "MASKED PAN": "PAN",
         "AUTH CODE": "authCode",
-        "AMOUNT": "amount",
+        "AMOUNT IN KOBO": "amount",
+        "AMOUNT IN NAIRA": "amount_naira",
         "CASHBACK": "cashback",
         "TRANSACTION TIME": "transactionTime",
         "PROCESSOR": "processor",

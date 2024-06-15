@@ -193,6 +193,11 @@
                       Hydrogen TID: <span class="font-bold">{{ terminal.hydrogenTID }}</span>
                     </p>
                   </template>
+                  <template v-if="terminal?.habariTID?.length">
+                    <p class=" whitespace-nowrap">
+                      Habari TID: <span class="font-bold">{{ terminal.habariTID }}</span>
+                    </p>
+                  </template>
                   <template v-if="terminal?.iswISOTID?.length">
                     <p class=" whitespace-nowrap">
                       ISW ISO TID: <span class="font-bold">{{ terminal.iswISOTID }}</span>
@@ -370,6 +375,9 @@
           <div>
             <Input title="Hydrogen Tid" v-model:value="form.hydrogenTID" />
           </div>
+          <div>
+            <Input title="Habari Tid" v-model:value="form.habariTID" />
+          </div>
           <div class="divide-y space-y-2 mt-2">
             <h3 class="font-bold text-gray-800 text-center">Terminal Location</h3>
             <section>
@@ -493,6 +501,7 @@ interface Terminal {
   threeLineParsedParams?: ParsedParams,
   parsedParams?: ParsedParams,
   hydrogenTID?: string,
+  habariTID?: string,
   iswISOTID?: string,
   terminalLocation: {
     name: string,
@@ -513,6 +522,7 @@ interface TerminalForm {
   deviceModel?: string | null,
   organisationId?: string | null,
   hydrogenTID?: string | null,
+  habariTID?: string | null,
   iswISOTID?: string | null,
   terminalGroupId: string | null,
   terminalLocation: {
@@ -655,6 +665,7 @@ const editTerminal = (terminal: Terminal) => {
     organisationId: terminal.organisationId,
     deviceModel: terminal.deviceModel,
     hydrogenTID: terminal.hydrogenTID,
+    habariTID: terminal.habariTID,
     iswISOTID: terminal.iswISOTID,
     terminalLocation: {
       name: '',

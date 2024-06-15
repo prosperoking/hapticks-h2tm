@@ -1,6 +1,10 @@
 <template>
   <div>
-    <h3 class="text-3xl font-medium text-gray-700">Dashboard</h3>
+    <div class="flex justify-between">
+      <h3 class="text-3xl font-medium text-gray-700">Dashboard</h3>
+      <div><Input type="date" v-model:value="currentDate" /></div>
+    </div>
+
 
     <div class="mt-4" v-can="'transactions.stats'">
       <div class="flex flex-wrap -mx-6">
@@ -61,7 +65,15 @@
       </div>
     </div>
 
-    <div class="mt-8"></div>
+    <div v-if="state.stats" class="mt-8 bg-white rounded shadow">
+      <ApexCharts
+        type="bar"
+        height="200"
+        :options="chartConfigurations.chartOptions"
+        :series="chartConfigurations.series"
+        :plotOptions="chartConfigurations.plotOptions"
+      />
+    </div>
 
     <div class="flex flex-col mt-8">
       <div v-can="'transactions.list'" class="py-2 -my-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
@@ -194,16 +206,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, inject, reactive, onMounted } from "vue";
+import { ref, inject, reactive, onMounted, watch, computed } from "vue";
 import axios, {AxiosInstance} from "axios"
-import { Transaction } from '../@types/types';
+import { Transaction, ProcessorStats } from '../@types/types';
 import { currencyFormatter, dateFormatter } from '../utils/Formatters';
+import format from "date-fns/format";
+import Input from '../components/Input.vue'
+import ApexCharts from "vue3-apexcharts";
 
 interface DashBoardState {
   totalTransactions?: number,
   totalTerminals?: number,
   totalFailedTransactions?: number,
-  latestTransactions?: Transaction[]
+  latestTransactions?: Transaction[],
+  stats?: ProcessorStats[],
 }
 
 interface User {
@@ -219,14 +235,68 @@ const request: AxiosInstance| undefined = inject('$axios');
 const state: DashBoardState = reactive<DashBoardState>({
   latestTransactions:[],
 })
+const currentDate = ref(format(new Date(), "yyyy-MM-dd"));
+const chartConfigurations = computed(()=>{
+  const data = state.stats ?? []
+  return {
+    chartOptions:{
+      chart:{
+        id: "processor-details",
+        stacked: true,
+      },
+      xaxis: {
+        categories: data.map(i=>i.processor.toUpperCase())
+      }
+    },
+    plotOptions: {
+      bar: {
+        columnWidth: 15
+      }
+    },
+    series:[
+      {
+        name: "Approved",
+        data: data.map(i=>i.approved),
+      },
+      {
+        name: "Incorrect Pin",
+        data: data.map(i=>i.incorrectPin),
+      },
+      {
+        name: "Insufficient Fund",
+        data: data.map(i=>i.insufficientFund),
+      },
+      {
+        name: "Issuer/Switch InOperative",
+        data: data.map(i=>i.issuerInOperative),
+      },
+
+      {
+        name: "No response",
+        data: data.map(i=>i.noResponse),
+      },
+      {
+        name: "No response",
+        data: data.map(i=>i.others),
+      },
+    ]
+  }
+})
+
+
 const getDashBoardData = async ()=> {
   try {
     // @ts-ignore: Unreachable code error
-    const {data} = await request?.get('/dashboard');
+    const {data} = await request?.get('/dashboard',{
+      params:{
+        date: currentDate.value
+      }
+    });
     state.totalTransactions = data.totalTransactionsToday;
     state.totalTerminals = data.terminalCount;
     state.totalFailedTransactions = data.totalFailedTransactionsToday;
     state.latestTransactions = data.lastestTransacions;
+    state.stats = data.stats;
   } catch (error: any) {
     if(error.isAxiosError){
 
@@ -248,4 +318,8 @@ const testUser: User = {
 };
 
 const users = ref<User[]>([...Array(10).keys()].map(() => testUser));
+
+watch(currentDate, ()=>{
+  getDashBoardData()
+})
 </script>
