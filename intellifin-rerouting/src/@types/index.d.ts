@@ -4,9 +4,7 @@ import { IUserData } from '../db/models/user.model';
 export {}
 
 declare global {
-    declare namespace Express {
-        export interface Request{
-            user?: IUserData
-        }
+    interface Request{
+        user?: IUserData
     }
 }

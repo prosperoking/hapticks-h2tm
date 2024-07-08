@@ -93,6 +93,7 @@ JournalsSchema.virtual('organisation', {
     ref: 'organisationProfile',
     localField: 'organisationId',
     foreignField: '_id',
+    justOne: true,
 });
 JournalsSchema.virtual('amount_naira').get(function () {
     return this.amount / 100;

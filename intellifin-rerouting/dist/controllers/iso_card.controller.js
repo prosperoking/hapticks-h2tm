@@ -54,11 +54,10 @@ class IsoCardContoller {
                     });
                     if (threeResult.status) {
                         terminal.threeLineParams = threeResult.data;
-                        terminal.save();
+                        yield terminal.save();
                     }
                 }
                 if (terminal.usingGroupedTid) {
-                    terminal.save();
                     const { encmasterkey, encpinkey, encsesskey, clrmasterkey, clrsesskey, clrpinkey, paramdownload, parsedParams, terminalId } = terminal.groupTid;
                     return response.json({
                         encmasterkey,
@@ -82,8 +81,6 @@ class IsoCardContoller {
                 }
                 if (type === "intelliffin")
                     return IsoCardContoller.handleIntelifinKeyExchange(terminal, response);
-                if (type === "3line" && (threeResult === null || threeResult === void 0 ? void 0 : threeResult.status)) {
-                }
                 const result = (type === "3line" &&
                     terminal.threeLineTid === terminal.terminalId &&
                     (threeResult === null || threeResult === void 0 ? void 0 : threeResult.status)) ? threeResult : yield (0, cardsockethelper_1.sendSocketMessage)(cardsockethelper_1.TransactionTypes.KEY_EXCHANGE, {

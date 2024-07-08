@@ -12,13 +12,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.GroupKeyExchangeWorker = exports.keyExchangeWorker = void 0;
+exports.RotateKeysWorker = exports.GroupKeyExchangeWorker = exports.keyExchangeWorker = void 0;
 const bullmq_1 = require("bullmq");
 const terminal_model_1 = __importDefault(require("../../db/models/terminal.model"));
 const cardsockethelper_1 = require("../../helpers/cardsockethelper");
 const config_1 = __importDefault(require("../../config/config"));
 const inteliffin_1 = __importDefault(require("../../services/inteliffin"));
 const groupTid_model_1 = __importDefault(require("../../db/models/groupTid.model"));
+const ptspProfile_model_1 = __importDefault(require("../../db/models/ptspProfile.model"));
 const config = (new config_1.default()).getConfig('');
 const connection = {
     host: config.redis.host,
@@ -123,6 +124,58 @@ exports.GroupKeyExchangeWorker = new bullmq_1.Worker('groupkeyexchange', (job) =
     groupTid.clrpinkey = data.clrpinkey;
     groupTid.paramdownload = data.paramdownload;
     yield groupTid.save();
+}), {
+    autorun: false,
+    connection,
+});
+exports.RotateKeysWorker = new bullmq_1.Worker('rotateKeys', (job) => __awaiter(void 0, void 0, void 0, function* () {
+    const profile = yield ptspProfile_model_1.default.findById(job.data.id);
+    if (!profile)
+        return;
+    if (profile.linkedProfileId !== null)
+        return;
+    const type = job.data.type;
+    const details = {
+        isw: [cardsockethelper_1.TransactionTypes.ISW_KEY_EXCHANGE, {
+                host: profile.iswISOConfig.host,
+                port: profile.iswISOConfig.port,
+                ssl: profile.iswISOConfig.ssl,
+                zmk: profile.iswISOConfig.zmk
+            }],
+        hydrogen: [cardsockethelper_1.TransactionTypes.HYDROGEN_KEY_EXCHANGE, {
+                host: profile.hydrogenConfig.host,
+                port: profile.hydrogenConfig.port,
+                ssl: profile.hydrogenConfig.ssl,
+                zmk: profile.hydrogenConfig.zmk
+            },],
+        habari: [cardsockethelper_1.TransactionTypes.HABARI_KEY_EXCHANGE, {
+                host: profile.habariConfig.host,
+                port: profile.habariConfig.port,
+                ssl: profile.habariConfig.ssl,
+                zmk: profile.habariConfig.zmk
+            },],
+    }[type];
+    const getConfigKey = (type) => ({
+        isw: "iswISOConfig",
+        hydrogen: "hydrogenConfig",
+        habari: "habariConfig",
+    })[type];
+    const configKey = getConfigKey(type);
+    if (!(configKey === null || configKey === void 0 ? void 0 : configKey.length)) {
+        return;
+    }
+    const result = yield (0, cardsockethelper_1.sendSocketMessage)(...details);
+    if (!result.status) {
+        return;
+    }
+    profile[configKey].zpk = result.data.clearZPK;
+    profile[configKey].lastRotate = new Date();
+    profile[configKey].kcv = result.data.kcv;
+    yield profile.save();
+    let oProfile = profile.toJSON();
+    yield ptspProfile_model_1.default.updateMany({ linkedProfileId: profile._id }, { $set: {
+            [configKey]: oProfile[configKey],
+        } });
 }), {
     autorun: false,
     connection,

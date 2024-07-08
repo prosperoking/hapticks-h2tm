@@ -17,8 +17,11 @@ FROM node:22-alpine3.18
 
 WORKDIR /app
 
-COPY --from=builder /app/intellifin-rerouting/package*.json /app/intellifin-rerouting/dist ./
-RUN apk --update --no-cache add curl tzdata
+COPY --from=builder /app/intellifin-rerouting/cron.txt /app/intellifin-rerouting/package*.json /app/intellifin-rerouting/dist ./
+# trunk-ignore(hadolint/DL3018)
+RUN apk --update --no-cache add curl tzdata && \
+    crontab -u $(whoami) cron.txt && \
+    rm cron.txt
 ENV TZ=Africa/Lagos
 
 RUN npm install --only=production

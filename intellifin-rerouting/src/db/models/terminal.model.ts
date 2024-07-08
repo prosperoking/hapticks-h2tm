@@ -120,7 +120,7 @@ const terminalSchema = new mongoose.Schema<ITerminal>(
           terminalId: {$type: "string"}
         }
       },
-      set: (value: string)=> value.length? value: null,
+      set: (value: string)=> value?.length? value: null,
     },
     clrmasterkey: {
       type: String,

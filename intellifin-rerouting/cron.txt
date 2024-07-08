@@ -1,0 +1,1 @@
+0 3 * * * npm run cli nibss-refresh-keys >> logs/cron.txt

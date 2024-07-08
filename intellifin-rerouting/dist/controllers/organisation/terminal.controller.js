@@ -12,19 +12,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteTerminal = exports.createTerminal = exports.updateTermial = exports.getByTid = exports.getById = exports.terminalIds = exports.getGroupedTids = void 0;
+exports.deleteTerminal = exports.createTerminal = exports.updateTermial = exports.getByTid = exports.getById = exports.terminalIds = exports.triggerKeyExchangeOnGroupTid = exports.getGroupedTids = void 0;
 const groupTid_model_1 = __importDefault(require("../../db/models/groupTid.model"));
 const terminal_model_1 = __importDefault(require("../../db/models/terminal.model"));
 const logger_1 = __importDefault(require("../../helpers/logger"));
 const pick_1 = __importDefault(require("lodash/pick"));
+const cardsockethelper_1 = require("../../helpers/cardsockethelper");
 function getGroupedTids(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const groupedTids = yield groupTid_model_1.default.paginate({
                 //@ts-ignore
-                organisationId: req.user._id
+                organisationId: req.user._id,
             }, {
-                select: "_id terminalId"
+                select: "_id terminalId",
             });
             res.json(groupedTids);
         }
@@ -35,14 +36,63 @@ function getGroupedTids(req, res) {
     });
 }
 exports.getGroupedTids = getGroupedTids;
+function triggerKeyExchangeOnGroupTid(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const groupTid = yield groupTid_model_1.default.findOne({
+                //@ts-ignore
+                organisationId: req.user._id,
+                _id: req.params.id,
+            }).populate('profile');
+            if (!groupTid) {
+                return res.status(400).json({ message: "GroupTid not found" });
+            }
+            const profile = groupTid.profile;
+            try {
+                let result = yield (0, cardsockethelper_1.sendSocketMessage)(cardsockethelper_1.TransactionTypes.KEY_EXCHANGE, {
+                    tid: groupTid.terminalId,
+                    component: profile.componentKey1,
+                    ip: profile.isoHost,
+                    ssl: String(profile.isSSL),
+                    port: profile.isoPort
+                });
+                console.log("", result);
+                if (!(result === null || result === void 0 ? void 0 : result.status))
+                    throw Error(result.message);
+                const { data } = result;
+                groupTid.encmasterkey = data.encmasterkey;
+                groupTid.encpinkey = data.encpinkey;
+                groupTid.encsesskey = data.encsesskey;
+                groupTid.clrmasterkey = data.clrmasterkey;
+                groupTid.clrsesskey = data.clrsesskey;
+                groupTid.clrpinkey = data.clrpinkey;
+                groupTid.paramdownload = data.paramdownload;
+                yield groupTid.save();
+            }
+            catch (e) {
+                return res.status(400).json({
+                    message: "Key exchange failed",
+                });
+            }
+            res.json({
+                message: "GroupTid key exchange triggered",
+            });
+        }
+        catch (error) {
+            logger_1.default.error(error);
+            res.status(400).json({ message: "Something went wrong" });
+        }
+    });
+}
+exports.triggerKeyExchangeOnGroupTid = triggerKeyExchangeOnGroupTid;
 function terminalIds(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const terminals = yield terminal_model_1.default.paginate({
                 //@ts-ignore
-                organisationId: req.user._id
+                organisationId: req.user._id,
             }, {
-                select: "_id terminalId"
+                select: "_id terminalId",
             });
             res.json(terminals);
         }
@@ -110,7 +160,7 @@ function updateTermial(req, res) {
                 "iswISOTID",
                 "hydrogenTID",
                 "terminalLocation",
-                "terminalGroupId"
+                "terminalGroupId",
             ]));
             terminal = yield terminal_model_1.default.findOne({
                 //@ts-ignore
@@ -147,7 +197,7 @@ function deleteTerminal(request, response) {
             const data = yield terminal_model_1.default.deleteOne({
                 _id: request.params.id,
                 //@ts-ignore
-                organisationId: request.user._id
+                organisationId: request.user._id,
             });
             response.json({ status: true, data });
         }

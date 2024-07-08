@@ -86,7 +86,7 @@ const terminalSchema = new mongoose.Schema({
                 terminalId: { $type: "string" }
             }
         },
-        set: (value) => value.length ? value : null,
+        set: (value) => (value === null || value === void 0 ? void 0 : value.length) ? value : null,
     },
     clrmasterkey: {
         type: String,

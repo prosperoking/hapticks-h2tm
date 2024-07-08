@@ -18,6 +18,7 @@ const terminal_model_1 = __importDefault(require("../db/models/terminal.model"))
 const moment_1 = __importDefault(require("moment"));
 class DashboardController {
     index(request, response) {
+        var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { query } = request;
@@ -47,6 +48,8 @@ class DashboardController {
                     {
                         $match: {
                             createdAt: transactionTime,
+                            //@ts-ignore
+                            organisationId: (_a = request.user.organisation_id) !== null && _a !== void 0 ? _a : undefined
                         },
                     },
                     {
@@ -136,7 +139,9 @@ class DashboardController {
                     },
                 ], { maxTimeMS: 60000, allowDiskUse: true });
                 const lastestTransacions = yield transaction_model_1.default.find({
-                    transactionTime
+                    transactionTime,
+                    //@ts-ignore
+                    organisationId: (_b = request.user.organisation_id) !== null && _b !== void 0 ? _b : undefined
                 })
                     .sort({ _id: -1 })
                     .limit(50);

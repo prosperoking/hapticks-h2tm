@@ -74,6 +74,7 @@ router.get('/terminals', TerminalController.terminalIds);
 router.get('/terminals/tid/:tid', TerminalController.getByTid);
 router.get('/terminals/:id', TerminalController.getById);
 router.get('/group-tids', TerminalController.getGroupedTids);
+router.get('/group-tids/key-exchange/:id', TerminalController.getGroupedTids);
 router.post('/terminals', [...terminalCreate_validator_1.default], TerminalController.createTerminal);
 router.put('/terminals/:id', [...terminalUpdate_validator_1.default], TerminalController.updateTermial);
 router.delete('/terminals/:id', TerminalController.deleteTerminal);

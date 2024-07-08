@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.registerQueueDashBoard = exports.startQueWorkers = exports.bullQueues = exports.Groupkeyexchange = exports.keyExchange = exports.webhookQueue = void 0;
+exports.registerQueueDashBoard = exports.startQueWorkers = exports.bullQueues = exports.RotateKeys = exports.Groupkeyexchange = exports.keyExchange = exports.webhookQueue = void 0;
 const bullmq_1 = require("bullmq");
 const logger_1 = __importDefault(require("../helpers/logger"));
 const config_1 = __importDefault(require("../config/config"));
@@ -31,13 +31,17 @@ const workers = [
     keyexchange_1.keyExchangeWorker,
     webhook_1.default,
     keyexchange_1.GroupKeyExchangeWorker,
+    keyexchange_1.RotateKeysWorker,
 ];
 exports.webhookQueue = new bullmq_1.Queue('webhook', { connection });
 exports.keyExchange = new bullmq_1.Queue('keyexchange', { connection });
 exports.Groupkeyexchange = new bullmq_1.Queue('groupkeyexchange', { connection });
+exports.RotateKeys = new bullmq_1.Queue('rotateKeys', { connection });
 exports.bullQueues = [
     exports.webhookQueue,
     exports.keyExchange,
+    exports.Groupkeyexchange,
+    exports.RotateKeys,
 ];
 const startQueWorkers = () => __awaiter(void 0, void 0, void 0, function* () {
     logger_1.default.log({ message: "Starting Queues" });

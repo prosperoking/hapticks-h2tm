@@ -7,7 +7,7 @@ import User from '../db/models/user.model';
 import Terminal from '../db/models/terminal.model';
 import { getAvailableTid } from '../helpers/appUtils';
 import Profile from '../db/models/ptspProfile.model';
-import { RotateKeys } from '../queue/queue';
+import { RotateKeys, keyExchange } from '../queue/queue';
 const config = new Config();
 const dbConfig = config.getConfig(process.env.NODE_ENV);
 
@@ -215,11 +215,41 @@ cli.command("rotate-keys")
             type: processor,
         },{
             repeat: {
-                cron: '0 0 * * *'
+                cron: '0 */3 * * *'
             },
             jobId: profileId,
         })
         console.log("Scheduled rotation")
+        process.exit(0)
+    })
+
+    cli.command("nibss-refresh-keys")
+    .description("Refresh nibss keys")
+    .action(async (str, opt) => {
+        await connectDatabase();
+
+
+        try {
+          const terminals =  await  Terminal.find({
+                terminalId: {
+                    $ne: null
+                }
+            })
+
+            for(let i = 0; i< terminals.length; i++){
+                const terminal = terminals[i]
+                try{
+                    await keyExchange.add('keyexchange', {_id: terminal.id});
+                }catch(e){
+                    console.log(`Unable to trigger key exchange for:  ${terminal.terminalId}`, e)
+                }
+            }
+            console.log(`dipached ${terminals.length} terminals for key refresh`)
+        } catch (error) {
+            console.error(error)
+            process.exit(1)
+            return;
+        }
         process.exit(0)
     })
 

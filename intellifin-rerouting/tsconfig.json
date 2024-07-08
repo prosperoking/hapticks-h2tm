@@ -24,6 +24,6 @@
     "dist/public"
   ],
   "ts-node": {
-    "swc": false
+    "swc": true
   }
 }

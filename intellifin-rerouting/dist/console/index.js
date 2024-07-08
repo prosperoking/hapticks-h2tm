@@ -20,6 +20,8 @@ const inquirer_1 = __importDefault(require("inquirer"));
 const user_model_1 = __importDefault(require("../db/models/user.model"));
 const terminal_model_1 = __importDefault(require("../db/models/terminal.model"));
 const appUtils_1 = require("../helpers/appUtils");
+const ptspProfile_model_1 = __importDefault(require("../db/models/ptspProfile.model"));
+const queue_1 = require("../queue/queue");
 const config = new config_1.default();
 const dbConfig = config.getConfig(process.env.NODE_ENV);
 /** connection mongodb */
@@ -175,5 +177,87 @@ cli.command("tid")
         });
     }));
 });
+cli.command("rotate-keys")
+    .description("rotate keys for specified profile and processor")
+    .action((str, opt) => __awaiter(void 0, void 0, void 0, function* () {
+    yield connectDatabase();
+    const { profileId, processor } = yield inquirer_1.default.prompt([
+        {
+            'type': 'input',
+            'name': 'profileId',
+            validate: (value) => {
+                return value ? true : 'Profile ID is required';
+            },
+            message: 'Profile ID',
+        },
+        {
+            type: "list",
+            name: "processor",
+            choices: [
+                "isw",
+                "hydrogen",
+                "habari",
+            ],
+            message: "Processor"
+        }
+    ]);
+    let profile = null;
+    try {
+        profile = yield ptspProfile_model_1.default.findOne({
+            _id: profileId,
+            linkedProfile: null
+        });
+    }
+    catch (error) {
+        console.log(error.message);
+        process.exit(0);
+        return;
+    }
+    if (!profile) {
+        console.log("Profile not found or not supported");
+        return process.exit(0);
+    }
+    const removed = yield queue_1.RotateKeys.remove(profileId);
+    console.log("Removed jobs: ", removed);
+    queue_1.RotateKeys.add("rotateKeys", {
+        id: profileId,
+        type: processor,
+    }, {
+        repeat: {
+            cron: '0 */3 * * *'
+        },
+        jobId: profileId,
+    });
+    console.log("Scheduled rotation");
+    process.exit(0);
+}));
+cli.command("nibss-refresh-keys")
+    .description("Refresh nibss keys")
+    .action((str, opt) => __awaiter(void 0, void 0, void 0, function* () {
+    yield connectDatabase();
+    try {
+        const terminals = yield terminal_model_1.default.find({
+            terminalId: {
+                $ne: null
+            }
+        });
+        for (let i = 0; i < terminals.length; i++) {
+            const terminal = terminals[i];
+            try {
+                yield queue_1.keyExchange.add('keyexchange', { _id: terminal.id });
+            }
+            catch (e) {
+                console.log(`Unable to trigger key exchange for:  ${terminal.terminalId}`, e);
+            }
+        }
+        console.log(`dipached ${terminals.length} terminals for key refresh`);
+    }
+    catch (error) {
+        console.error(error);
+        process.exit(1);
+        return;
+    }
+    process.exit(0);
+}));
 cli.parse();
 //# sourceMappingURL=index.js.map

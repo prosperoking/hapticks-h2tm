@@ -39,6 +39,8 @@ export default class DashboardController {
           {
             $match: {
               createdAt: transactionTime,
+              //@ts-ignore
+              organisationId: request.user.organisation_id ?? undefined
             },
           },
           {
@@ -130,7 +132,9 @@ export default class DashboardController {
         { maxTimeMS: 60000, allowDiskUse: true }
       );
       const lastestTransacions = await vasjournalsModel.find({
-          transactionTime
+          transactionTime,
+          //@ts-ignore
+          organisationId: request.user.organisation_id ?? undefined
         })
         .sort({ _id: -1 })
         .limit(50);
