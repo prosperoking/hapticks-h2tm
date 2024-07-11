@@ -42,7 +42,7 @@ router.get('/terminals',  TerminalController.terminalIds);
 router.get('/terminals/tid/:tid',  TerminalController.getByTid);
 router.get('/terminals/:id',  TerminalController.getById);
 router.get('/group-tids',  TerminalController.getGroupedTids);
-router.get('/group-tids/key-exchange/:id',  TerminalController.getGroupedTids);
+router.get('/group-tids/key-exchange/:id',  TerminalController.triggerKeyExchangeOnGroupTid);
 router.post('/terminals', [... terminalCreateValidator],  TerminalController.createTerminal);
 router.put('/terminals/:id', [... terminalUpdateValidator],  TerminalController.updateTermial);
 router.delete('/terminals/:id',  TerminalController.deleteTerminal);

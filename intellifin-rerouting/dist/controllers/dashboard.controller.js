@@ -18,10 +18,12 @@ const terminal_model_1 = __importDefault(require("../db/models/terminal.model"))
 const moment_1 = __importDefault(require("moment"));
 class DashboardController {
     index(request, response) {
-        var _a, _b;
+        var _a;
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { query } = request;
+                const orgFilter = Boolean((_a = request.user) === null || _a === void 0 ? void 0 : _a.organisation_id) ?
+                    { organisationId: request.user.organisation_id } : {};
                 const date = (query.date ? (0, moment_1.default)(new Date(`${query.date}`)) : (0, moment_1.default)()).format("YYYY-MM-DD");
                 const transactionTime = {
                     $gte: (0, moment_1.default)(date).toDate(),
@@ -32,25 +34,16 @@ class DashboardController {
                         .toDate(),
                 };
                 const totalTransactionsToday = yield transaction_model_1.default
-                    .where({
-                    transactionTime
-                })
+                    .where(Object.assign({ transactionTime }, orgFilter))
                     .count();
                 const totalFailedTransactionsToday = yield transaction_model_1.default
-                    .where({
-                    transactionTime,
-                    responseCode: {
+                    .where(Object.assign({ transactionTime, responseCode: {
                         $ne: "00",
-                    },
-                })
+                    } }, orgFilter))
                     .count();
                 const stats = yield transaction_model_1.default.aggregate([
                     {
-                        $match: {
-                            createdAt: transactionTime,
-                            //@ts-ignore
-                            organisationId: (_a = request.user.organisation_id) !== null && _a !== void 0 ? _a : undefined
-                        },
+                        $match: Object.assign({ createdAt: transactionTime }, orgFilter),
                     },
                     {
                         $group: {
@@ -138,11 +131,7 @@ class DashboardController {
                         },
                     },
                 ], { maxTimeMS: 60000, allowDiskUse: true });
-                const lastestTransacions = yield transaction_model_1.default.find({
-                    transactionTime,
-                    //@ts-ignore
-                    organisationId: (_b = request.user.organisation_id) !== null && _b !== void 0 ? _b : undefined
-                })
+                const lastestTransacions = yield transaction_model_1.default.find(Object.assign({ transactionTime }, orgFilter))
                     .sort({ _id: -1 })
                     .limit(50);
                 const terminalCount = yield terminal_model_1.default.find({}).count();

@@ -8,6 +8,8 @@ export default class DashboardController {
   public async index(request: Request, response: Response) {
     try {
       const { query } = request;
+      const orgFilter = Boolean(request.user?.organisation_id) ?
+      {organisationId: request.user.organisation_id }: {};
       const date = (
         query.date ? moment(new Date(`${query.date}`)) : moment()
       ).format("YYYY-MM-DD");
@@ -22,7 +24,8 @@ export default class DashboardController {
 
       const totalTransactionsToday = await vasjournalsModel
         .where({
-          transactionTime
+          transactionTime,
+          ...orgFilter,
         })
         .count();
       const totalFailedTransactionsToday = await vasjournalsModel
@@ -31,6 +34,7 @@ export default class DashboardController {
           responseCode: {
             $ne: "00",
           },
+          ...orgFilter,
         })
         .count();
 
@@ -39,8 +43,7 @@ export default class DashboardController {
           {
             $match: {
               createdAt: transactionTime,
-              //@ts-ignore
-              organisationId: request.user.organisation_id ?? undefined
+              ...orgFilter,
             },
           },
           {
@@ -133,8 +136,7 @@ export default class DashboardController {
       );
       const lastestTransacions = await vasjournalsModel.find({
           transactionTime,
-          //@ts-ignore
-          organisationId: request.user.organisation_id ?? undefined
+          ...orgFilter,
         })
         .sort({ _id: -1 })
         .limit(50);
