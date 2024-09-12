@@ -37,10 +37,6 @@
                             </th>
                             <th
                                 class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-800 uppercase bg-gray-100 border-b-2 border-gray-200">
-                                HTTP RESPONSE
-                            </th>
-                            <th
-                                class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-800 uppercase bg-gray-100 border-b-2 border-gray-200">
                                 Info
                             </th>
                             <th
@@ -73,25 +69,26 @@
                                         </svg>
 
                                         <div class="ml-3">
-                                            <p class="text-gray-900 whitespace-nowrap">
+                                            <p class="text-gray-900 text-xs whitespace-nowrap">
                                                 {{ u.terminalId }}
                                             </p>
                                         </div>
                                     </div>
                                 </td>
-                                <td class="px-5 py-5 text-sm bg-white border-b border-gray-200">
-                                    <p class="text-gray-900 whitespace-nowrap">{{ u.responseCode }}</p>
-                                </td>
-                                <td class="px-5 py-5 text-sm bg-white border-b border-gray-200">
-                                    <p t
+                                <td class="px-5 py-5 text-xs bg-white border-b border-gray-200">
+                                    <p
                                         class="text-gray-900 whitespace-nowrap w-24 lg:w-44 overflow-hidden text-ellipsis">
                                         {{ u.payload.merchantName }}
                                     </p>
                                     <p class="text-gray-900 whitespace-nowrap">
                                         {{ dateFormatter(u.createdAt ?? '') }}
                                     </p>
+                                    <p :title="u.url" v-if="u.url?.length" class="text-blue-400 my-1 text-xs whitespace-nowrap overflow-hidden text-ellipsis">
+                                        {{ u.url }}
+                                    </p>
+                                    <p class="text-gray-700 whitespace-nowrap text-xs"><span class="font-bold">HTTP CODE:</span> {{ u.responseCode }}</p>
                                 </td>
-                                <td class="px-5 py-5 text-sm bg-white border-b border-gray-200">
+                                <td class="px-5 py-5 text-xs bg-white border-b border-gray-200">
                                     <span
                                         :class="`relative inline-block px-3 py-1  ${u.status === 'success' ? 'bg-green-600' : 'bg-gray-800'} text-white rounded-full border  leading-tight`">
                                         <span aria-hidden :class="`absolute inset-0 opacity-50 rounded-full`"></span>
@@ -99,7 +96,7 @@
                                     </span>
                                 </td>
                                 <td class="px-5 py-5 space-x-2 text-sm bg-white border-b border-gray-200">
-                                    <button @click="selected = u" title="view"
+                                    <button @click="selected = selected === u? null : u" title="view"
                                         class="text-blue-500 hover:text-blue-600">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                             stroke-width="1.5" stroke="currentColor" class="w-5 h-5">

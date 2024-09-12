@@ -1,5 +1,6 @@
 import { ObjectId } from "mongoose";
 import TerminalID from "../db/models/terminalIds.model";
+import Crypto from "crypto"
 const availableCharacters: string[] = Array(10).fill(null).map((_,i)=>i.toString()).concat(
     Array(26).fill(null).map((_,i)=>String.fromCharCode(i+65))
 );
@@ -68,4 +69,11 @@ export function totalPossibleGeneration(ranges: {[key: string]: {start:number, e
         const dif = range.end - range.start + 1
         return accumulator?accumulator*dif : dif;
     }, 0 )
+}
+
+export function generateTDESKey(bytes: number = 16): string
+{
+    return Crypto.randomBytes(bytes)
+                .toString('hex')
+                .toUpperCase();
 }

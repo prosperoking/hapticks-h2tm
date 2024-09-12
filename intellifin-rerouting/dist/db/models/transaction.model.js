@@ -32,7 +32,7 @@ const mongoose_paginate_v2_1 = __importDefault(require("mongoose-paginate-v2"));
 const mongoose = __importStar(require("mongoose"));
 let JournalsSchema = new mongoose.Schema({
     amount: Number,
-    authCode: { type: String, default: '' },
+    authCode: { type: String, default: "" },
     product: { type: String, default: "" },
     transactionTime: Date,
     reversal: { type: Boolean, default: false },
@@ -63,8 +63,16 @@ let JournalsSchema = new mongoose.Schema({
     },
     extraData: { type: String, default: "" },
     processor: { type: String, default: "NIBSS" },
+    issuer: {
+        type: String,
+        default: null
+    },
     meta: {
         type: Object,
+    },
+    deviceInfo: {
+        type: Object,
+        default: null,
     },
     webhookData: {
         type: Object,
@@ -77,45 +85,64 @@ let JournalsSchema = new mongoose.Schema({
     totalTransTime: {
         type: Number,
         default: null,
-    }
+    },
 }, {
     timestamps: true,
     toJSON: {
-        virtuals: ['terminal', 'organisation', 'amount_naira'],
-    }
+        virtuals: ["terminal", "organisation", "amount_naira"],
+    },
 });
-JournalsSchema.virtual('terminal', {
-    ref: 'terminal',
-    localField: 'terminalId',
-    foreignField: 'terminalId',
+JournalsSchema.virtual("terminal", {
+    ref: "terminal",
+    localField: "terminalId",
+    foreignField: "terminalId",
 });
-JournalsSchema.virtual('organisation', {
-    ref: 'organisationProfile',
-    localField: 'organisationId',
-    foreignField: '_id',
+JournalsSchema.virtual("organisation", {
+    ref: "organisationProfile",
+    localField: "organisationId",
+    foreignField: "_id",
     justOne: true,
 });
-JournalsSchema.virtual('amount_naira').get(function () {
+JournalsSchema.virtual("amount_naira").get(function () {
     return this.amount / 100;
 });
 JournalsSchema.plugin(mongoose_paginate_v2_1.default);
 JournalsSchema.plugin(mongoose_csv_export_1.default, {
-    headers: ["MTI", 'TerminalId', "STAN", "RRN", "RESPONSE CODE", "RESPONSE MEANING", "MASKED PAN", "AUTH CODE", "AMOUNT IN KOBO", "AMOUNT IN NAIRA", "CASHBACK", "TRANSACTION TIME", "PROCESSOR", "MERCHANT NAME", "MERCHANT ID", "MERCHANT ADDRESS", "MERCHANT CATEGORY CODE", "CURRENCY CODE",],
+    headers: [
+        "MTI",
+        "TerminalId",
+        "STAN",
+        "RRN",
+        "RESPONSE CODE",
+        "RESPONSE MEANING",
+        "MASKED PAN",
+        "AUTH CODE",
+        "AMOUNT IN KOBO",
+        "AMOUNT IN NAIRA",
+        "CASHBACK",
+        "TRANSACTION TIME",
+        "PROCESSOR",
+        "MERCHANT NAME",
+        "MERCHANT ID",
+        "MERCHANT ADDRESS",
+        "MERCHANT CATEGORY CODE",
+        "CURRENCY CODE",
+    ],
     alias: {
-        "MTI": "MTI",
-        "TerminalId": "terminalId",
-        "STAN": "STAN",
-        "RRN": "rrn",
+        MTI: "MTI",
+        TerminalId: "terminalId",
+        STAN: "STAN",
+        RRN: "rrn",
         "RESPONSE CODE": "responseCode",
         "RESPONSE MEANING": "responseDescription",
         "MASKED PAN": "PAN",
         "AUTH CODE": "authCode",
         "AMOUNT IN KOBO": "amount",
         "AMOUNT IN NAIRA": "amount_naira",
-        "CASHBACK": "cashback",
+        CASHBACK: "cashback",
         "TRANSACTION TIME": "transactionTime",
-        "PROCESSOR": "processor",
-        "ORGANISATION": "organisationId",
+        PROCESSOR: "processor",
+        ORGANISATION: "organisationId",
         "MERCHANT NAME": "merchantName",
         "MERCHANT ID": "merchantId",
         "MERCHANT ADDRESS": "merchantAddress",
@@ -124,5 +151,5 @@ JournalsSchema.plugin(mongoose_csv_export_1.default, {
     },
     delimiter: ",",
 });
-exports.default = mongoose.model('journal', JournalsSchema);
+exports.default = mongoose.model("journal", JournalsSchema);
 //# sourceMappingURL=transaction.model.js.map

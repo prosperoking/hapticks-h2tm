@@ -45,6 +45,10 @@ const webhookSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    urls: {
+        type: [String],
+        default: [],
+    },
     secret: {
         type: String,
         set: value => (value === null || value === void 0 ? void 0 : value.length) ? (0, crypt_1.encrypt)(value) : null,
@@ -70,6 +74,12 @@ webhookSchema.virtual('request_count', {
     localField: '_id',
     foreignField: 'webhookId',
     count: true,
+});
+webhookSchema.virtual('dest_urls').get(function () {
+    var _a;
+    return Array.from(new Set([this.url, ...((_a = this.urls) !== null && _a !== void 0 ? _a : [])]
+        .filter((url) => url === null || url === void 0 ? void 0 : url.length)
+        .map(url => url.toLowerCase())));
 });
 webhookSchema.post('remove', function (data) {
     ptspProfile_model_1.default.updateMany({

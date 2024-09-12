@@ -67,6 +67,15 @@ export interface ITerminal {
   habariTID?: string;
   iswISOTID?: string;
   maxTransAmount: number;
+  nibssParams?: {
+    clrpinkey: string;
+    clrMasterKey: string;
+    encmasterkey: string;
+    encSessionKey: string;
+    clrSessionKey: string;
+    encPinKey: string;
+    paramdownload: string;
+  },
 }
 
 export interface ITerminalDocument extends Document, ITerminal {}
@@ -240,6 +249,10 @@ const terminalSchema = new mongoose.Schema<ITerminal>(
       type: Object,
       default: null,
     },
+    nibssParams: {
+      type: Object,
+      default: null,
+    },
     hydrogenTID: {
       type: String,
       default: null,
@@ -272,6 +285,10 @@ const terminalSchema = new mongoose.Schema<ITerminal>(
         }
       },
       set: (value)=> value?.length? value: null
+    },
+    maxTransAmount: {
+      type: Number,
+      default: 1e8
     }
   },
   {
@@ -399,6 +416,9 @@ terminalSchema.plugin(csv, {
     "AppVersion",
     "DeviceModel",
     "ThreeLineTid",
+    "hydrogenTID",
+    "iswISOTID",
+    "habariTID",
   ],
   alias: {
     SerialNo: "serialNo",
@@ -409,6 +429,9 @@ terminalSchema.plugin(csv, {
     AppVersion: "appVersion",
     DeviceModel: "deviceModel",
     ThreeLineTid: "threeLineTid",
+    IswISOTid: "iswISOTID",
+    HydrogenTid: "hydrogenTID",
+    HabariTid: "habariTID",
   },
 });
 

@@ -55,6 +55,10 @@ mongoose_1.default.connect(dbConfig.DATABASE_URL, dbConfig.options, (err) => {
 mongoose_1.default.set('debug', dbConfig.enable_logging);
 /** Enable Cross Origin Resource Sharing */
 app.use((0, cors_1.default)());
+app.use(function (req, res, next) {
+    res.setHeader('X-Frame-Options', 'sameorigin');
+    next();
+});
 app.use((0, connect_timeout_1.default)('15m'));
 /** set parser to parse the request data in json format */
 app.use(body_parser_1.default.json({ limit: '50mb' }));

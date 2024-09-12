@@ -16,21 +16,29 @@ const index_1 = require("./index");
 const schema_1 = require("express-validator/src/middlewares/schema");
 const webhook_model_1 = __importDefault(require("../db/models/webhook.model"));
 const webHookUpdateValidator = (0, index_1.createValidatedRequest)((0, schema_1.checkSchema)({
-    url: {
+    urls: {
         in: ['body'],
-        trim: true,
-        isURL: true,
+        isArray: true,
         custom: {
             options: (value, { req, location, path }) => __awaiter(void 0, void 0, void 0, function* () {
+                var _a;
                 if (!(yield webhook_model_1.default.find({
-                    url: value,
-                    organisationId: req.body.organisationId,
+                    urls: value,
+                    organisationId: ((_a = req.body.organisationId) === null || _a === void 0 ? void 0 : _a.length) ? req.body.organisationId : undefined,
+                    _id: { $ne: req.params.id },
                 })))
                     return Promise.reject();
             }),
             errorMessage: "Webhook Already Registered for Organisation",
             bail: true,
         }
+    },
+    "urls.*": {
+        // in: ['body'],
+        trim: true,
+        isURL: {
+            errorMessage: "Invalid Url",
+        },
     },
     name: {
         in: ['body'],

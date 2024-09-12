@@ -18,7 +18,7 @@ export interface IWebhookRequestData extends Document {
     journalId: string | any,
     webhook?: Webhook,
     organisation?: Organisation
-
+    url?: string,
 }
 
 export interface IWebhookRequest extends Document, IWebhookRequestData{}
@@ -73,9 +73,12 @@ const webhookRequestSchema = new mongoose.Schema<IWebhookRequestData>({
     verifySignature: {
         type: String,
         default: null,
+    },
+
+    url: {
+        type: String,
+        default: null,
     }
-
-
 },{
     timestamps: {
         createdAt: true,

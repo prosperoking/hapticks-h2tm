@@ -4,7 +4,10 @@ import TerminalModel from "../../db/models/terminal.model";
 import logger from "../../helpers/logger";
 import pick from "lodash/pick";
 import { Groupkeyexchange } from "../../queue/queue";
-import { TransactionTypes, sendSocketMessage } from "../../helpers/cardsockethelper";
+import {
+  TransactionTypes,
+  sendSocketMessage,
+} from "../../helpers/cardsockethelper";
 
 export async function getGroupedTids(req: Request, res: Response) {
   try {
@@ -33,33 +36,33 @@ export async function triggerKeyExchangeOnGroupTid(
       //@ts-ignore
       organisationId: req.user._id,
       _id: req.params.id,
-    }).populate('profile');
+    }).populate("profile");
     if (!groupTid) {
       return res.status(400).json({ message: "GroupTid not found" });
     }
     const profile = groupTid.profile;
     try {
-        let result = await sendSocketMessage(TransactionTypes.KEY_EXCHANGE, {
-            tid: groupTid.terminalId,
-            component: profile.componentKey1,
-            ip: profile.isoHost,
-            ssl: String(profile.isSSL),
-            port: profile.isoPort
-        });
+      let result = await sendSocketMessage(TransactionTypes.KEY_EXCHANGE, {
+        tid: groupTid.terminalId,
+        component: profile.componentKey1,
+        ip: profile.isoHost,
+        ssl: String(profile.isSSL),
+        port: profile.isoPort,
+      });
 
-        console.log("", result);
+      console.log("", result);
 
-        if (!result?.status)  throw Error(result.message);
+      if (!result?.status) throw Error(result.message);
 
-        const { data } = result;
-        groupTid.encmasterkey = data.encmasterkey;
-        groupTid.encpinkey = data.encpinkey;
-        groupTid.encsesskey = data.encsesskey;
-        groupTid.clrmasterkey = data.clrmasterkey;
-        groupTid.clrsesskey = data.clrsesskey;
-        groupTid.clrpinkey = data.clrpinkey;
-        groupTid.paramdownload = data.paramdownload;
-        await groupTid.save();
+      const { data } = result;
+      groupTid.encmasterkey = data.encmasterkey;
+      groupTid.encpinkey = data.encpinkey;
+      groupTid.encsesskey = data.encsesskey;
+      groupTid.clrmasterkey = data.clrmasterkey;
+      groupTid.clrsesskey = data.clrsesskey;
+      groupTid.clrpinkey = data.clrpinkey;
+      groupTid.paramdownload = data.paramdownload;
+      await groupTid.save();
     } catch (e) {
       return res.status(400).json({
         message: "Key exchange failed",
@@ -68,6 +71,7 @@ export async function triggerKeyExchangeOnGroupTid(
 
     res.json({
       message: "GroupTid key exchange triggered",
+      data: groupTid,
     });
   } catch (error) {
     logger.error(error);
@@ -77,13 +81,28 @@ export async function triggerKeyExchangeOnGroupTid(
 
 export async function terminalIds(req: Request, res: Response) {
   try {
+    const q = req.query;
+    const query = q?.length
+      ? {
+          $or: [
+            { terminalGroupId: q },
+            { terminalId: q },
+            { serialNo: q },
+            { iswISOTID: q },
+            { iswTid: q },
+            { habariTID: q },
+            { hydrogenTID: q },
+          ],
+        }
+      : {};
     const terminals = await TerminalModel.paginate(
       {
         //@ts-ignore
         organisationId: req.user._id,
+        ...query,
       },
       {
-        select: "_id terminalId",
+        select: "_id terminalId terminalGroupId serialNo ",
       }
     );
     res.json(terminals);
@@ -160,6 +179,31 @@ export async function updateTermial(req: Request, res: Response) {
   }
 }
 
+export async function updateTermialTidGroupTid(req: Request, res: Response) {
+  try {
+    let terminal = await TerminalModel.findOne({
+      //@ts-ignore
+      organisationId: req.user._id,
+      _id: req.params.id,
+    });
+    if (!terminal || terminal == null) {
+      return res.status(400).json({ message: "No data found!" });
+    }
+
+    const data = await terminal.update(
+      pick(req.body, ["terminalId", "terminalGroupId"])
+    );
+    terminal = await TerminalModel.findOne({
+      //@ts-ignore
+      organisationId: req.user._id,
+      _id: req.params.id,
+    });
+    res.json({ status: true, data: terminal });
+  } catch (error) {
+    logger.error(error);
+    res.status(400).json({ message: "Something went wrong" });
+  }
+}
 export async function createTerminal(request: Request, response: Response) {
   try {
     const data = await TerminalModel.create({

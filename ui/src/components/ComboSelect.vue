@@ -1,5 +1,6 @@
 <template>
   <div>
+
     <Combobox v-model="selected" :class="{'pointer-events-none': data?.length < 1 || busy }" class="">
       <div class="mt-1 relative">
         <div
@@ -7,7 +8,7 @@
         >
           <ComboboxInput
             class="w-full py-2 pl-3 pr-10 text-sm leading-5 text-gray-900 border-none focus:ring-0"
-            :displayValue="getDisplay"
+            :displayValue="display"
             :placeholder="placeholder"
             @change="query = $event.target.value"
           />
@@ -23,6 +24,7 @@
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
           @after-leave="query = ''"
+
         >
 
           <ComboboxOptions
@@ -167,11 +169,12 @@ let data = computed<Option[]>(() =>{
       )
 })
 
-const getDisplay = (value: any)=> {
+const display = computed( (value: any)=> {
  if(data.value instanceof Array === false || !value === undefined || value?.length < 1) return
-
- return (data.value || []).find(item=>item[props.valueKey] === value)?.[props.titleKey]
-}
+ const item = (Array.from(data.value) || []).find(item=>item[props.valueKey] === props.modelValue) || {}
+ console.log(item[props.titleKey], item)
+ return ()=> item[props.titleKey]
+})
 
 onMounted(()=>{
   fetchAsyncData();

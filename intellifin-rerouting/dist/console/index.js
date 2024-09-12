@@ -19,9 +19,12 @@ const logger_1 = __importDefault(require("../helpers/logger"));
 const inquirer_1 = __importDefault(require("inquirer"));
 const user_model_1 = __importDefault(require("../db/models/user.model"));
 const terminal_model_1 = __importDefault(require("../db/models/terminal.model"));
+const transaction_model_1 = __importDefault(require("../db/models/transaction.model"));
 const appUtils_1 = require("../helpers/appUtils");
 const ptspProfile_model_1 = __importDefault(require("../db/models/ptspProfile.model"));
 const queue_1 = require("../queue/queue");
+const cardBins_1 = __importDefault(require("../helpers/cardBins"));
+const lodash_1 = require("lodash");
 const config = new config_1.default();
 const dbConfig = config.getConfig(process.env.NODE_ENV);
 /** connection mongodb */
@@ -41,21 +44,23 @@ function connectDatabase() {
     });
 }
 const cli = new commander_1.Command();
-cli.name('h2tm')
+cli
+    .name("h2tm")
     .description("Simple cli to manage application info")
     .version("0.0.1");
-cli.command('user')
-    .description('Used to manage application users')
-    .argument('create', 'create a user')
-    .option('-a, --admin', 'Create an admin user', false)
+cli
+    .command("user")
+    .description("Used to manage application users")
+    .argument("create", "create a user")
+    .option("-a, --admin", "Create an admin user", false)
     .action((str, options) => {
     const self = this;
     connectDatabase().then((connection) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const result = yield inquirer_1.default.prompt([
                 {
-                    type: 'input',
-                    name: 'username',
+                    type: "input",
+                    name: "username",
                     prefix: "1.",
                     message: "Enter Username:",
                     validate: (username) => __awaiter(void 0, void 0, void 0, function* () {
@@ -65,52 +70,51 @@ cli.command('user')
                         if (user)
                             return "Username already exists";
                         return true;
-                    })
+                    }),
                 },
                 {
-                    type: 'input',
-                    name: 'email',
+                    type: "input",
+                    name: "email",
                     prefix: "2.",
                     message: "Enter email:",
                     validate: (email) => __awaiter(void 0, void 0, void 0, function* () {
-                        if (!email.length ||
-                            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+                        if (!email.length || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
                             return "Invalid email";
                         const user = yield user_model_1.default.findOne({ email });
                         if (user)
                             return "Email already exists";
                         return true;
-                    })
+                    }),
                 },
                 {
-                    type: 'input',
-                    name: 'fullname',
+                    type: "input",
+                    name: "fullname",
                     prefix: "1.",
                     message: "Enter Fullname:",
                     validate: (fullname) => __awaiter(void 0, void 0, void 0, function* () {
                         if (!fullname.length)
                             return "Invalid Username";
                         return true;
-                    })
+                    }),
                 },
                 {
-                    type: 'password',
-                    name: 'password',
-                    mask: '*',
+                    type: "password",
+                    name: "password",
+                    mask: "*",
                     prefix: "3.",
                     message: "Enter Password:",
                     validate: (value) => {
                         return value.length >= 8 ? true : false;
-                    }
+                    },
                 },
                 {
-                    type: 'list',
-                    name: 'role',
+                    type: "list",
+                    name: "role",
                     prefix: "4.",
                     message: "Select User role:",
                     choices: [
-                        { name: "User", value: 'user' },
-                        { name: 'Admin', value: 'admin' }
+                        { name: "User", value: "user" },
+                        { name: "Admin", value: "admin" },
                     ],
                 },
             ]);
@@ -123,24 +127,24 @@ cli.command('user')
         connection.disconnect();
     }));
 });
-cli.command("tid")
+cli
+    .command("tid")
     .description("Generate tid for terminals missing iswiso, hydogen tids")
     .argument("generate", "")
     .action((str, options) => {
     connectDatabase().then((connection) => __awaiter(void 0, void 0, void 0, function* () {
         const terminals = yield terminal_model_1.default.find({
-            $or: [
-                { iswISOTID: null },
-                { hydrogenTID: null },
-            ]
+            $or: [{ iswISOTID: null }, { hydrogenTID: null }],
         });
         let total = terminals.length;
-        let result = yield inquirer_1.default.prompt([{
-                type: 'confirm',
-                name: 'continue',
+        let result = yield inquirer_1.default.prompt([
+            {
+                type: "confirm",
+                name: "continue",
                 prefix: "1.",
                 message: `Are you sure to generate ${total} affected TIDs?`,
-            }]);
+            },
+        ]);
         if (!result.continue) {
             console.log(result);
             logger_1.default.log("Cancelled");
@@ -152,12 +156,13 @@ cli.command("tid")
             process.exit(0);
         }
         const dbSession = yield terminal_model_1.default.startSession();
-        yield dbSession.withTransaction(() => __awaiter(void 0, void 0, void 0, function* () {
+        yield dbSession
+            .withTransaction(() => __awaiter(void 0, void 0, void 0, function* () {
             const allActivities = terminals.map((terminal) => __awaiter(void 0, void 0, void 0, function* () {
                 var _a, _b;
                 const [isw, hygdrogen] = yield Promise.all([
-                    (0, appUtils_1.getAvailableTid)(terminal.id, 'isw'),
-                    (0, appUtils_1.getAvailableTid)(terminal.id, 'hydrogen'),
+                    (0, appUtils_1.getAvailableTid)(terminal.id, "isw"),
+                    (0, appUtils_1.getAvailableTid)(terminal.id, "hydrogen"),
                 ]);
                 terminal.iswISOTID = (_a = terminal.iswISOTID) !== null && _a !== void 0 ? _a : isw === null || isw === void 0 ? void 0 : isw.tid;
                 terminal.hydrogenTID = (_b = terminal.hydrogenTID) !== null && _b !== void 0 ? _b : hygdrogen === null || hygdrogen === void 0 ? void 0 : hygdrogen.tid;
@@ -165,47 +170,47 @@ cli.command("tid")
             }));
             yield Promise.all(allActivities);
             return terminal_model_1.default.bulkSave(terminals);
-        })).then((result) => {
+        }))
+            .then((result) => {
             console.log(result);
             logger_1.default.log(result);
             dbSession.endSession();
             logger_1.default.log("Terminal TIDs attached");
-        }).catch((error) => {
+        })
+            .catch((error) => {
             logger_1.default.log(error);
-        }).finally(() => {
+        })
+            .finally(() => {
             process.exit(0);
         });
     }));
 });
-cli.command("rotate-keys")
+cli
+    .command("rotate-keys")
     .description("rotate keys for specified profile and processor")
     .action((str, opt) => __awaiter(void 0, void 0, void 0, function* () {
     yield connectDatabase();
     const { profileId, processor } = yield inquirer_1.default.prompt([
         {
-            'type': 'input',
-            'name': 'profileId',
+            type: "input",
+            name: "profileId",
             validate: (value) => {
-                return value ? true : 'Profile ID is required';
+                return value ? true : "Profile ID is required";
             },
-            message: 'Profile ID',
+            message: "Profile ID",
         },
         {
             type: "list",
             name: "processor",
-            choices: [
-                "isw",
-                "hydrogen",
-                "habari",
-            ],
-            message: "Processor"
-        }
+            choices: ["isw", "hydrogen", "habari"],
+            message: "Processor",
+        },
     ]);
     let profile = null;
     try {
         profile = yield ptspProfile_model_1.default.findOne({
             _id: profileId,
-            linkedProfile: null
+            linkedProfile: null,
         });
     }
     catch (error) {
@@ -224,27 +229,28 @@ cli.command("rotate-keys")
         type: processor,
     }, {
         repeat: {
-            cron: '0 */3 * * *'
+            cron: "0 */3 * * *",
         },
         jobId: profileId,
     });
     console.log("Scheduled rotation");
     process.exit(0);
 }));
-cli.command("nibss-refresh-keys")
+cli
+    .command("nibss-refresh-keys")
     .description("Refresh nibss keys")
     .action((str, opt) => __awaiter(void 0, void 0, void 0, function* () {
     yield connectDatabase();
     try {
         const terminals = yield terminal_model_1.default.find({
             terminalId: {
-                $ne: null
-            }
+                $ne: null,
+            },
         });
         for (let i = 0; i < terminals.length; i++) {
             const terminal = terminals[i];
             try {
-                yield queue_1.keyExchange.add('keyexchange', { _id: terminal.id });
+                yield queue_1.keyExchange.add("keyexchange", { _id: terminal.id });
             }
             catch (e) {
                 console.log(`Unable to trigger key exchange for:  ${terminal.terminalId}`, e);
@@ -258,6 +264,32 @@ cli.command("nibss-refresh-keys")
         return;
     }
     process.exit(0);
+}));
+cli.command("update-bankname")
+    .description("update transactions and add banks")
+    .action((str, opt) => __awaiter(void 0, void 0, void 0, function* () {
+    yield connectDatabase();
+    try {
+        const binsByBank = (0, lodash_1.groupBy)(cardBins_1.default, (bin) => bin.code);
+        const res = yield Promise.all(Object.keys(binsByBank).map((key) => __awaiter(void 0, void 0, void 0, function* () {
+            const issuer = key;
+            const bins = binsByBank[key].map((bank) => RegExp(`^${bank.id}`));
+            const res = yield transaction_model_1.default.updateMany({
+                PAN: {
+                    $in: bins
+                }
+            }, {
+                $set: {
+                    issuer
+                }
+            });
+            return res;
+        })));
+        process.exit(0);
+    }
+    catch (error) {
+        console.log(error);
+    }
 }));
 cli.parse();
 //# sourceMappingURL=index.js.map

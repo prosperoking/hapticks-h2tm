@@ -122,7 +122,7 @@ export async function generateApiKey(req: Request, res: Response) {
 
 function filterGen({q}: any) {
     let query = {};
-    if(q !== undefined) {
+    if(q?.length) {
         query = {
             ...query,
             $or: [

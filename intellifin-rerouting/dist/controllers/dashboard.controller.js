@@ -22,15 +22,16 @@ class DashboardController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { query } = request;
-                const orgFilter = Boolean((_a = request.user) === null || _a === void 0 ? void 0 : _a.organisation_id) ?
-                    { organisationId: request.user.organisation_id } : {};
+                const orgFilter = Boolean((_a = request.user) === null || _a === void 0 ? void 0 : _a.organisation_id)
+                    ? { organisationId: request.user.organisation_id }
+                    : {};
                 const date = (query.date ? (0, moment_1.default)(new Date(`${query.date}`)) : (0, moment_1.default)()).format("YYYY-MM-DD");
                 const transactionTime = {
                     $gte: (0, moment_1.default)(date).toDate(),
                     $lt: (0, moment_1.default)(date)
                         .add(23, "hours")
-                        .add(59, "minutes")
-                        .add(60, "seconds")
+                        .add(0, "minutes")
+                        .add(0, "seconds")
                         .toDate(),
                 };
                 const totalTransactionsToday = yield transaction_model_1.default
@@ -41,6 +42,43 @@ class DashboardController {
                         $ne: "00",
                     } }, orgFilter))
                     .count();
+                const lastestTransacions = yield transaction_model_1.default
+                    .find(Object.assign({ transactionTime }, orgFilter))
+                    .sort({ _id: -1 })
+                    .limit(50);
+                const terminalCount = yield terminal_model_1.default.find({}).count();
+                return response.json({
+                    totalTransactionsToday,
+                    totalFailedTransactionsToday,
+                    lastestTransacions,
+                    terminalCount,
+                });
+            }
+            catch (error) {
+                logger_1.default.error(error.message);
+                response.status(400).json({
+                    message: "An error occured",
+                });
+            }
+        });
+    }
+    stats(request, response) {
+        var _a;
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { query } = request;
+                const orgFilter = Boolean((_a = request.user) === null || _a === void 0 ? void 0 : _a.organisation_id)
+                    ? { organisationId: request.user.organisation_id }
+                    : {};
+                const date = (query.date ? (0, moment_1.default)(new Date(`${query.date}`)) : (0, moment_1.default)()).format("YYYY-MM-DD");
+                const transactionTime = {
+                    $gte: (0, moment_1.default)(date).toDate(),
+                    $lt: (0, moment_1.default)(date)
+                        .add(23, "hours")
+                        .add(0, "minutes")
+                        .add(0, "seconds")
+                        .toDate(),
+                };
                 const stats = yield transaction_model_1.default.aggregate([
                     {
                         $match: Object.assign({ createdAt: transactionTime }, orgFilter),
@@ -96,7 +134,40 @@ class DashboardController {
                             noResponse: {
                                 $sum: {
                                     $cond: {
-                                        if: { $eq: ["$responseCode", ""] },
+                                        if: { $in: ["$responseCode", ["", "68", "06"]] },
+                                        then: 1,
+                                        else: 0,
+                                    },
+                                },
+                            },
+                            suspectedFraud: {
+                                $sum: {
+                                    $cond: {
+                                        if: {
+                                            $eq: ["$responseCode", "59"],
+                                        },
+                                        then: 1,
+                                        else: 0,
+                                    },
+                                },
+                            },
+                            pinTriesExceeded: {
+                                $sum: {
+                                    $cond: {
+                                        if: {
+                                            $eq: ["$responseCode", "38"],
+                                        },
+                                        then: 1,
+                                        else: 0,
+                                    },
+                                },
+                            },
+                            exceededLimit: {
+                                $sum: {
+                                    $cond: {
+                                        if: {
+                                            $in: ["$responseCode", ["61", "65"]],
+                                        },
                                         then: 1,
                                         else: 0,
                                     },
@@ -107,7 +178,19 @@ class DashboardController {
                                     $cond: {
                                         if: {
                                             $not: {
-                                                $in: ["$responseCode", ["", "00", "55", "51", "91"]],
+                                                $in: ["$responseCode", [
+                                                        "",
+                                                        "00",
+                                                        "55",
+                                                        "51",
+                                                        "91",
+                                                        "06",
+                                                        "61",
+                                                        "65",
+                                                        "38",
+                                                        "54",
+                                                        "68",
+                                                    ]],
                                             },
                                         },
                                         then: 1,
@@ -127,20 +210,15 @@ class DashboardController {
                             incorrectPin: "$incorrectPin",
                             issuerInOperative: "$issuerInOperative",
                             noResponse: "$noResponse",
+                            exceededLimit: "$exceededLimit",
+                            pinTriesExceeded: "$pinTriesExceeded",
+                            suspectedFraud: "$suspectedFraud",
                             others: "$others",
                         },
                     },
                 ], { maxTimeMS: 60000, allowDiskUse: true });
-                const lastestTransacions = yield transaction_model_1.default.find(Object.assign({ transactionTime }, orgFilter))
-                    .sort({ _id: -1 })
-                    .limit(50);
-                const terminalCount = yield terminal_model_1.default.find({}).count();
                 return response.json({
-                    totalTransactionsToday,
-                    totalFailedTransactionsToday,
-                    lastestTransacions,
-                    terminalCount,
-                    stats,
+                    stats
                 });
             }
             catch (error) {
@@ -158,8 +236,8 @@ class DashboardController {
                 const date = (0, moment_1.default)().format("YYYY-MM-DD");
                 // @ts-ignore
                 const organisationFilter = ((_a = request.user) === null || _a === void 0 ? void 0 : _a.organisation_id)
-                    // @ts-ignore
-                    ? { organisationId: (_b = request.user) === null || _b === void 0 ? void 0 : _b.organisation_id }
+                    ? // @ts-ignore
+                        { organisationId: (_b = request.user) === null || _b === void 0 ? void 0 : _b.organisation_id }
                     : {};
                 console.log(request.query);
                 const transactions = yield transaction_model_1.default.paginate(Object.assign(Object.assign({}, DashboardController.filterGen(request.query)), organisationFilter), {
@@ -185,8 +263,8 @@ class DashboardController {
                 const date = (0, moment_1.default)().format("YYYY-MM-DD");
                 // @ts-ignore
                 const organisationFilter = ((_a = request.user) === null || _a === void 0 ? void 0 : _a.organisation_id)
-                    // @ts-ignore
-                    ? { organisationId: (_b = request.user) === null || _b === void 0 ? void 0 : _b.organisation_id }
+                    ? // @ts-ignore
+                        { organisationId: (_b = request.user) === null || _b === void 0 ? void 0 : _b.organisation_id }
                     : {};
                 response.header("Content-Type", "text/csv; charset=utf-8");
                 response.attachment(`transactions-${Date.now()}.csv`);

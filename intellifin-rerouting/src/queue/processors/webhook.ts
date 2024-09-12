@@ -23,6 +23,7 @@ interface WebhookJobData {
     tranactionId: ObjectId,
     webhookId: ObjectId,
     organisationId: ObjectId,
+    url: string,
     retry?: boolean,
 }
 export const webhookWorker = new Worker<IWebhookRequest>('webhook',
@@ -54,7 +55,7 @@ async (job: Job) => {
     const signature = createDigest(webhook.secret, verifyString);
     let response:AxiosResponse = null;
     try {
-        response = await axios.post(webhook.url, payloadObject, {
+        response = await axios.post(data.url, payloadObject, {
             headers:{
                 'x-verify-string': verifyString,
                 'x-signature': signature,
@@ -80,6 +81,7 @@ async (job: Job) => {
         terminalId: journal.terminalId,
         verifyString,
         verifySignature: signature,
+        url: data.url
     });
 
     return webhookRequest;

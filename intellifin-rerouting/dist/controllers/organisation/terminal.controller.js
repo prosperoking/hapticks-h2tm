@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteTerminal = exports.createTerminal = exports.updateTermial = exports.getByTid = exports.getById = exports.terminalIds = exports.triggerKeyExchangeOnGroupTid = exports.getGroupedTids = void 0;
+exports.deleteTerminal = exports.createTerminal = exports.updateTermialTidGroupTid = exports.updateTermial = exports.getByTid = exports.getById = exports.terminalIds = exports.triggerKeyExchangeOnGroupTid = exports.getGroupedTids = void 0;
 const groupTid_model_1 = __importDefault(require("../../db/models/groupTid.model"));
 const terminal_model_1 = __importDefault(require("../../db/models/terminal.model"));
 const logger_1 = __importDefault(require("../../helpers/logger"));
@@ -43,7 +43,7 @@ function triggerKeyExchangeOnGroupTid(req, res) {
                 //@ts-ignore
                 organisationId: req.user._id,
                 _id: req.params.id,
-            }).populate('profile');
+            }).populate("profile");
             if (!groupTid) {
                 return res.status(400).json({ message: "GroupTid not found" });
             }
@@ -54,7 +54,7 @@ function triggerKeyExchangeOnGroupTid(req, res) {
                     component: profile.componentKey1,
                     ip: profile.isoHost,
                     ssl: String(profile.isSSL),
-                    port: profile.isoPort
+                    port: profile.isoPort,
                 });
                 console.log("", result);
                 if (!(result === null || result === void 0 ? void 0 : result.status))
@@ -76,6 +76,7 @@ function triggerKeyExchangeOnGroupTid(req, res) {
             }
             res.json({
                 message: "GroupTid key exchange triggered",
+                data: groupTid,
             });
         }
         catch (error) {
@@ -88,11 +89,24 @@ exports.triggerKeyExchangeOnGroupTid = triggerKeyExchangeOnGroupTid;
 function terminalIds(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const terminals = yield terminal_model_1.default.paginate({
+            const q = req.query;
+            const query = (q === null || q === void 0 ? void 0 : q.length)
+                ? {
+                    $or: [
+                        { terminalGroupId: q },
+                        { terminalId: q },
+                        { serialNo: q },
+                        { iswISOTID: q },
+                        { iswTid: q },
+                        { habariTID: q },
+                        { hydrogenTID: q },
+                    ],
+                }
+                : {};
+            const terminals = yield terminal_model_1.default.paginate(Object.assign({ 
                 //@ts-ignore
-                organisationId: req.user._id,
-            }, {
-                select: "_id terminalId",
+                organisationId: req.user._id }, query), {
+                select: "_id terminalId terminalGroupId serialNo ",
             });
             res.json(terminals);
         }
@@ -176,6 +190,32 @@ function updateTermial(req, res) {
     });
 }
 exports.updateTermial = updateTermial;
+function updateTermialTidGroupTid(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            let terminal = yield terminal_model_1.default.findOne({
+                //@ts-ignore
+                organisationId: req.user._id,
+                _id: req.params.id,
+            });
+            if (!terminal || terminal == null) {
+                return res.status(400).json({ message: "No data found!" });
+            }
+            const data = yield terminal.update((0, pick_1.default)(req.body, ["terminalId", "terminalGroupId"]));
+            terminal = yield terminal_model_1.default.findOne({
+                //@ts-ignore
+                organisationId: req.user._id,
+                _id: req.params.id,
+            });
+            res.json({ status: true, data: terminal });
+        }
+        catch (error) {
+            logger_1.default.error(error);
+            res.status(400).json({ message: "Something went wrong" });
+        }
+    });
+}
+exports.updateTermialTidGroupTid = updateTermialTidGroupTid;
 function createTerminal(request, response) {
     return __awaiter(this, void 0, void 0, function* () {
         try {

@@ -30,7 +30,6 @@ function getWebhooks(req, res) {
             } :
                 //@ts-ingore
                 { organisationId: req.user.organisation_id }));
-            console.log(orgFilter);
             const webhooks = yield webhook_model_1.default.paginate(Object.assign(Object.assign({}, filterGen(req.query)), orgFilter), {
                 sort: { name: -1 },
                 limit: Number(req.query.limit || 50),
@@ -52,10 +51,13 @@ function getWebhooks(req, res) {
 }
 exports.getWebhooks = getWebhooks;
 function createWebhook(req, res) {
+    var _a;
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const secret = (0, crypt_1.createSha256Hash)((0, crypto_1.randomUUID)());
-            const webhook = yield webhook_model_1.default.create(Object.assign(Object.assign({}, req.body), { secret }));
+            const webhook = yield webhook_model_1.default.create(Object.assign(Object.assign({}, req.body), { secret, urls: Array.from(new Set(((_a = req.body.urls) !== null && _a !== void 0 ? _a : [])
+                    .filter((url) => url === null || url === void 0 ? void 0 : url.length)
+                    .map(url => url.toLowerCase()))) }));
             return res.json(webhook);
         }
         catch (error) {
@@ -75,8 +77,10 @@ function updateWebhook(req, res) {
                 return res.status(404).json({
                     message: "webhook not found"
                 });
-            const { url, name } = req.body;
-            webhook.url = url;
+            const { urls, name } = req.body;
+            webhook.urls = Array.from(new Set(urls
+                .filter((url) => url === null || url === void 0 ? void 0 : url.length)
+                .map(url => url.toLowerCase())));
             webhook.name = name;
             yield webhook.save();
             res.json(webhook);
@@ -189,7 +193,7 @@ function retryWebhook(req, res) {
 exports.retryWebhook = retryWebhook;
 function filterGen({ q }) {
     let query = {};
-    if (q !== undefined) {
+    if (q === null || q === void 0 ? void 0 : q.length) {
         query = Object.assign(Object.assign({}, query), { $or: [
                 {
                     name: RegExp(`^${q}`, 'i'),
@@ -203,7 +207,7 @@ function filterGen({ q }) {
 }
 function filterRequest({ q, organisation, webhook }) {
     let query = {};
-    if (q !== undefined) {
+    if (q === null || q === void 0 ? void 0 : q.length) {
         query = Object.assign(Object.assign({}, query), { $or: [
                 {
                     terminalId: RegExp(`^${q}`, 'i'),

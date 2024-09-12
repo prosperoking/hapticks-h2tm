@@ -192,7 +192,7 @@
       </div>
 
       <!-- Add margin if you want to see some of the overlay behind the modal-->
-      <div class=" text-left modal-content">
+      <div class=" text-left modal-content relative">
         <!--Title-->
         <div class="flex px-6 py-4 items-center justify-between pb-3 border-b mb-4">
           <p class="text-2xl text-gray-800">{{ form._id ? 'Update' : 'Add' }} User</p>
@@ -206,7 +206,7 @@
         </div>
 
         <!--Body-->
-        <div class="flex flex-col px-6 py-4">
+        <div class="flex flex-col px-6 py-4 relative h-80 overflow-hidden overflow-y-auto">
 
           <div>
             <div class="flex items-baseline mb-2 space-x-2">
@@ -262,17 +262,14 @@
               </DisclosurePanel>
             </Disclosure>
           </div>
-
-
         </div>
-        <div class="px-6 py-4">
+        <div class="px-6 py-4 relative">
           <p v-for="error of $v.$errors" :key="error.$uid">
             {{ error.$message }}
           </p>
         </div>
-        {{}}
         <!--Footer-->
-        <div class="flex justify-end px-6 py-4">
+        <div class="flex justify-between px-6 py-4 sticky">
           <button :disabled="loading" @click="open = false"
             class="p-3 px-6 py-3 mr-2 text-gray-500 bg-transparent rounded-lg disabled:pointer-events-none hover:bg-gray-100 hover:text-gray-400 focus:outline-none">
             Close

@@ -45,6 +45,7 @@ router.get('/group-tids',  TerminalController.getGroupedTids);
 router.get('/group-tids/key-exchange/:id',  TerminalController.triggerKeyExchangeOnGroupTid);
 router.post('/terminals', [... terminalCreateValidator],  TerminalController.createTerminal);
 router.put('/terminals/:id', [... terminalUpdateValidator],  TerminalController.updateTermial);
+router.get('/terminals/update-tid/:id',  TerminalController.updateTermialTidGroupTid);
 router.delete('/terminals/:id',  TerminalController.deleteTerminal);
 
 // end terminals

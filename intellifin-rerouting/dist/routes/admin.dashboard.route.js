@@ -22,6 +22,7 @@ const adminOnly = (0, index_1.authMiddleware)(['admin']);
 const hasRoleOrPermissions = (roles, permissions) => (0, index_1.authMiddleware)(roles, permissions);
 const hasPermissions = (permissions = []) => (0, index_1.authMiddleware)([], permissions);
 router.get('/', index_controller_1.dashboardController.index);
+router.get('/chart-data', index_controller_1.dashboardController.stats);
 router.get('/transactions', hasRoleOrPermissions(['admin'], ['transactions.list']), index_controller_1.dashboardController.transactions);
 router.get('/transactions/export', hasRoleOrPermissions(['admin'], ['transactions.export']), index_controller_1.dashboardController.export);
 router.get('/organisations', hasRoleOrPermissions(['admin'], ['organisations.list']), index_controller_1.OrganisationController.getOrganisations);

@@ -39,7 +39,8 @@
     </div>
 
     <div class="px-4 py-4 -mx-4 overflow-x-auto sm:-mx-8 sm:px-8">
-      <div :class="{ 'opacity-20 relative': loading }" class="inline-block min-w-full overflow-hidden rounded-lg shadow">
+      <div :class="{ 'opacity-20 relative': loading }"
+        class="inline-block min-w-full overflow-hidden rounded-lg shadow">
         <div v-show="loading" class="fixed bg-gray-900 rounded top-1/2 left-1/2">
           <svg version="1.1" id="L9" class="w-10 h-10 animate-spin " xmlns="http://www.w3.org/2000/svg"
             xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 100 100"
@@ -88,20 +89,44 @@
                   <div class="flex items-center">
                     <Input type="checkbox" :checked="false" :value="terminal.terminalId" class="inline-flex mr-2" />
 
-                    <div class="ml-3 flex space-x-1">
-                     <template v-if="terminal.usingGroupedTid">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
-                        stroke-width="1.5" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                          d="M2.25 7.125C2.25 6.504 2.754 6 3.375 6h6c.621 0 1.125.504 1.125 1.125v3.75c0 .621-.504 1.125-1.125 1.125h-6a1.125 1.125 0 0 1-1.125-1.125v-3.75ZM14.25 8.625c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125v8.25c0 .621-.504 1.125-1.125 1.125h-5.25a1.125 1.125 0 0 1-1.125-1.125v-8.25ZM3.75 16.125c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125v2.25c0 .621-.504 1.125-1.125 1.125h-5.25a1.125 1.125 0 0 1-1.125-1.125v-2.25Z" />
-                      </svg>
-                      <p class="text-gray-900 whitespace-nowrap">
-                        {{ terminal.groupTid.terminalId }}
-                      </p>
-                     </template>
-                     <p v-else class="text-gray-900 whitespace-nowrap">
-                        {{ terminal.terminalId }}
-                      </p>
+                    <div class="ml-3 flex flex-col">
+                      <div class="flex space-x-2">
+                        <svg v-if="terminal.usingGroupedTid" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5"
+                          fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M2.25 7.125C2.25 6.504 2.754 6 3.375 6h6c.621 0 1.125.504 1.125 1.125v3.75c0 .621-.504 1.125-1.125 1.125h-6a1.125 1.125 0 0 1-1.125-1.125v-3.75ZM14.25 8.625c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125v8.25c0 .621-.504 1.125-1.125 1.125h-5.25a1.125 1.125 0 0 1-1.125-1.125v-8.25ZM3.75 16.125c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125v2.25c0 .621-.504 1.125-1.125 1.125h-5.25a1.125 1.125 0 0 1-1.125-1.125v-2.25Z" />
+                        </svg>
+                        <p class="text-gray-900 whitespace-nowrap">
+                          NIBSS: <span class="font-bold">{{ terminal.usingGroupedTid ? terminal.groupTid.terminalId :
+            terminal.terminalId }}</span>
+                        </p>
+                      </div>
+                      <template v-if="terminal?.threeLineTid?.length">
+                        <p class="whitespace-nowrap">
+                          3Line TID: <span class="font-bold">{{ terminal.threeLineTid }}</span>
+                        </p>
+                      </template>
+                      <template v-if="terminal?.iswTid">
+                        <p class=" whitespace-nowrap">
+                          Kimono TID: <span class="font-bold">{{ terminal.iswTid }}</span>
+                        </p>
+
+                      </template>
+                      <template v-if="terminal?.hydrogenTID?.length">
+                        <p class=" whitespace-nowrap">
+                          Hydrogen TID: <span class="font-bold">{{ terminal.hydrogenTID }}</span>
+                        </p>
+                      </template>
+                      <template v-if="terminal?.habariTID?.length">
+                        <p class=" whitespace-nowrap">
+                          Habari TID: <span class="font-bold">{{ terminal.habariTID }}</span>
+                        </p>
+                      </template>
+                      <template v-if="terminal?.iswISOTID?.length">
+                        <p class=" whitespace-nowrap">
+                          ISW ISO TID: <span class="font-bold">{{ terminal.iswISOTID }}</span>
+                        </p>
+                      </template>
                     </div>
                   </div>
                 </td>
@@ -114,11 +139,11 @@
                 </td>
                 <td class="px-5 py-5 text-sm bg-white border-b border-gray-200">
                   <p class="text-gray-900 whitespace-nowrap">Brand: <span class="text-xs text-gray-700">{{
-                    terminal?.brand
-                  }}</span> </p>
+            terminal?.brand
+          }}</span> </p>
                   <p class="text-gray-900 whitespace-nowrap">Model: <span class="text-xs text-gray-700">{{
-                    terminal?.deviceModel
-                  }}</span></p>
+              terminal?.deviceModel
+            }}</span></p>
                   <p class="text-gray-900 whitespace-nowrap">
                     App version: <span class="text-xs text-gray-700">{{ terminal.appVersion }}</span>
                   </p>
@@ -141,8 +166,8 @@
                     </p>
                     <p>
                       Last Key Exchange: <span class="font-bold">{{ formatExchangeTime(
-                        terminal?.parsedParams.exchangeTime)
-                      }}</span>
+            terminal?.parsedParams.exchangeTime)
+                        }}</span>
                     </p>
                   </template>
                   <template v-if="terminal.usingGroupedTid">
@@ -154,8 +179,8 @@
                     </p>
                     <p>
                       Last Key Exchange: <span class="font-bold">{{ formatExchangeTime(
-                        terminal.groupTid?.parsedParams.exchangeTime)
-                      }}</span>
+            terminal.groupTid?.parsedParams.exchangeTime)
+                        }}</span>
                     </p>
                   </template>
                   <p v-if="terminal?.organisation">
@@ -163,11 +188,6 @@
                       {{ terminal?.organisation.name }}
                     </span>
                   </p>
-                  <template v-if="terminal?.threeLineTid?.length">
-                    <p class=" whitespace-nowrap">
-                      3Line TID: <span class="font-bold">{{ terminal.threeLineTid }}</span>
-                    </p>
-                  </template>
                   <template v-if="terminal.threeLineParsedParams != null">
                     <p class=" whitespace-nowrap">
                       3Line MID: <span class="font-bold">{{ terminal?.threeLineParsedParams?.mid }}</span>
@@ -175,32 +195,13 @@
 
                     <p>
                       3Line Last Key Exchange: <span class="font-bold">{{ formatExchangeTime(
-                        terminal?.threeLineParsedParams.exchangeTime)
-                      }}</span>
+            terminal?.threeLineParsedParams.exchangeTime)
+                        }}</span>
                     </p>
                   </template>
                   <template v-if="terminal?.profile?.iswSwitchAmount">
-                    <p class=" whitespace-nowrap">
-                      ISW TID: <span class="font-bold">{{ terminal.iswTid }}</span>
-                    </p>
                     <p class="whitespace-nowrap">
-                      ISW UNIQUEID: <span class="font-bold">{{ terminal.iswUniqueId }}</span>
-                    </p>
-
-                  </template>
-                  <template v-if="terminal?.hydrogenTID?.length">
-                    <p class=" whitespace-nowrap">
-                      Hydrogen TID: <span class="font-bold">{{ terminal.hydrogenTID }}</span>
-                    </p>
-                  </template>
-                  <template v-if="terminal?.habariTID?.length">
-                    <p class=" whitespace-nowrap">
-                      Habari TID: <span class="font-bold">{{ terminal.habariTID }}</span>
-                    </p>
-                  </template>
-                  <template v-if="terminal?.iswISOTID?.length">
-                    <p class=" whitespace-nowrap">
-                      ISW ISO TID: <span class="font-bold">{{ terminal.iswISOTID }}</span>
+                      KIMONO UNIQUEID: <span class="font-bold">{{ terminal.iswUniqueId }}</span>
                     </p>
                   </template>
                 </td>
@@ -259,8 +260,8 @@
               Page {{ state.data.page }} of {{ state.data.totalPages }}
             </span>
             <span class="text-xs text-gray-900 xs:text-sm">Showing 1 to {{ state.data.limit }} of {{
-              state.data.totalDocs
-            }}
+            state.data.totalDocs
+          }}
               terminals</span>
           </div>
           <div class="inline-flex mt-2 xs:mt-0">
@@ -278,7 +279,7 @@
     </div>
   </div>
   <div v-if="open" :class="`modal ${!open && 'opacity-0 pointer-events-none'
-    } z-50 fixed w-full h-full top-0 left-0 flex items-center justify-center`">
+            } z-50 fixed w-full h-full top-0 left-0 flex items-center justify-center`">
     <div class="absolute w-full h-full bg-gray-900 opacity-50 modal-overlay"></div>
 
     <div class="z-50 w-11/12 mx-auto  bg-white rounded shadow-lg modal-container md:max-w-md">
@@ -357,16 +358,16 @@
             <Input title="Serial Number" v-model:value="form.serialNo" />
           </div>
           <div>
-            <Input title="Terminal Id" v-model:value="form.terminalId" />
+            <Input title="NIBSS Tid" v-model:value="form.terminalId" />
           </div>
           <div>
             <Input title="3Line Tid" v-model:value="form.threeLineTid" />
           </div>
           <div>
-            <Input title="ISW Terminal Id" v-model:value="form.iswTid" />
+            <Input title="KIMONO Tid" v-model:value="form.iswTid" />
           </div>
           <div>
-            <Input title="ISW Unique ID" v-model:value="form.iswUniqueId" />
+            <Input title="KIMONO Unique ID" v-model:value="form.iswUniqueId" />
           </div>
           <div>
             <Input title="ISW ISO Tid" v-model:value="form.iswISOTID" />
@@ -378,15 +379,18 @@
           <div>
             <Input title="Habari Tid" v-model:value="form.habariTID" />
           </div>
+          <div>
+            <Input title="Max Transaction Amount" v-model:value="form.maxTransAmount" />
+          </div>
           <div class="divide-y space-y-2 mt-2">
             <h3 class="font-bold text-gray-800 text-center">Terminal Location</h3>
             <section>
               <div>
-                <Input labelClass='w-1/5 text-sm text-gray-700' maxlength="22" title="Name/Address"
+                <Input labelClass='w-1/5 text-sm text-gray-700' max-length="22" title="Name/Address"
                   v-model:value="form.terminalLocation.name" />
               </div>
               <div>
-                <Input labelClass='w-1/5 text-sm text-gray-700' title="City" maxlength="12"
+                <Input labelClass='w-1/5 text-sm text-gray-700' title="City" max-length="12"
                   v-model:value="form.terminalLocation.city" />
               </div>
               <div>
@@ -464,15 +468,15 @@ interface Profile {
 
 
 type ParsedParams = {
-    callHomeTimeout: string,
-    countryCode: string,
-    currencyCode: string,
-    exchangeTime: string,
-    mechantCategoryCode: string,
-    merchantNameLocation: string,
-    mid: string,
-    timeout: string,
-  }
+  callHomeTimeout: string,
+  countryCode: string,
+  currencyCode: string,
+  exchangeTime: string,
+  mechantCategoryCode: string,
+  merchantNameLocation: string,
+  mid: string,
+  timeout: string,
+}
 interface Terminal {
   _id?: string,
   serialNo: string,
@@ -496,13 +500,14 @@ interface Terminal {
   deviceModel?: string,
   appVersion?: string,
   usingGroupedTid: boolean,
-  groupTid: {terminalId: string, parsedParams: ParsedParams},
+  groupTid: { terminalId: string, parsedParams: ParsedParams },
   terminalGroupId: string,
   threeLineParsedParams?: ParsedParams,
   parsedParams?: ParsedParams,
   hydrogenTID?: string,
   habariTID?: string,
   iswISOTID?: string,
+  maxTransAmount?: number,
   terminalLocation: {
     name: string,
     city: string,
@@ -525,6 +530,7 @@ interface TerminalForm {
   habariTID?: string | null,
   iswISOTID?: string | null,
   terminalGroupId: string | null,
+  maxTransAmount: number | null,
   terminalLocation: {
     name: string,
     city: string,
@@ -539,7 +545,7 @@ interface State {
   perPage: number
 }
 
-const terminalBrands = ['HORIZONPAY', 'PAX', 'NEXGO', 'MOREFUN', 'MPOS', "AISINO", 'NEWLAND',].sort();
+const terminalBrands = ['HORIZONPAY', 'PAX', 'NEXGO', 'TELPO', 'MOREFUN', 'MPOS', "AISINO", 'NEWLAND', 'UROVO', 'BANKBOX',].sort();
 
 // @ts-ignore: Unreachable code error
 const $axios: Axios = inject('$axios')
@@ -576,6 +582,7 @@ const defualtState: TerminalForm = {
   brand: null,
   deviceModel: null,
   organisationId: null,
+  maxTransAmount: null,
   terminalLocation: {
     name: '',
     city: '',
@@ -591,7 +598,13 @@ const organisation = ref(null);
 const rules = computed(() => ({
   _id: {},
   serialNo: { required },
-  terminalId: { requiredIf: requiredIf(()=>form.value.terminalGroupId === null), minLength: minLength(8), maxLength: maxLength(8), },
+  terminalId: {
+    //   requiredIf: requiredIf(()=>
+    //   form.value.terminalGroupId === null
+    // ),
+    minLength: minLength(8),
+    maxLength: maxLength(8),
+  },
   profileId: { required },
   iswTid: { minLength: minLength(8) },
   iswUniqueId: { requiredIf: requiredIf(() => form.value.iswTid !== null || (form.value.iswTid || '')?.length > 0) },
@@ -667,6 +680,7 @@ const editTerminal = (terminal: Terminal) => {
     hydrogenTID: terminal.hydrogenTID,
     habariTID: terminal.habariTID,
     iswISOTID: terminal.iswISOTID,
+    maxTransAmount: terminal.maxTransAmount? Number.parseInt(`${terminal.maxTransAmount / 100}`)??null :  null,
     terminalLocation: {
       name: '',
       city: '',
@@ -734,9 +748,13 @@ const fetchProfilesData = async () => {
 const saveProfileForm = async () => {
   loading.value = true;
   try {
+    const payload = {
+      ...form.value,
+      maxTransAmount: form.value.maxTransAmount? Math.round(form.value.maxTransAmount * 100) : undefined,
+    }
     const { data } = await (
-      form.value._id?.length ? $axios.put(`/dashboard/terminals/${form.value._id}`, form.value) :
-        $axios.post('/dashboard/terminals', form.value)
+      form.value._id?.length ? $axios.put(`/dashboard/terminals/${form.value._id}`, payload) :
+        $axios.post('/dashboard/terminals', payload)
     );
     open.value = false;
     fetchData()

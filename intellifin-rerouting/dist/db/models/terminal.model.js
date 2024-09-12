@@ -206,6 +206,10 @@ const terminalSchema = new mongoose.Schema({
         type: Object,
         default: null,
     },
+    nibssParams: {
+        type: Object,
+        default: null,
+    },
     hydrogenTID: {
         type: String,
         default: null,
@@ -238,6 +242,10 @@ const terminalSchema = new mongoose.Schema({
             }
         },
         set: (value) => (value === null || value === void 0 ? void 0 : value.length) ? value : null
+    },
+    maxTransAmount: {
+        type: Number,
+        default: 1e8
     }
 }, {
     timestamps: true,
@@ -357,6 +365,9 @@ terminalSchema.plugin(mongoose_csv_export_1.default, {
         "AppVersion",
         "DeviceModel",
         "ThreeLineTid",
+        "hydrogenTID",
+        "iswISOTID",
+        "habariTID",
     ],
     alias: {
         SerialNo: "serialNo",
@@ -367,6 +378,9 @@ terminalSchema.plugin(mongoose_csv_export_1.default, {
         AppVersion: "appVersion",
         DeviceModel: "deviceModel",
         ThreeLineTid: "threeLineTid",
+        IswISOTid: "iswISOTID",
+        HydrogenTid: "hydrogenTID",
+        HabariTid: "habariTID",
     },
 });
 const Terminal = mongoose.model("terminal", terminalSchema);

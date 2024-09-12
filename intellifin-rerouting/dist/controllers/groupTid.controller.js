@@ -105,6 +105,7 @@ class GroupTidController {
                     "profileId",
                     "terminalId",
                     "iswISOTID",
+                    "organisationId",
                     "hydrogenTID",
                 ]));
                 try {
@@ -146,7 +147,6 @@ class GroupTidController {
                     return response.status(404).json({ message: "Group Tid not found" });
                 }
                 try {
-                    // await   TerminalController.performKeyExchange(request.body, request.params.id);
                     yield queue_1.Groupkeyexchange.add('groupkeyexchange', { _id: groupTid.id });
                 }
                 catch (e) {

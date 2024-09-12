@@ -70,12 +70,15 @@ exports.keyExchangeWorker = new bullmq_1.Worker('keyexchange', (job) => __awaite
     if (!(result === null || result === void 0 ? void 0 : result.status))
         throw Error(result.message);
     const { data } = result;
-    terminal.encmasterkey = data.encmasterkey;
-    terminal.encpinkey = data.encpinkey;
-    terminal.encsesskey = data.encsesskey;
-    terminal.clrmasterkey = data.clrmasterkey;
-    terminal.clrsesskey = data.clrsesskey;
-    terminal.clrpinkey = data.clrpinkey;
+    terminal.nibssParams = {
+        encmasterkey: data.encmasterkey,
+        encPinKey: data.encpinkey,
+        encSessionKey: data.encsesskey,
+        clrMasterKey: data.clrmasterkey,
+        clrSessionKey: data.clrsesskey,
+        clrpinkey: data.clrpinkey,
+        paramdownload: data.paramdownload,
+    };
     terminal.paramdownload = data.paramdownload;
     yield terminal.save();
 }), {
@@ -84,6 +87,7 @@ exports.keyExchangeWorker = new bullmq_1.Worker('keyexchange', (job) => __awaite
 });
 exports.GroupKeyExchangeWorker = new bullmq_1.Worker('groupkeyexchange', (job) => __awaiter(void 0, void 0, void 0, function* () {
     const groupTid = yield groupTid_model_1.default.findById(job.data._id).populate('profile');
+    console.log(groupTid);
     if (!groupTid)
         throw Error("Group Tid Not found");
     const profile = groupTid.profile;
@@ -102,9 +106,10 @@ exports.GroupKeyExchangeWorker = new bullmq_1.Worker('groupkeyexchange', (job) =
     //       groupTid.threeLineParams = threeResult.data
     //     }
     //   }
-    // if(profile.isInteliffin) {
-    //     return handleIntelifinKeyExchange(groupTid);
-    // }
+    if (profile.isInteliffin) {
+        //@ts-ignore
+        return handleIntelifinKeyExchange(groupTid);
+    }
     let result = yield (0, cardsockethelper_1.sendSocketMessage)(cardsockethelper_1.TransactionTypes.KEY_EXCHANGE, {
         tid: groupTid.terminalId,
         component: profile.componentKey1,
@@ -193,22 +198,47 @@ function handleIntelifinKeyExchange(terminal) {
             }
             const { pin_key, callhome, country_code, currency_code, datetime, merchant_address, merchant_category_code, merchantid, timeout, } = data;
             const padLeadingZeros = (num) => num.toString().padStart(2, '0');
-            terminal.encmasterkey = pin_key;
-            terminal.encpinkey = data.pin_key;
-            terminal.encsesskey = data.pin_key;
-            terminal.clrmasterkey = data.pin_key;
-            terminal.clrsesskey = data.pin_key;
-            terminal.clrpinkey = data.pin_key;
-            terminal.paramdownload = [
-                ["020", padLeadingZeros(datetime.length), datetime],
-                ["030", padLeadingZeros(merchantid.length), merchantid],
-                ["040", padLeadingZeros(timeout.length), timeout],
-                ["050", padLeadingZeros(currency_code.length), currency_code,],
-                ["060", padLeadingZeros(country_code.length), country_code],
-                ["070", padLeadingZeros(callhome.length), callhome],
-                ["080", padLeadingZeros(merchant_category_code.length), merchant_category_code],
-                ["520", padLeadingZeros(merchant_address.length), merchant_address],
-            ].map(a => a.join('')).join('');
+            // terminal.encmasterkey = pin_key;
+            // terminal.encpinkey = data.pin_key;
+            // terminal.encsesskey = data.pin_key;
+            // terminal.clrmasterkey = data.pin_key;
+            // terminal.clrsesskey = data.pin_key;
+            // terminal.clrpinkey = data.pin_key;
+            // terminal.paramdownload = [
+            //     ["020",padLeadingZeros(datetime.length),datetime],
+            //     ["030",padLeadingZeros(merchantid.length), merchantid],
+            //     ["040",padLeadingZeros(timeout.length), timeout],
+            //     ["050",padLeadingZeros( currency_code.length), currency_code,],
+            //     ["060",padLeadingZeros( country_code.length), country_code],
+            //     ["070",padLeadingZeros(callhome.length),callhome],
+            //     ["080",padLeadingZeros(merchant_category_code.length), merchant_category_code],
+            //     ["520",padLeadingZeros(merchant_address.length), merchant_address],
+            // ].map(a=>a.join('')).join('');
+            terminal.nibssParams = {
+                encmasterkey: pin_key,
+                encPinKey: data.pin_key,
+                encSessionKey: data.pin_key,
+                clrMasterKey: data.pin_key,
+                clrSessionKey: data.pin_key,
+                clrpinkey: data.pin_key,
+                paramdownload: [
+                    ["020", padLeadingZeros(datetime.length), datetime],
+                    ["030", padLeadingZeros(merchantid.length), merchantid],
+                    ["040", padLeadingZeros(timeout.length), timeout],
+                    ["050", padLeadingZeros(currency_code.length), currency_code],
+                    ["060", padLeadingZeros(country_code.length), country_code],
+                    ["070", padLeadingZeros(callhome.length), callhome],
+                    [
+                        "080",
+                        padLeadingZeros(merchant_category_code.length),
+                        merchant_category_code,
+                    ],
+                    ["520", padLeadingZeros(merchant_address.length), merchant_address],
+                ]
+                    .map((a) => a.join(""))
+                    .join(""),
+            };
+            terminal.paramdownload = terminal.nibssParams.paramdownload;
             yield terminal.save();
         }
         catch (error) {

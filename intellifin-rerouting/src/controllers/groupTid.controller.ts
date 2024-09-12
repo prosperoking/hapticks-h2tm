@@ -93,6 +93,7 @@ export default class GroupTidController {
                 "profileId",
                 "terminalId",
                 "iswISOTID",
+                "organisationId",
                 "hydrogenTID",
             ]));
 
@@ -134,8 +135,7 @@ export default class GroupTidController {
             }
 
             try{
-            // await   TerminalController.performKeyExchange(request.body, request.params.id);
-            await Groupkeyexchange.add('groupkeyexchange', {_id: groupTid.id});
+                await Groupkeyexchange.add('groupkeyexchange', {_id: groupTid.id});
             }catch(e){
                 console.log("Unable to trigger key exchange", e)
             }

@@ -256,7 +256,7 @@ const chartConfigurations = computed(()=>{
     series:[
       {
         name: "Approved",
-        data: data.map(i=>i.approved),
+        data:data.map(i=>i.approved),
       },
       {
         name: "Incorrect Pin",
@@ -270,13 +270,25 @@ const chartConfigurations = computed(()=>{
         name: "Issuer/Switch InOperative",
         data: data.map(i=>i.issuerInOperative),
       },
+      {
+        name: "Exceeded Withdrawal Limit",
+        data: data.map(i=>i.exceededLimit),
+      },
+      {
+        name: "Pin tries Exceeded",
+        data: data.map(i=>i.pinTriesExceeded),
+      },
+      {
+        name: "Suspected Fraud",
+        data: data.map(i=>i.suspectedFraud)
+      },
 
       {
         name: "No response",
         data: data.map(i=>i.noResponse),
       },
       {
-        name: "No response",
+        name: "Others",
         data: data.map(i=>i.others),
       },
     ]
@@ -296,6 +308,22 @@ const getDashBoardData = async ()=> {
     state.totalTerminals = data.terminalCount;
     state.totalFailedTransactions = data.totalFailedTransactionsToday;
     state.latestTransactions = data.lastestTransacions;
+  } catch (error: any) {
+    if(error.isAxiosError){
+
+    }
+  }
+}
+
+const getChartData = async ()=> {
+  try {
+    // @ts-ignore: Unreachable code error
+    const {data} = await request?.get('/dashboard/chart-data',{
+      params:{
+        date: currentDate.value
+      }
+    });
+    console.log(data.stats)
     state.stats = data.stats;
   } catch (error: any) {
     if(error.isAxiosError){
@@ -306,20 +334,11 @@ const getDashBoardData = async ()=> {
 
 onMounted(()=>{
   getDashBoardData()
+  getChartData()
 })
-
-const testUser: User = {
-  name: "John Doe",
-  email: "john@example.com",
-  title: "Software Engineer",
-  title2: "Web dev",
-  status: "Active",
-  role: "Owner",
-};
-
-const users = ref<User[]>([...Array(10).keys()].map(() => testUser));
 
 watch(currentDate, ()=>{
   getDashBoardData()
+  getChartData();
 })
 </script>

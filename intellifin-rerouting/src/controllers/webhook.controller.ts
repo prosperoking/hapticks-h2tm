@@ -18,7 +18,6 @@ export async function getWebhooks(req: Request, res: Response){
         //@ts-ingore
         {organisationId: (req.user as IUserData).organisation_id}
         ));
-        console.log(orgFilter)
         const webhooks = await webhookModel.paginate({
             ...filterGen(req.query),
             ... orgFilter,
@@ -46,7 +45,12 @@ export async function createWebhook(req: Request, res: Response){
         const secret = createSha256Hash(randomUUID());
         const webhook = await webhookModel.create({
             ...req.body,
-            secret
+            secret,
+            urls:  Array.from(new Set(
+                (req.body.urls ?? [])
+                .filter((url)=> url?.length)
+                .map(url=>url.toLowerCase())
+            ))
         });
         return res.json(webhook)
     } catch (error) {
@@ -64,8 +68,12 @@ export async function updateWebhook(req: Request, res: Response){
             message: "webhook not found"
         })
 
-        const {url, name } = req.body;
-        webhook.url = url;
+        const {urls, name } = req.body;
+        webhook.urls = Array.from(new Set(
+        urls
+        .filter((url)=> url?.length)
+        .map(url=>url.toLowerCase())
+    ));
         webhook.name = name;
         await webhook.save();
         res.json(webhook);
@@ -169,7 +177,7 @@ export async function retryWebhook(req: Request, res: Response) {
 
 function filterGen({q}: any) {
     let query = {};
-    if(q !== undefined) {
+    if(q?.length) {
         query = {
             ...query,
             $or: [
@@ -188,7 +196,7 @@ function filterGen({q}: any) {
 
 function filterRequest({q, organisation, webhook}: any) {
     let query = {};
-    if(q !== undefined) {
+    if(q?.length) {
         query = {
             ...query,
             $or: [

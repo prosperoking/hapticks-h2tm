@@ -183,6 +183,15 @@ const terminalCreateValidator = (0, index_1.createValidatedRequest)((0, schema_1
             }
         }
     },
+    maxTransAmount: {
+        in: ["body"],
+        isNumeric: {
+            bail: true,
+        },
+        optional: true,
+        errorMessage: "Invalid Max Transaction Amount",
+        toInt: true
+    }
 }));
 exports.default = terminalCreateValidator;
 //# sourceMappingURL=terminalCreate.validator.js.map

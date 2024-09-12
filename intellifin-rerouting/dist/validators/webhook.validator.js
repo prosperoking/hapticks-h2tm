@@ -30,15 +30,17 @@ const webHookValidator = (0, index_1.createValidatedRequest)((0, schema_1.checkS
             bail: true,
         }
     },
-    url: {
+    urls: {
         in: ['body'],
-        trim: true,
-        isURL: true,
+        isArray: {
+            errorMessage: "Invalid Urls",
+            bail: true,
+        },
         custom: {
             options: (value, { req, location, path }) => __awaiter(void 0, void 0, void 0, function* () {
                 var _a;
                 if (!(yield webhook_model_1.default.find({
-                    url: value,
+                    urls: value,
                     organisationId: ((_a = req.body.organisationId) === null || _a === void 0 ? void 0 : _a.length) ? req.body.organisationId : undefined,
                 })))
                     return Promise.reject();
@@ -46,6 +48,13 @@ const webHookValidator = (0, index_1.createValidatedRequest)((0, schema_1.checkS
             errorMessage: "Webhook Already Registered for Organisation",
             bail: true,
         }
+    },
+    "urls.*": {
+        // in: ['body'],
+        trim: true,
+        isURL: {
+            errorMessage: "Invalid Url",
+        },
     },
     name: {
         in: ['body'],

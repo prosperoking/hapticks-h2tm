@@ -8,8 +8,10 @@ export interface IWebhookData {
     _id?:  string| any,
     organisationId?: string | any,
     name: string,
-    url: string,
+    url?: string,
+    urls: string[],
     secret: string,
+    dest_urls: string[],
 }
 export interface IWebhook extends IWebhookData, Document{}
 
@@ -26,6 +28,10 @@ const webhookSchema = new mongoose.Schema<IWebhookData>({
     url: {
         type: String,
         required: true,
+    },
+    urls: {
+        type: [String],
+        default: [],
     },
     secret: {
         type: String,
@@ -56,7 +62,13 @@ webhookSchema.virtual('request_count',{
     count: true,
 });
 
-
+webhookSchema.virtual('dest_urls').get(function(){
+    return Array.from(new Set(
+        [this.url,...(this.urls ?? [])]
+        .filter((url)=> url?.length)
+        .map(url=>url.toLowerCase())
+    ))
+});
 webhookSchema.post('remove',function(data){
     PTSPProfileModel.updateMany({
         webhookId: data.id,

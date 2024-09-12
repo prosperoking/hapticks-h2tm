@@ -31,7 +31,10 @@ mongoose.set('debug', dbConfig.enable_logging);
 
 /** Enable Cross Origin Resource Sharing */
 app.use(cors());
-
+app.use(function(req, res, next) {
+  res.setHeader('X-Frame-Options', 'sameorigin');
+  next();
+});
 app.use(timeout('15m'));
 /** set parser to parse the request data in json format */
 app.use(bodyparser.json({ limit: '50mb' }));

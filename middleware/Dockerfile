@@ -7,4 +7,4 @@ COPY . .
 
 EXPOSE 9990
 
-CMD ./run.sh
+ENTRYPOINT ./run.sh

@@ -12,8 +12,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.totalPossibleGeneration = exports.getRanges = exports.getAvailableTid = exports.generateTids = exports.generateTidRange = void 0;
+exports.generateTDESKey = exports.totalPossibleGeneration = exports.getRanges = exports.getAvailableTid = exports.generateTids = exports.generateTidRange = void 0;
 const terminalIds_model_1 = __importDefault(require("../db/models/terminalIds.model"));
+const crypto_1 = __importDefault(require("crypto"));
 const availableCharacters = Array(10).fill(null).map((_, i) => i.toString()).concat(Array(26).fill(null).map((_, i) => String.fromCharCode(i + 65)));
 function generateTidRange(start, end, prefix = '') {
     const alphaNum = /^[a-zA-Z0-9]+$/;
@@ -80,4 +81,10 @@ function totalPossibleGeneration(ranges) {
     }, 0);
 }
 exports.totalPossibleGeneration = totalPossibleGeneration;
+function generateTDESKey(bytes = 16) {
+    return crypto_1.default.randomBytes(bytes)
+        .toString('hex')
+        .toUpperCase();
+}
+exports.generateTDESKey = generateTDESKey;
 //# sourceMappingURL=appUtils.js.map

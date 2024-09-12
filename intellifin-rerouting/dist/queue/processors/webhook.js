@@ -56,7 +56,7 @@ exports.webhookWorker = new bullmq_1.Worker('webhook', (job) => __awaiter(void 0
     const signature = (0, crypt_1.createDigest)(webhook.secret, verifyString);
     let response = null;
     try {
-        response = yield axios_1.default.post(webhook.url, payloadObject, {
+        response = yield axios_1.default.post(data.url, payloadObject, {
             headers: {
                 'x-verify-string': verifyString,
                 'x-signature': signature,
@@ -82,6 +82,7 @@ exports.webhookWorker = new bullmq_1.Worker('webhook', (job) => __awaiter(void 0
         terminalId: journal.terminalId,
         verifyString,
         verifySignature: signature,
+        url: data.url
     });
     return webhookRequest;
 }), {

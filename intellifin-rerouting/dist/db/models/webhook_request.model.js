@@ -78,6 +78,10 @@ const webhookRequestSchema = new mongoose.Schema({
     verifySignature: {
         type: String,
         default: null,
+    },
+    url: {
+        type: String,
+        default: null,
     }
 }, {
     timestamps: {

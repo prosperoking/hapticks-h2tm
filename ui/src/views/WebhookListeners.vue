@@ -89,8 +89,8 @@
 
 
                 <td class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
-                  <div :title="u.url" class="text-xs w-36 overflow-hidden text-ellipsis leading-5 text-gray-900">
-                    {{ u.url }}
+                  <div v-for="(url,key) of u.dest_urls " :key="key" :title="url" class="text-xs w-36 overflow-hidden text-ellipsis leading-5 text-gray-900">
+                    {{ url }}
                   </div>
 
                 </td>
@@ -240,8 +240,15 @@
             <label for="">Organisation</label>
             <OrganisactionSelect v-model="form.organisationId" />
           </div>
-          <div>
-            <Input title="Url" v-model:value="form.url" />
+          <div class="flex flex-col">
+            <div class="flex flex-row justify-between items-center my-4">
+              <span class="text-gray-400  text-sm">Add Desitnation URL</span>
+              <button @click.prevent="addUrlToForm" class="text-sm p-1 px-2 rounded text-white bg-blue-600">+</button>
+            </div>
+            <div class="flex flex-row justify-between items-center space-x-2" v-for="(url,key) of form.urls" :key="key">
+              <Input :title="`Url (${key+1})`" v-model:value="form.urls[key]" />
+              <button @click.prevent="removeURLFromForm(key)" class="text-sm px-2 p-1 rounded text-white bg-red-400"> - </button>
+            </div>
           </div>
         </div>
         <div>
@@ -278,7 +285,7 @@ import { PaginatedData,Webhook } from '../@types/types';
 import { currencyFormatter, dateFormatter } from '../utils/Formatters';
 import debounce from 'lodash/debounce'
 import useVuelidate from "@vuelidate/core";
-import { required, ipAddress, numeric, minLength, maxLength, requiredIf, url } from "@vuelidate/validators"
+import { required, ipAddress, numeric, minLength, maxLength, requiredIf, url,   } from "@vuelidate/validators"
 import { notify } from "@kyvg/vue3-notification";
 // @ts-ignore
 import OrganisactionSelect from "../components/OrganisactionSelect.vue";
@@ -293,7 +300,8 @@ interface OrganisationState {
 interface Form  {
   _id?:string,
   name: string | null,
-  url: string | null,
+  url?:string | null,
+  urls: string[],
   organisationId: string | null,
 }
 
@@ -318,7 +326,7 @@ const open = ref<boolean>(false);
 const resetingId = ref<string|null>(null);
 const form = ref<Form>({
   name: null,
-  url: null,
+  urls: [""],
   organisationId: null,
 })
 
@@ -326,9 +334,12 @@ const $v = useVuelidate({
   name:{
     required,
   },
-  url:{
+  urls:{
     required,
-    url
+    minLength: minLength(1),
+    $each:{
+      url
+    }
   },
 },form)
 
@@ -386,7 +397,7 @@ const editWebHook = (hook: Webhook)=>{
   form.value = {
     _id: hook._id,
     name: hook.name,
-    url: hook.url,
+    urls: (hook.dest_urls ?? []).filter(url=>url?.length),
     organisationId: hook.orgnaisationId,
   }
 
@@ -447,11 +458,19 @@ const saveOrganisation = async () => {
   }
 }
 
+const addUrlToForm = () => {
+  form.value.urls = [...form.value?.urls?? [],""]
+}
+
+const removeURLFromForm = (index:number)=>{
+  form.value.urls = form.value.urls?.filter((url,i)=>index!= i)
+}
+
 watch(open,(value)=>{
   if(value) return;
   form.value = {
     name: null,
-    url: null,
+    urls: [""],
     organisationId: null,
   }
 })

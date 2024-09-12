@@ -17,20 +17,29 @@ const webHookValidator = createValidatedRequest(checkSchema({
             bail: true,
         }
     },
-    url: {
+    urls: {
         in: ['body'],
-        trim: true,
-        isURL: true,
+        isArray: {
+            errorMessage: "Invalid Urls",
+            bail: true,
+        },
         custom: {
             options: async (value: string, { req, location, path }) => {
                 if (! await WebhookModel.find({
-                    url: value,
+                    urls: value,
                     organisationId: req.body.organisationId?.length ? req.body.organisationId : undefined,
                 })) return Promise.reject();
             },
             errorMessage: "Webhook Already Registered for Organisation",
             bail: true,
         }
+    },
+    "urls.*": {
+        // in: ['body'],
+        trim: true,
+        isURL: {
+            errorMessage: "Invalid Url",
+        },
     },
     name: {
         in: ['body'],

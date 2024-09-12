@@ -22,6 +22,7 @@
     "argon2": "^0.28.5",
     "axios": "^1.5.1",
     "bcrypt": "^5.0.0",
+    "ber-tlv": "^0.9.2",
     "body-parser": "^1.20.0",
     "bullmq": "^1.89.2",
     "commander": "^9.3.0",

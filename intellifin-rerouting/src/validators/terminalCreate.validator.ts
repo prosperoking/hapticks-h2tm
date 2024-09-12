@@ -164,6 +164,16 @@ const terminalCreateValidator = createValidatedRequest(checkSchema({
             }
         }
     },
+    maxTransAmount: {
+        in: ["body"],
+        isNumeric: {
+            bail:true,
+
+        },
+        optional: true,
+        errorMessage:"Invalid Max Transaction Amount",
+        toInt: true
+    }
 }),);
 
 export default terminalCreateValidator;

@@ -125,7 +125,12 @@
                         </span> {{ u.PAN }}
                       </div>
                       <div class="text-sm leading-5 text-gray-500">
-                        <span class="inline-flexfont-semibold leading-5  rounded-full">
+                        <span class="inline-flex font-semibold leading-5  rounded-full">
+                          ISSUER:
+                        </span> {{ u.issuer }}
+                      </div>
+                      <div class="text-sm leading-5 text-gray-500">
+                        <span class="inline-flex font-semibold leading-5  rounded-full">
                           Response Code:
                         </span> {{ u.responseCode }}
                       </div>

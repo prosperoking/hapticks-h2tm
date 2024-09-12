@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 export {}
 
 export interface ISOPayload {
@@ -106,13 +107,13 @@ export interface PurchasePayload {
     rrn:           string;
     totalamount:   string;
     field18:       string;
-    ssl:           boolean;
+    ssl?:           boolean;
     field4:        string;
     field22:       string;
     field23:       string;
     field26:       string;
     field25:       string;
-    host:          string;
+    host?:          string;
     field11:       string;
     field55:       string;
     field12:       string;
@@ -134,6 +135,43 @@ export interface PurchasePayload {
     field7:        string;
     field3:        string;
     field2:        string;
+    processor?:    string;
+}
+
+export type SlimPurchasePayload = {
+    track2: string;
+    iccData: string;
+    pinBlock?: string;
+    rrn?: string;
+    stan: string;
+    accountType: '00' | '10' | '20' | '30';
+    transDateTime: string;
+    tid: string,
+    mid: string,
+    entryMode?: string,
+    processor?: string,
+}
+
+export type ParsedTLv = {
+    cryptogram: string;
+    cryptogramInfoData: string;
+    issuerApplicationData: string;
+    unpredictableNumber: string;
+    atc: string;
+    terminalVerificationResult: string;
+    transactionDate: string;
+    transactionType: string;
+    amountOther: string;
+    amount: string;
+    terminalCapabilities: string;
+    aid: string;
+    dedicatedFileName?: string;
+    transSeqCounter?: string;
+    panSeqNum: string;
+    terminalCurrency: string;
+    aip: string;
+    transType: string;
+    cvm: string;
 }
 
 

@@ -31,6 +31,7 @@ const hasRoleOrPermissions =
 const hasPermissions = (permissions: string[] = [])=>authMiddleware([], permissions)
 
 router.get('/', dashboardController.index);
+router.get('/chart-data', dashboardController.stats);
 router.get('/transactions',
     hasRoleOrPermissions(['admin'], ['transactions.list']),
     dashboardController.transactions

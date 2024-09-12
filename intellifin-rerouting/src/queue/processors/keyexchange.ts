@@ -67,13 +67,16 @@ export const keyExchangeWorker = new Worker<ITerminal>('keyexchange',async (job:
     if (!result?.status)  throw Error(result.message);
 
     const { data } = result;
-    terminal.encmasterkey = data.encmasterkey;
-    terminal.encpinkey = data.encpinkey;
-    terminal.encsesskey = data.encsesskey;
-    terminal.clrmasterkey = data.clrmasterkey;
-    terminal.clrsesskey = data.clrsesskey;
-    terminal.clrpinkey = data.clrpinkey;
-    terminal.paramdownload = data.paramdownload;
+    terminal.nibssParams = {
+        encmasterkey: data.encmasterkey,
+        encPinKey: data.encpinkey,
+        encSessionKey: data.encsesskey,
+        clrMasterKey: data.clrmasterkey,
+        clrSessionKey: data.clrsesskey,
+        clrpinkey: data.clrpinkey,
+        paramdownload:data.paramdownload,
+    }
+    terminal.paramdownload =  data.paramdownload;
     await terminal.save();
 },{
     autorun: false,
@@ -83,6 +86,7 @@ export const keyExchangeWorker = new Worker<ITerminal>('keyexchange',async (job:
 export const GroupKeyExchangeWorker = new Worker<ITerminal>('groupkeyexchange',async (job: Job<ITerminal>) => {
 
     const groupTid = await groupTidModel.findById(job.data._id).populate('profile');
+    console.log(groupTid)
     if(!groupTid) throw Error("Group Tid Not found");
     const profile = groupTid.profile;
     // if(groupTid.profile.hasthreelineSupport && groupTid.threeLineTid?.length) {
@@ -102,9 +106,10 @@ export const GroupKeyExchangeWorker = new Worker<ITerminal>('groupkeyexchange',a
     //     }
     //   }
 
-    // if(profile.isInteliffin) {
-    //     return handleIntelifinKeyExchange(groupTid);
-    // }
+    if(profile.isInteliffin) {
+        //@ts-ignore
+        return handleIntelifinKeyExchange(groupTid);
+    }
 
     let result = await sendSocketMessage(TransactionTypes.KEY_EXCHANGE, {
         tid: groupTid.terminalId,
@@ -220,23 +225,47 @@ async function handleIntelifinKeyExchange(terminal: TerminalDocument ) {
             timeout,
         } = data;
         const padLeadingZeros = (num:number)=> num.toString().padStart(2, '0');
-        terminal.encmasterkey = pin_key;
-        terminal.encpinkey = data.pin_key;
-        terminal.encsesskey = data.pin_key;
-        terminal.clrmasterkey = data.pin_key;
-        terminal.clrsesskey = data.pin_key;
-        terminal.clrpinkey = data.pin_key;
-        terminal.paramdownload = [
-            ["020",padLeadingZeros(datetime.length),datetime],
-            ["030",padLeadingZeros(merchantid.length), merchantid],
-            ["040",padLeadingZeros(timeout.length), timeout],
-            ["050",padLeadingZeros( currency_code.length), currency_code,],
-            ["060",padLeadingZeros( country_code.length), country_code],
-            ["070",padLeadingZeros(callhome.length),callhome],
-            ["080",padLeadingZeros(merchant_category_code.length), merchant_category_code],
-            ["520",padLeadingZeros(merchant_address.length), merchant_address],
-        ].map(a=>a.join('')).join('');
-
+        // terminal.encmasterkey = pin_key;
+        // terminal.encpinkey = data.pin_key;
+        // terminal.encsesskey = data.pin_key;
+        // terminal.clrmasterkey = data.pin_key;
+        // terminal.clrsesskey = data.pin_key;
+        // terminal.clrpinkey = data.pin_key;
+        // terminal.paramdownload = [
+        //     ["020",padLeadingZeros(datetime.length),datetime],
+        //     ["030",padLeadingZeros(merchantid.length), merchantid],
+        //     ["040",padLeadingZeros(timeout.length), timeout],
+        //     ["050",padLeadingZeros( currency_code.length), currency_code,],
+        //     ["060",padLeadingZeros( country_code.length), country_code],
+        //     ["070",padLeadingZeros(callhome.length),callhome],
+        //     ["080",padLeadingZeros(merchant_category_code.length), merchant_category_code],
+        //     ["520",padLeadingZeros(merchant_address.length), merchant_address],
+        // ].map(a=>a.join('')).join('');
+        terminal.nibssParams = {
+            encmasterkey: pin_key,
+            encPinKey: data.pin_key,
+            encSessionKey: data.pin_key,
+            clrMasterKey: data.pin_key,
+            clrSessionKey: data.pin_key,
+            clrpinkey: data.pin_key,
+            paramdownload: [
+              ["020", padLeadingZeros(datetime.length), datetime],
+              ["030", padLeadingZeros(merchantid.length), merchantid],
+              ["040", padLeadingZeros(timeout.length), timeout],
+              ["050", padLeadingZeros(currency_code.length), currency_code],
+              ["060", padLeadingZeros(country_code.length), country_code],
+              ["070", padLeadingZeros(callhome.length), callhome],
+              [
+                "080",
+                padLeadingZeros(merchant_category_code.length),
+                merchant_category_code,
+              ],
+              ["520", padLeadingZeros(merchant_address.length), merchant_address],
+            ]
+              .map((a) => a.join(""))
+              .join(""),
+        }
+        terminal.paramdownload =  terminal.nibssParams.paramdownload;
         await terminal.save();
 
 

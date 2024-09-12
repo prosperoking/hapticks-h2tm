@@ -142,7 +142,7 @@ function generateApiKey(req, res) {
 exports.generateApiKey = generateApiKey;
 function filterGen({ q }) {
     let query = {};
-    if (q !== undefined) {
+    if (q === null || q === void 0 ? void 0 : q.length) {
         query = Object.assign(Object.assign({}, query), { $or: [
                 {
                     name: RegExp(`^${q}`, 'i'),

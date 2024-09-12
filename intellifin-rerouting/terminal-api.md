@@ -73,7 +73,7 @@ x-app-version: 2.0.1
 > Request
 
 ```json
-{"transaction":"KIMONO", "tid": "", "mid": "", "sn": "", "account": "Default", "clrpin": "clear pin key for pinblock", 
+{"transaction":"KIMONO", "tid": "", "mid": "", "sn": "", "account": "Default", "clrpin": "clear pin key for pinblock",
 "pinblock": "if its online card", "panseqno": "emv tag", "amount": "000000000000", "aip": "emv tag", "atc": "emv tag",
 "cryptogram": "emv tag", "cip": "emv tag", "cvm": "emv tag", "iad": "emv tag", "tvr": "emv tag", "capabilities": "emv tag",
 "unpredictable": "emv tag", "filename": "emv tag", "pan": "emv tag", "expirydate": "emv tag", "track": "emv tag", "stan": "000000",
@@ -115,7 +115,7 @@ x-app-version: 2.0.1
     "expirydate": "emv tag",// can be read from field35
     "track": "emv tag",// field field35
     "stan": "000000", // same as field 11
-    "rrn": "000000000000", 
+    "rrn": "000000000000",
     "totalamount": "30.00", // is this the same as amount and field4
     "field18": "5814",
     "ssl": true,
@@ -156,3 +156,9 @@ x-app-version: 2.0.1
 ```json
 {"resp":"00","auth":"005814","icc":"910A", "meaning": "APPROVED...."}
 ```
+
+
+## Updated api slim
+
+> iccdata mustin includes the following fields:
+Tags:  9F26,9F27,9F10,9F37,9F36,95,9A,9C,9F02,5F2A,5F34,82,9F1A,9F03,9F33,84,9F34,9F35,9F41,9F12,4F
