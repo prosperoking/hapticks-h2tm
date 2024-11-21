@@ -1,11 +1,12 @@
 import { Request, Response } from "express";
-import GroupTid from "../db/models/groupTid.model";
+import GroupTid, {IGroupTid} from "../db/models/groupTid.model";
 import { pick } from "lodash";
 import { Groupkeyexchange } from '../queue/queue';
-import { sendSocketMessage } from "../helpers/cardsockethelper";
+import { CardSocketResponse, sendSocketMessage } from "../helpers/cardsockethelper";
 import { TransactionTypes } from '../helpers/cardsockethelper';
 import PTSPProfileModel from '../db/models/ptspProfile.model';
 import logger from "../helpers/logger";
+import { Document, Types } from "mongoose";
 
 export default class GroupTidController {
     public async index(req: Request, res: Response): Promise<any> {
@@ -134,6 +135,12 @@ export default class GroupTidController {
                 return response.status(404).json({message: "Group Tid not found"});
             }
 
+            if(request.body.sync){
+                await groupTid.populate('profile');
+                return GroupTidController.performKeyExchange(groupTid)
+            }
+
+
             try{
                 await Groupkeyexchange.add('groupkeyexchange', {_id: groupTid.id});
             }catch(e){
@@ -147,12 +154,13 @@ export default class GroupTidController {
         }
     }
 
-    public static async performKeyExchange(data, terminalId) {
-        const profile = await PTSPProfileModel.findById(data.profileId);
-        if(!profile) return
-
-        const groupTerminal = await GroupTid.findById(terminalId);
-        let result;
+    public static async performKeyExchange(
+        groupTerminal:  Document<unknown, any, IGroupTid> & Omit<IGroupTid & {
+            _id: Types.ObjectId;
+        }, never>
+    ) {
+        const profile = groupTerminal.profile;
+        let result: CardSocketResponse<any> = {status: false, data: null};
         try {
 
             result = await sendSocketMessage(TransactionTypes.KEY_EXCHANGE, {
@@ -164,7 +172,6 @@ export default class GroupTidController {
             });
         } catch (error) {
             console.log("unable to perform auto key exchange: ", error)
-            return;
         }
 
         if (result?.status) {
@@ -176,10 +183,10 @@ export default class GroupTidController {
             groupTerminal.clrsesskey = data.clrmasterkey;
             groupTerminal.clrpinkey = data.clrpinkey;
             groupTerminal.paramdownload = data.paramdownload;
-
             await groupTerminal.save();
         }
 
+        return result;
     }
 
 }

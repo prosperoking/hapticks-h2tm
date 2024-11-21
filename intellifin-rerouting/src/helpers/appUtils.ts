@@ -31,7 +31,7 @@ export function generateTids(prefix: string = '', ranges: Ranges): string[] {
     return tids;
 }
 
-export async function getAvailableTid(id: ObjectId, type: 'isw'|'hydrogen') {
+export async function getAvailableTid(id: ObjectId, type: 'isw'|'hydrogen'| 'isw_new') {
     const terminalId = await TerminalID.findOneAndUpdate({linkedTo: null, type},{
         linkedTo: id
     });

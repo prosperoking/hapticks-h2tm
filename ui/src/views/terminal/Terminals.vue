@@ -127,6 +127,11 @@
                           ISW ISO TID: <span class="font-bold">{{ terminal.iswISOTID }}</span>
                         </p>
                       </template>
+                      <template v-if="terminal?.iswISOTIDNew?.length">
+                        <p class=" whitespace-nowrap">
+                          ISW ISO NEW TID: <span class="font-bold">{{ terminal.iswISOTIDNew }}</span>
+                        </p>
+                      </template>
                     </div>
                   </div>
                 </td>
@@ -507,11 +512,13 @@ interface Terminal {
   hydrogenTID?: string,
   habariTID?: string,
   iswISOTID?: string,
+  iswISOTIDNew?: string,
   maxTransAmount?: number,
   terminalLocation: {
     name: string,
     city: string,
     stateCountry: string,
+    location?:string,
   } | null
 }
 
@@ -529,6 +536,7 @@ interface TerminalForm {
   hydrogenTID?: string | null,
   habariTID?: string | null,
   iswISOTID?: string | null,
+  iswISOTIDNew?: string | null,
   terminalGroupId: string | null,
   maxTransAmount: number | null,
   terminalLocation: {

@@ -66,6 +66,7 @@ export interface ITerminal {
   hydrogenTID?: string;
   habariTID?: string;
   iswISOTID?: string;
+  iswISOTIDNew?: string;
   maxTransAmount: number;
   nibssParams?: {
     clrpinkey: string;
@@ -286,6 +287,17 @@ const terminalSchema = new mongoose.Schema<ITerminal>(
       },
       set: (value)=> value?.length? value: null
     },
+    iswISOTIDNew: {
+      type: String,
+      default: null,
+      index:{
+        unique: true,
+        partialFilterExpression: {
+          iswISOTID: {$type: "string"}
+        }
+      },
+      set: (value)=> value?.length? value: null
+    },
     maxTransAmount: {
       type: Number,
       default: 1e8
@@ -403,6 +415,11 @@ terminalSchema.pre('save', async function(){
   if(!this.hydrogenTID?.length) {
     const hyTid = await getAvailableTid(this.id, "hydrogen");
     this.hydrogenTID = hyTid?.tid;
+  }
+
+  if(!this.iswISOTIDNew?.length) {
+    const tid = await getAvailableTid(this.id, "isw_new");
+    this.iswISOTIDNew = tid?.tid;
   }
 })
 

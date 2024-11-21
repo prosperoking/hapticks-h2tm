@@ -165,6 +165,7 @@ export async function retryWebhook(req: Request, res: Response) {
             webhookId: webhookRequest.webhookId,
             organisationId: webhookRequest.organisationId,
             retry: true,
+            url: webhookRequest.url,
         })
         return res.json(webhookRequests)
     } catch (error) {

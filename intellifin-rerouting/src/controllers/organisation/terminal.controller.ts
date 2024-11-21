@@ -162,6 +162,7 @@ export async function updateTermial(req: Request, res: Response) {
         "brand",
         "deviceModel",
         "iswISOTID",
+        "iswISOTIDNew",
         "hydrogenTID",
         "terminalLocation",
         "terminalGroupId",

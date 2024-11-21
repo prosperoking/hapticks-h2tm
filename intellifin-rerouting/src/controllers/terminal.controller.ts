@@ -21,6 +21,7 @@ export default class TerminalController {
                         { hydrogenTID: RegExp(`^${q}`,'i') },
                         { habariTID: RegExp(`^${q}`,'i') },
                         { iswISOTID: RegExp(`^${q}`,'i') },
+                        { iswISOTIDNew: RegExp(`^${q}`,'i') },
                         { serialNo: RegExp(`^${q}`,'i') },
                         { brand: RegExp(`^${q}`,'i') },
                         { deviceModel: RegExp(`^${q}`,'i') },
@@ -80,6 +81,7 @@ export default class TerminalController {
                 "brand",
                 "deviceModel",
                 "iswISOTID",
+                "iswISOTIDNew",
                 "hydrogenTID",
                 "habariTID",
                 "terminalLocation",
@@ -197,6 +199,10 @@ export default class TerminalController {
                 filter = {
                     $or:[
                         { terminalId: RegExp(`^${q}`,'i') },
+                        { hydrogenTID: RegExp(`^${q}`,'i') },
+                        { habariTID: RegExp(`^${q}`,'i') },
+                        { iswISOTID: RegExp(`^${q}`,'i') },
+                        { iswISOTIDNew: RegExp(`^${q}`,'i') },
                         { serialNo: RegExp(`^${q}`,'i') },
                         { brand: RegExp(`^${q}`,'i') },
                         { deviceModel: RegExp(`^${q}`,'i') },
@@ -348,6 +354,23 @@ export default class TerminalController {
             });
         } catch (error) {
             response.status(400).json({message: error.message})
+        }
+    }
+
+    public async importGeneratedTids(request: Request, response: Response)
+    {
+        try {
+            let {terminals, type} = request.body;
+            let data = await TerminalID.insertMany(terminals.map(terminal=>({
+                ...terminal,
+                type
+            })))
+            return response.json({
+                data
+            })
+        } catch (error) {
+            logger.error(error)
+            response.status(400).json({message: "Import failed"})
         }
     }
 }

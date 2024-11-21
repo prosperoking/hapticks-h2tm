@@ -5,7 +5,7 @@ import paginate from "mongoose-paginate-v2";
 export type ITerminalID = {
     tid : string,
     linkedTo: ObjectId,
-    type: 'isw' | 'hydrogen',
+    type: 'isw' | 'hydrogen' | 'isw_new',
     rangeGenerated: string,
     prefix: string,
 }

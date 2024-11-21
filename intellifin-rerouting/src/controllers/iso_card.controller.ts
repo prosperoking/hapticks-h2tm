@@ -116,6 +116,7 @@ class IsoCardContoller {
           terminalId,
           customerAddress: terminal.customerAddress,
           iswISOTID: terminal.iswISOTID,
+          iswISOTIDNew: terminal.iswISOTIDNew,
           hydrogenTID: terminal.hydrogenTID,
           profileId: terminal.profile?._id,
           iswTid: terminal.iswTid,
@@ -1076,7 +1077,7 @@ class IsoCardContoller {
         data.terminalLocation ||
         terminal?.terminalLocation?.location ||
         terminal.parsedParams?.merchantNameLocation,
-      tid: terminal.iswISOTID,
+      tid: terminal.iswISOTIDNew ?? terminal.iswISOTID,
       mid: mid,
       field42: mid,
       field18: mcc,
@@ -1296,7 +1297,7 @@ class IsoCardContoller {
       amount: Number.parseFloat(payload.field4),
       STAN: payload.stan,
       cardExpiration: payload.expirydate,
-      terminalId: terminal.iswISOTID,
+      terminalId: terminal.iswISOTIDNew ?? terminal.iswISOTID,
       merchantId: payload.mid,
       responseCode: response.resp,
       responseDescription: response.meaning,
