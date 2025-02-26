@@ -61,7 +61,7 @@ export enum UserRole {
 }
 export interface User {
   _id?: string;
-  role: UserRole;
+  role: 'admin' | 'user';
   username: string;
   email: string;
   password?: string;

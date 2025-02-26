@@ -172,6 +172,7 @@ function updateTermial(req, res) {
                 "brand",
                 "deviceModel",
                 "iswISOTID",
+                "iswISOTIDNew",
                 "hydrogenTID",
                 "terminalLocation",
                 "terminalGroupId",

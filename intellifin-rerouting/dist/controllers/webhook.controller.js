@@ -179,6 +179,7 @@ function retryWebhook(req, res) {
                 webhookId: webhookRequest.webhookId,
                 organisationId: webhookRequest.organisationId,
                 retry: true,
+                url: webhookRequest.url,
             });
             return res.json(webhookRequests);
         }

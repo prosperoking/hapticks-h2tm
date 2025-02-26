@@ -243,6 +243,17 @@ const terminalSchema = new mongoose.Schema({
         },
         set: (value) => (value === null || value === void 0 ? void 0 : value.length) ? value : null
     },
+    iswISOTIDNew: {
+        type: String,
+        default: null,
+        index: {
+            unique: true,
+            partialFilterExpression: {
+                iswISOTID: { $type: "string" }
+            }
+        },
+        set: (value) => (value === null || value === void 0 ? void 0 : value.length) ? value : null
+    },
     maxTransAmount: {
         type: Number,
         default: 1e8
@@ -343,7 +354,7 @@ terminalSchema.virtual("usingGroupedTid").get(function () {
 });
 terminalSchema.plugin(mongoose_paginate_v2_1.default);
 terminalSchema.pre('save', function () {
-    var _a, _b;
+    var _a, _b, _c;
     return __awaiter(this, void 0, void 0, function* () {
         if (!((_a = this.iswISOTID) === null || _a === void 0 ? void 0 : _a.length)) {
             const iswTid = yield (0, appUtils_1.getAvailableTid)(this.id, "isw");
@@ -352,6 +363,10 @@ terminalSchema.pre('save', function () {
         if (!((_b = this.hydrogenTID) === null || _b === void 0 ? void 0 : _b.length)) {
             const hyTid = yield (0, appUtils_1.getAvailableTid)(this.id, "hydrogen");
             this.hydrogenTID = hyTid === null || hyTid === void 0 ? void 0 : hyTid.tid;
+        }
+        if (!((_c = this.iswISOTIDNew) === null || _c === void 0 ? void 0 : _c.length)) {
+            const tid = yield (0, appUtils_1.getAvailableTid)(this.id, "isw_new");
+            this.iswISOTIDNew = tid === null || tid === void 0 ? void 0 : tid.tid;
         }
     });
 });

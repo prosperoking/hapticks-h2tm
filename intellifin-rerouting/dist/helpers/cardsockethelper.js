@@ -20,14 +20,24 @@ var TransactionTypes;
     TransactionTypes["ISW_PURCHASE"] = "ISW_PURCHASE";
     TransactionTypes["ISW_CLOSE_CONNECTIONS"] = "ISW_CLOSE_CONNECTIONS";
     TransactionTypes["ISW_CONNECTIONS_COUNT"] = "ISW_CONNECTIONS_COUNT";
+    TransactionTypes["ISW_CONNECTIONS"] = "ISW_CONNECTIONS";
     TransactionTypes["HYDROGEN_KEY_EXCHANGE"] = "HYDROGEN_KEY_EXCHANGE";
     TransactionTypes["HYDROGEN_PURCHASE"] = "HYDROGEN_PURCHASE";
     TransactionTypes["HYDROGEN_CLOSE_CONNECTIONS"] = "HYDROGEN_CLOSE_CONNECTIONS";
     TransactionTypes["HYDROGEN_CONNECTIONS_COUNT"] = "HYDROGEN_CONNECTIONS_COUNT";
+    TransactionTypes["HYDROGEN_CONNECTIONS"] = "HYDROGEN_CONNECTIONS";
     TransactionTypes["HABARI_KEY_EXCHANGE"] = "HABARI_KEY_EXCHANGE";
     TransactionTypes["HABARI_PURCHASE"] = "HABARI_PURCHASE";
     TransactionTypes["HABARI_CLOSE_CONNECTIONS"] = "HABARI_CLOSE_CONNECTIONS";
     TransactionTypes["HABARI_CONNECTIONS_COUNT"] = "HABARI_CONNECTIONS_COUNT";
+    TransactionTypes["HABARI_CONNECTIONS"] = "HABARI_CONNECTIONS";
+    TransactionTypes["ZONE_KEY_EXCHANGE"] = "ZONE_KEY_EXCHANGE";
+    TransactionTypes["ZONE_PURCHASE"] = "ZONE_PURCHASE";
+    TransactionTypes["ZONE_CLOSE_CONNECTIONS"] = "ZONE_CLOSE_CONNECTIONS";
+    TransactionTypes["ZONE_CONNECTIONS_COUNT"] = "ZONE_CONNECTIONS_COUNT";
+    TransactionTypes["ZONE_CONNECTIONS"] = "HABARI_CONNECTIONS";
+    TransactionTypes["KILL_BRIDGE"] = "KILL_BRIDGE";
+    TransactionTypes["PING"] = "PING";
 })(TransactionTypes = exports.TransactionTypes || (exports.TransactionTypes = {}));
 function sendSocketMessage(transaction, payload) {
     return new Promise((resolve, reject) => {

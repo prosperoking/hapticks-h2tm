@@ -20,6 +20,7 @@ import {
     WebHookController,
     UserController,
     groupTidController,
+    BridgeController,
 } from '../controllers/index.controller';
 import { body } from 'express-validator';
 
@@ -215,4 +216,10 @@ router.delete(
     hasRoleOrPermissions(['admin'],['users.delete']),
     UserController.deleteUser
 );
+
+router.get('/bridge/kill', adminOnly, BridgeController.killBridge);
+router.get('/bridge/connections', adminOnly, BridgeController.getConnections);
+router.get('/bridge/status', adminOnly, BridgeController.status);
+router.post('/bridge/clear-connections', adminOnly, BridgeController.closeConnections);
+
 export default router;

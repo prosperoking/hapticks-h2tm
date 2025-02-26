@@ -34,6 +34,7 @@ class TerminalController {
                             { hydrogenTID: RegExp(`^${q}`, 'i') },
                             { habariTID: RegExp(`^${q}`, 'i') },
                             { iswISOTID: RegExp(`^${q}`, 'i') },
+                            { iswISOTIDNew: RegExp(`^${q}`, 'i') },
                             { serialNo: RegExp(`^${q}`, 'i') },
                             { brand: RegExp(`^${q}`, 'i') },
                             { deviceModel: RegExp(`^${q}`, 'i') },
@@ -92,6 +93,7 @@ class TerminalController {
                     "brand",
                     "deviceModel",
                     "iswISOTID",
+                    "iswISOTIDNew",
                     "hydrogenTID",
                     "habariTID",
                     "terminalLocation",
@@ -208,6 +210,10 @@ class TerminalController {
                     filter = {
                         $or: [
                             { terminalId: RegExp(`^${q}`, 'i') },
+                            { hydrogenTID: RegExp(`^${q}`, 'i') },
+                            { habariTID: RegExp(`^${q}`, 'i') },
+                            { iswISOTID: RegExp(`^${q}`, 'i') },
+                            { iswISOTIDNew: RegExp(`^${q}`, 'i') },
                             { serialNo: RegExp(`^${q}`, 'i') },
                             { brand: RegExp(`^${q}`, 'i') },
                             { deviceModel: RegExp(`^${q}`, 'i') },
@@ -354,6 +360,21 @@ class TerminalController {
             }
             catch (error) {
                 response.status(400).json({ message: error.message });
+            }
+        });
+    }
+    importGeneratedTids(request, response) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                let { terminals, type } = request.body;
+                let data = yield terminalIds_model_1.default.insertMany(terminals.map(terminal => (Object.assign(Object.assign({}, terminal), { type }))));
+                return response.json({
+                    data
+                });
+            }
+            catch (error) {
+                logger_1.default.error(error);
+                response.status(400).json({ message: "Import failed" });
             }
         });
     }

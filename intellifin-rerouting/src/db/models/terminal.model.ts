@@ -67,6 +67,7 @@ export interface ITerminal {
   habariTID?: string;
   iswISOTID?: string;
   iswISOTIDNew?: string;
+  zoneTID?: string;
   maxTransAmount: number;
   nibssParams?: {
     clrpinkey: string;

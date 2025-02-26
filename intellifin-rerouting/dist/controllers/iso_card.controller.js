@@ -79,6 +79,7 @@ class IsoCardContoller {
                         terminalId,
                         customerAddress: terminal.customerAddress,
                         iswISOTID: terminal.iswISOTID,
+                        iswISOTIDNew: terminal.iswISOTIDNew,
                         hydrogenTID: terminal.hydrogenTID,
                         profileId: (_d = terminal.profile) === null || _d === void 0 ? void 0 : _d._id,
                         iswTid: terminal.iswTid,
@@ -687,11 +688,11 @@ class IsoCardContoller {
                 "HAPTICKSDATA LTD LA LANG", tid: terminal.iswTid, mid: profile.iswMid, field43: ((_a = terminal.parsedParams) === null || _a === void 0 ? void 0 : _a.merchantNameLocation) || data.field43, uniqueId: terminal.iswUniqueId, amount: data.field4 || data.amount || 0, totalamount: data.field4 || data.amount || 0, clrsesskey: terminal.clrsesskey, clrpin: terminal.clrpinkey, pinblock: data.pinblock || "" });
     }
     static patchISWISOPayload(data, profile, terminal) {
-        var _a, _b, _c;
+        var _a, _b, _c, _d;
         const { host, port, ssl, zpk, mid, rid, oRid, mcc, ett, settlementAccount, } = profile.iswISOConfig;
         return Object.assign(Object.assign({}, data), { destInstitutionCode: profile.iswInstitutionCode, destAccountNumber: profile.iswDestinationAccount, merchantLocation: data.terminalLocation ||
                 ((_a = terminal === null || terminal === void 0 ? void 0 : terminal.terminalLocation) === null || _a === void 0 ? void 0 : _a.location) ||
-                ((_b = terminal.parsedParams) === null || _b === void 0 ? void 0 : _b.merchantNameLocation), tid: terminal.iswISOTID, mid: mid, field42: mid, field18: mcc, field41: terminal.iswISOTID, field43: data.field43 || ((_c = terminal.parsedParams) === null || _c === void 0 ? void 0 : _c.merchantNameLocation), uniqueId: terminal.iswUniqueId, amount: data.field4 || data.amount || 0, totalamount: data.field4 || data.amount || 0, clrsesskey: terminal.clrsesskey, clrpin: terminal.clrpinkey, pinblock: data.pinblock || "", clearZpk: zpk, host,
+                ((_b = terminal.parsedParams) === null || _b === void 0 ? void 0 : _b.merchantNameLocation), tid: (_c = terminal.iswISOTIDNew) !== null && _c !== void 0 ? _c : terminal.iswISOTID, mid: mid, field42: mid, field18: mcc, field41: terminal.iswISOTID, field43: data.field43 || ((_d = terminal.parsedParams) === null || _d === void 0 ? void 0 : _d.merchantNameLocation), uniqueId: terminal.iswUniqueId, amount: data.field4 || data.amount || 0, totalamount: data.field4 || data.amount || 0, clrsesskey: terminal.clrsesskey, clrpin: terminal.clrpinkey, pinblock: data.pinblock || "", clearZpk: zpk, host,
             port,
             rid,
             oRid,
@@ -818,19 +819,19 @@ class IsoCardContoller {
         };
     }
     static createISWISOJournal(response, payload, terminal, processor) {
-        var _a;
+        var _a, _b;
         return {
             PAN: utils_1.default.getMaskPan(payload.pan),
             rrn: payload.rrn,
             amount: Number.parseFloat(payload.field4),
             STAN: payload.stan,
             cardExpiration: payload.expirydate,
-            terminalId: terminal.iswISOTID,
+            terminalId: (_a = terminal.iswISOTIDNew) !== null && _a !== void 0 ? _a : terminal.iswISOTID,
             merchantId: payload.mid,
             responseCode: response.resp,
             responseDescription: response.meaning,
             authCode: response.auth,
-            merchantName: (_a = payload.merchantLocation) !== null && _a !== void 0 ? _a : terminal.parsedParams.merchantNameLocation,
+            merchantName: (_b = payload.merchantLocation) !== null && _b !== void 0 ? _b : terminal.parsedParams.merchantNameLocation,
             merchantCategoryCode: terminal === null || terminal === void 0 ? void 0 : terminal.parsedParams.mechantCategoryCode,
             product: "CASHOUT",
             transactionTime: new Date().toUTCString(),

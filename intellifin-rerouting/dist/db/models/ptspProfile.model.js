@@ -276,6 +276,45 @@ const ptspProfileSchema = new mongoose.Schema({
             minlength: 4
         },
     },
+    zoneConfig: {
+        zmk: {
+            type: String,
+            set: (value) => (value !== null && (value === null || value === void 0 ? void 0 : value.length)) ? (0, crypt_1.encrypt)(value) : null,
+            get: (value) => (value !== null && (value === null || value === void 0 ? void 0 : value.length)) ? (0, crypt_1.decrypt)(value) : null,
+        },
+        host: {
+            type: String,
+        },
+        port: {
+            type: Number,
+        },
+        ssl: {
+            type: Boolean,
+        },
+        zpk: {
+            type: String,
+            default: null,
+            set: (value) => (value !== null && (value === null || value === void 0 ? void 0 : value.length)) ? (0, crypt_1.encrypt)(value) : null,
+            get: (value) => (value !== null && (value === null || value === void 0 ? void 0 : value.length)) ? (0, crypt_1.decrypt)(value) : null,
+        },
+        kcv: {
+            type: String,
+            default: null,
+        },
+        lastRotate: {
+            type: Date,
+            default: null
+        },
+        mid: {
+            type: String,
+        },
+        mcc: {
+            type: Number,
+        },
+        acqId: {
+            type: String,
+        },
+    },
     processorSettings: [mongoose_1.SchemaTypes.Mixed],
     linkedProfileId: {
         type: mongoose_1.SchemaTypes.ObjectId,

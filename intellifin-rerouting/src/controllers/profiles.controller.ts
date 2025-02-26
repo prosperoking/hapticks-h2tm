@@ -135,11 +135,18 @@ export default class ProfileController {
                     ssl: profile.habariConfig.ssl,
                     zmk: profile.habariConfig.zmk
                 },],
+                zone: [TransactionTypes.HABARI_KEY_EXCHANGE ,{
+                    host: profile.habariConfig.host,
+                    port: profile.habariConfig.port,
+                    ssl: profile.habariConfig.ssl,
+                    zmk: profile.habariConfig.zmk
+                },],
             }[type]
             const getConfigKey = (type): string | undefined=>({
                 isw: "iswISOConfig",
                 hydrogen: "hydrogenConfig",
                 habari: "habariConfig",
+                zone: "zoneConfig"
             })[type]
             const configKey = getConfigKey(type)
             if(!configKey?.length) {

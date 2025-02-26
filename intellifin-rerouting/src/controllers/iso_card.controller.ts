@@ -570,6 +570,7 @@ class IsoCardContoller {
           "ISW",
           "HYDROGEN",
           "HABARI",
+          "ZONE",
         ].includes(processor)
           ? IsoCardContoller.resolveProcessorTransType(processor.toLowerCase())
           : IsoCardContoller.getMessageType(terminal, Number(body.field4));
@@ -1164,6 +1165,35 @@ class IsoCardContoller {
     };
   }
 
+  private static patchZonePayload(
+    data: any,
+    profile: IPTSPProfile,
+    terminal: ITerminal
+  ): object {
+    const { host, port, ssl, zpk, mid, acqId, mcc } = profile.zoneConfig;
+    return {
+      ...data,
+      merchantLocation:
+        data.terminalLocation ||
+        terminal?.terminalLocation?.location ||
+        terminal?.parsedParams.merchantNameLocation,
+      tid: terminal.zoneTID,
+      mid: mid,
+      field18: mcc,
+      field43: terminal.parsedParams?.merchantNameLocation || data.field43,
+      amount: data.field4 || data.amount || 0,
+      totalamount: data.field4 || data.amount || 0,
+      clrsesskey: terminal.clrsesskey,
+      clrpin: terminal.clrpinkey,
+      pinblock: data.pinblock || "",
+      clearZpk: zpk,
+      host,
+      port,
+      ssl,
+      acqId,
+    };
+  }
+
   private static getMessageType(
     terminal: ITerminal,
     amount: number
@@ -1199,6 +1229,10 @@ class IsoCardContoller {
         return TransactionTypes.HYDROGEN_PURCHASE;
       case "habari":
         return TransactionTypes.HABARI_PURCHASE;
+      case "zone":
+        return TransactionTypes.ZONE_PURCHASE;
+      case "juliana":
+        return TransactionTypes.JULIANA_PURCHASE;
       default:
         return TransactionTypes.ISO_TRANSACTION;
     }

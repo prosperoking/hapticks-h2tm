@@ -9,6 +9,7 @@ import GroupTidController from './groupTid.controller';
 import * as OrganisationController from './organisation.controller'
 import * as WebHookController from './webhook.controller'
 import * as UserController from './user.controller'
+import * as BridgeController from './connectionManager.controller'
 
 
 const vasTransactionController = new VasTransactionController();
@@ -32,5 +33,6 @@ export {
     OrganisationController,
     WebHookController,
     UserController,
-    groupTidController
+    groupTidController,
+    BridgeController,
 }

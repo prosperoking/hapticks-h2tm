@@ -1,13 +1,13 @@
 import {defineStore} from 'pinia';
-import { User } from '../@types/types';
+import { User as U } from '../@types/types';
 import { appHttp } from '../plugins/AxiosPlugin';
 import { useRouter, Router } from 'vue-router';
 
-type User = {
+interface User extends U  {
     email: string,
     id: string,
     imageUrl: string,
-    username: String,
+    username: string,
     role: 'admin' | 'user'
     permissions: string[]
 }

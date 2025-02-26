@@ -32,6 +32,11 @@ export interface IPTSPProfileData {
     habariEnabled: boolean,
     iswISOEnabled: boolean,
     linkedProfile?: IPTSPProfileData,
+    transactionLimits?: {
+        enabled: boolean,
+        singleTransLimit: number,
+        accumulativeLimit: number,
+    },
     iswISOConfig?: {
         zmk: string,
         host: string,
@@ -73,10 +78,28 @@ export interface IPTSPProfileData {
         acqId: string,
         tidPrefix: string,
     },
+    zoneConfig?: {
+        zmk: string,
+        host: string,
+        port: number,
+        ssl: boolean,
+        zpk: string | null,
+        kcv: string | null
+        lastRotate: Date | null,
+        mcc: string,
+        mid: string,
+        acqId: string,
+        tidPrefix: string,
+    },
+    julianaConfig?: {
+        host: string,
+        zmk: string | null,
+        mid: string,
+    },
     processorSettings?: {
         minAmount: number,
         maxAmount: number,
-        processor: 'nibss' | 'kimono' | 'bluesalt' | '3line' | 'isw' | 'hydrogen' | 'habari',
+        processor: 'nibss' | 'kimono' | 'bluesalt' | '3line' | 'isw' | 'hydrogen' | 'habari' | 'zone' | 'juliana',
     }[],
     isLinked: boolean,
 }
@@ -329,6 +352,47 @@ const ptspProfileSchema = new mongoose.Schema<IPTSPProfileData>({
             minlength: 4
         },
     },
+    zoneConfig: {
+        zmk: {
+            type: String,
+            set: (value: string)=> (value !== null && value?.length) ? encrypt(value) : null,
+            get: (value: string)=> (value !== null && value?.length) ? decrypt(value) : null,
+        },
+        host: {
+            type: String,
+        },
+        port: {
+            type: Number,
+        },
+        ssl: {
+            type: Boolean,
+        },
+        zpk: {
+            type: String,
+            default: null,
+            set: (value: string)=> (value !== null && value?.length) ? encrypt(value) : null,
+            get: (value: string)=> (value !== null && value?.length) ? decrypt(value) : null,
+        },
+        kcv:{
+            type: String,
+            default: null,
+        },
+        lastRotate: {
+            type: Date,
+            default: null
+        },
+        mid: {
+            type: String,
+        },
+        mcc: {
+            type: Number,
+        },
+        acqId: {
+            type: String,
+        },
+    },
+    julianaConfig: {},
+    transactionLimits: {},
     processorSettings: [SchemaTypes.Mixed],
     linkedProfileId: {
         type: SchemaTypes.ObjectId,

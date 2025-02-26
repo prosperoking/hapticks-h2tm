@@ -20,6 +20,7 @@ import Card from "./views/Card.vue";
 import Blank from "./views/Blank.vue";
 import NotFound from "./views/NotFound.vue";
 import { useUserStore } from "./stores/user.store";
+import BridgeManager from "./views/BridgeManager.vue";
 
 
 const routes: RouteRecordRaw[] = [
@@ -93,6 +94,11 @@ const routes: RouteRecordRaw[] = [
     path: "/cards",
     name: "Cards",
     component: Card,
+  },
+  {
+    path: "/bridge-manager",
+    name: "bridge",
+    component: BridgeManager,
   },
   {
     path: "/tables",

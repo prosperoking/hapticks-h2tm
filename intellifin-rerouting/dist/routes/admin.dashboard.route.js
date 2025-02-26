@@ -105,5 +105,9 @@ router.get('/users/permissions', hasRoleOrPermissions(['admin'], ['users.create'
 router.post('/users', hasRoleOrPermissions(['admin'], ['users.create']), index_controller_1.UserController.addUser);
 router.put('/users', hasRoleOrPermissions(['admin'], ['users.update']), index_controller_1.UserController.deleteUser);
 router.delete('/users', hasRoleOrPermissions(['admin'], ['users.delete']), index_controller_1.UserController.deleteUser);
+router.get('/bridge/kill', adminOnly, index_controller_1.BridgeController.killBridge);
+router.get('/bridge/connections', adminOnly, index_controller_1.BridgeController.getConnections);
+router.get('/bridge/status', adminOnly, index_controller_1.BridgeController.status);
+router.post('/bridge/clear-connections', adminOnly, index_controller_1.BridgeController.closeConnections);
 exports.default = router;
 //# sourceMappingURL=admin.dashboard.route.js.map

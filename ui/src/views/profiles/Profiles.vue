@@ -69,7 +69,7 @@
                         {{ profile.title }}
                       </span>
                     </div>
-                    <div class="text-xs text-blue-300 mt-3 flex">
+                    <div class="flex mt-3 text-xs text-blue-300">
                         <button
                           @click="copyText(`${profile._id}`)"
                           v-can="'organisations.view-secret'"
@@ -214,7 +214,7 @@
       <div class="px-6 py-4 text-left modal-content">
         <!--Title-->
         <div class="flex items-center justify-between pb-3">
-          <p class="text-2xl text-gray-700 font-bold">{{form.id?.length? "Update Profile":"Add Profile"}}</p>
+          <p class="text-2xl font-bold text-gray-700">{{form.id?.length? "Update Profile":"Add Profile"}}</p>
           <div class="z-50 cursor-pointer modal-close" @click="open = false">
             <svg class="text-black fill-current" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
               viewBox="0 0 18 18">
@@ -474,6 +474,43 @@
             </DisclosurePanel>
           </Disclosure>
 
+          <div>
+            <Input title="Enable Zone" type="checkbox" v-model:value="enableZone"  />
+          </div>
+          <Disclosure v-if="enableZone" as="div" v-slot="{ open }" class="py-2 my-2">
+            <DisclosureButton class="flex justify-between w-full p-1 text-center text-white bg-gray-500 rounded">
+              <span>Zone Settings</span>
+              <ChevronUpIcon :class="open ? 'rotate-180 transform' : ''" class="w-5 h-5 text-white" />
+            </DisclosureButton>
+            <DisclosurePanel>
+              <div>
+                <Input title="Combined Key" v-model:value="form.zoneConfig.zmk" />
+              </div>
+              <div>
+                <Input title="Host IP" v-model:value="form.zoneConfig.host" />
+              </div>
+              <div>
+                <Input title="Host PORT" v-model:value="form.zoneConfig.port" />
+              </div>
+              <div>
+                <Input title="Is SSL" v-model:value="form.zoneConfig.ssl" type="checkbox" />
+              </div>
+              <div>
+              <Input title="MID" v-model:value="form.zoneConfig.mid" type="text" />
+              </div>
+              <div>
+              <Input title="MCC" v-model:value="form.zoneConfig.mcc" type="number" />
+              </div>
+              <div v-if="form?._id.length">
+                <Input title="ZPK" v-model:value="form.zoneConfig.zpk" max-length="32" />
+              </div>
+              <div>
+                <Input title="Acquirer ID" v-model:value="form.zoneConfig.acqId" type="number" />
+              </div>
+            </DisclosurePanel>
+          </Disclosure>
+
+
           <Disclosure as="div" v-slot="{ open }" class="py-2 my-2">
             <DisclosureButton class="flex justify-between w-full p-1 text-center text-white bg-gray-500 rounded">
               <span class="font-bold text-green-400">Bands</span>
@@ -493,6 +530,7 @@
                   <option value="hydrogen">Hydrogen</option>
                   <option value="habari">Habari</option>
                   <option value="3line">3line</option>
+                  <option value="zone">Zone</option>
                 </select>
                 <!-- <label class="block mb-2 text-sm font-bold text-gray-700" for="processor">Processor</label> -->
               </div>
@@ -667,6 +705,7 @@ export interface Profile {
   hydrogenEnabled?: boolean,
   habariEnabled?: boolean,
   iswISOEnabled?: boolean,
+  zoneEnabled?: boolean,
   isLinked?: boolean,
   linkedProfileId?: string,
   iswISOConfig?: {
@@ -708,10 +747,22 @@ export interface Profile {
       mid: string,
       acqId: string,
   } | object
+  zoneConfig?: {
+      zmk: string,
+      host: string,
+      port: number,
+      ssl: boolean,
+      zpk: string | null,
+      kcv: string | null,
+      lastRotate: Date | null,
+      mcc: string,
+      mid: string,
+      acqId: string,
+  } | object
 }
 
 type Band = {
-  processor: 'nibss' | 'kimono' | 'bluesalt' | '3line' | 'hydrogen' | 'isw' | 'habari',
+  processor: 'nibss' | 'kimono' | 'bluesalt' | '3line' | 'hydrogen' | 'isw' | 'habari' | 'zone',
   minAmount: number,
   maxAmount: number,
 }
@@ -733,6 +784,7 @@ let state = ref<PaginatedData<Profile>>({
 let enableISWISO = ref(false)
 let enableHydrogen = ref(false)
 let enableHabari = ref(false)
+let enableZone = ref(false)
 const loading = ref(false)
 let defaultDeleteState: { [key: string]: any, id: string | null } = {
   open: false,
@@ -782,6 +834,7 @@ const defualtState: Profile = {
   iswISOConfig: {},
   hydrogenConfig: {},
   habariConfig: {},
+  zoneConfig: {},
 }
 
 const institutionCodes = [
@@ -874,6 +927,7 @@ const editProfile = (value: Profile) => {
     iswISOConfig: enableISWISO.value? {...form.value, ...value.iswISOConfig}: undefined,
     hydrogenConfig: enableHydrogen.value? {...form.value,...value.hydrogenConfig}: undefined,
     habariConfig: enableHabari.value? {...form.value,...value.habariConfig}: undefined,
+    zoneConfig: enableHabari.value? {...form.value,...value.zoneConfig}: undefined,
   }
 }
 
@@ -1047,6 +1101,10 @@ watch(enableHabari, (value, prev)=>{
 
 watch(enableISWISO, (value, prev)=>{
   form.value.iswISOConfig = value?{...form.value.iswISOConfig || {}}: undefined
+})
+
+watch(enableZone, (value, prev)=>{
+  form.value.iswZone = value?{...form.value.iswZone || {}}: undefined
 })
 
 

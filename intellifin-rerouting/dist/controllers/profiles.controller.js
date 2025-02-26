@@ -159,11 +159,18 @@ class ProfileController {
                             ssl: profile.habariConfig.ssl,
                             zmk: profile.habariConfig.zmk
                         },],
+                    zone: [cardsockethelper_1.TransactionTypes.HABARI_KEY_EXCHANGE, {
+                            host: profile.habariConfig.host,
+                            port: profile.habariConfig.port,
+                            ssl: profile.habariConfig.ssl,
+                            zmk: profile.habariConfig.zmk
+                        },],
                 }[type];
                 const getConfigKey = (type) => ({
                     isw: "iswISOConfig",
                     hydrogen: "hydrogenConfig",
                     habari: "habariConfig",
+                    zone: "zoneConfig"
                 })[type];
                 const configKey = getConfigKey(type);
                 if (!(configKey === null || configKey === void 0 ? void 0 : configKey.length)) {

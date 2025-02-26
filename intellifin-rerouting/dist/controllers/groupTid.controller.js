@@ -17,7 +17,6 @@ const lodash_1 = require("lodash");
 const queue_1 = require("../queue/queue");
 const cardsockethelper_1 = require("../helpers/cardsockethelper");
 const cardsockethelper_2 = require("../helpers/cardsockethelper");
-const ptspProfile_model_1 = __importDefault(require("../db/models/ptspProfile.model"));
 const logger_1 = __importDefault(require("../helpers/logger"));
 class GroupTidController {
     index(req, res) {
@@ -146,6 +145,10 @@ class GroupTidController {
                 if (!groupTid) {
                     return response.status(404).json({ message: "Group Tid not found" });
                 }
+                if (request.body.sync) {
+                    yield groupTid.populate('profile');
+                    return GroupTidController.performKeyExchange(groupTid);
+                }
                 try {
                     yield queue_1.Groupkeyexchange.add('groupkeyexchange', { _id: groupTid.id });
                 }
@@ -160,13 +163,10 @@ class GroupTidController {
             }
         });
     }
-    static performKeyExchange(data, terminalId) {
+    static performKeyExchange(groupTerminal) {
         return __awaiter(this, void 0, void 0, function* () {
-            const profile = yield ptspProfile_model_1.default.findById(data.profileId);
-            if (!profile)
-                return;
-            const groupTerminal = yield groupTid_model_1.default.findById(terminalId);
-            let result;
+            const profile = groupTerminal.profile;
+            let result = { status: false, data: null };
             try {
                 result = yield (0, cardsockethelper_1.sendSocketMessage)(cardsockethelper_2.TransactionTypes.KEY_EXCHANGE, {
                     tid: groupTerminal.terminalId,
@@ -178,7 +178,6 @@ class GroupTidController {
             }
             catch (error) {
                 console.log("unable to perform auto key exchange: ", error);
-                return;
             }
             if (result === null || result === void 0 ? void 0 : result.status) {
                 const { data } = result;
@@ -191,6 +190,7 @@ class GroupTidController {
                 groupTerminal.paramdownload = data.paramdownload;
                 yield groupTerminal.save();
             }
+            return result;
         });
     }
 }

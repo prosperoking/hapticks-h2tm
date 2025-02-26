@@ -1698,6 +1698,11 @@ export const CardBins =  [
         'id': 530072,
         "bank": "PAYONEER EUROPE LIMITED",
         "code": "Payoneer"
+    },
+    {
+        'id': 507881,
+        "bank": "PalmPay",
+        "code": "PalmPay"
     }
 ]
 
