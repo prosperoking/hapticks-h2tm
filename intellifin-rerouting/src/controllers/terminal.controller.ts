@@ -84,6 +84,8 @@ export default class TerminalController {
                 "iswISOTIDNew",
                 "hydrogenTID",
                 "habariTID",
+                "zoneTID",
+                "julianaTID",
                 "terminalLocation",
                 "terminalGroupId"
             ]));

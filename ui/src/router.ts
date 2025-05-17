@@ -137,16 +137,18 @@ router.beforeEach((to, from,next)=>{
   const userStore = useUserStore();
   const decideNavigation = ()=>{
     if(to.name === 'Login' && !userStore.isLoggedIn){
-
       next();
     }
 
     if(to.name !== 'Login' && !userStore.isLoggedIn){
       router.push({ name: 'Login' })
     }
+
     if(userStore.isLoggedIn && to.name === 'Login') {
       router.replace({name: from.name?? 'Dashboard'});
     }
+
+
     next();
   }
 

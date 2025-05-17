@@ -7,6 +7,8 @@ import { Document } from 'mongoose';
 import Inteliffin from '../../services/inteliffin';
 import groupTidModel from "../../db/models/groupTid.model";
 import PTSPProfileModel, { IPTSPProfile, } from "../../db/models/ptspProfile.model";
+import vasjournalsModel, { IJournal } from "../../db/models/transaction.model";
+import ZoneClient from "../../services/zone";
 
 const config: AppConfig = (new appConfig()).getConfig('');
 
@@ -135,6 +137,50 @@ export const GroupKeyExchangeWorker = new Worker<ITerminal>('groupkeyexchange',a
 },{
     autorun: false,
     connection,
+})
+
+
+export const SendZoneJournalWorker = new Worker<{id: any}>('zoneJournal', async (job: Job<{id: any}>) =>{
+     const journal = await vasjournalsModel.findOne({_id: job.data.id})
+
+     if(!journal || journal.processor !== 'ZONE') return;
+     const tid = journal.terminalId;
+     const terminal = await Terminal.findOne({
+          $or: [
+            {terminalId: tid},
+            {threeLineTid: tid},
+            {iswTid: tid},
+            {iswISOTID: tid},
+            {iswISOTIDNew: tid},
+            {hydrogenTID: tid},
+            {habariTID: tid},
+            {zoneTID: tid},
+            {julianaTID: tid},
+          ],
+        })
+          .populate({ path: "profile", select: "title isoHost isoPort isSSL zoneConfig" })
+          .populate({ path: "groupTid" });
+
+    if(!terminal) return;
+
+    const config = terminal.profile.zoneConfig;
+    if(!config) return;
+    const result =  ZoneClient.postJournal(
+        journal,{
+        accno: config.accountNumber,
+        apiKey: config.apiKey,
+        acqID: config.acqId
+    })
+
+    if(!result) {
+        throw new Error("Failed to deliver message")
+    }
+
+    journal.zoneJournalPushedAt = new Date()
+    await journal.save()
+}, {
+    autorun: false,
+    connection
 })
 
 

@@ -54,6 +54,8 @@ export default class ProfileController {
             body.iswISOConfig = body.iswISOConfig === undefined?null: body.iswISOConfig
             body.hydrogenConfig = body.hydrogenConfig === undefined?null: body.hydrogenConfig
             body.habariConfig = body.habariConfig === undefined?null: body.habariConfig
+            body.zoneConfig = body.zoneConfig === undefined?null: body.zoneConfig
+            body.julianaConfig = body.julianaConfig === undefined?null: body.julianaConfig
             const data = await profile.update(pick(body,[
                 "title",
                 "isoHost",
@@ -82,6 +84,8 @@ export default class ProfileController {
                 "iswISOConfig",
                 "hydrogenConfig",
                 "habariConfig",
+                "zoneConfig",
+                "julianaConfig",
                 "zpk",
             ]));
             response.json({status: true, data})
@@ -135,11 +139,12 @@ export default class ProfileController {
                     ssl: profile.habariConfig.ssl,
                     zmk: profile.habariConfig.zmk
                 },],
-                zone: [TransactionTypes.HABARI_KEY_EXCHANGE ,{
-                    host: profile.habariConfig.host,
-                    port: profile.habariConfig.port,
-                    ssl: profile.habariConfig.ssl,
-                    zmk: profile.habariConfig.zmk
+                zone: [TransactionTypes.ZONE_KEY_EXCHANGE ,{
+                    host: profile.zoneConfig.host,
+                    port: profile.zoneConfig.port,
+                    ssl: profile.zoneConfig.ssl,
+                    zmk: profile.zoneConfig.zmk,
+                    acqId: profile.zoneConfig.acqId
                 },],
             }[type]
             const getConfigKey = (type): string | undefined=>({

@@ -68,7 +68,10 @@ export interface ITerminal {
   iswISOTID?: string;
   iswISOTIDNew?: string;
   zoneTID?: string;
+  julianaTID?: string;
   maxTransAmount: number;
+  acknowlededAt: Date ,
+  zoneJournalPushedAt: Date ,
   nibssParams?: {
     clrpinkey: string;
     clrMasterKey: string;
@@ -299,10 +302,40 @@ const terminalSchema = new mongoose.Schema<ITerminal>(
       },
       set: (value)=> value?.length? value: null
     },
+    zoneTID: {
+      type: String,
+      default: null,
+      index:{
+        unique: true,
+        partialFilterExpression: {
+          iswISOTID: {$type: "string"}
+        }
+      },
+      set: (value)=> value?.length? value: null
+    },
+    julianaTID: {
+      type: String,
+      default: null,
+      index:{
+        unique: true,
+        partialFilterExpression: {
+          iswISOTID: {$type: "string"}
+        }
+      },
+      set: (value)=> value?.length? value: null
+    },
     maxTransAmount: {
       type: Number,
       default: 1e8
-    }
+    },
+    acknowlededAt: {
+      type: Date,
+      default: null,
+    },
+    zoneJournalPushedAt: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true,

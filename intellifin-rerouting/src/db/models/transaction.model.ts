@@ -38,6 +38,8 @@ export interface IJournal {
   totalTransTime?: number | null;
   issuer?: string | null;
   deviceInfo?: object;
+  acknowlededAt?: Date;
+  zoneJournalPushedAt?: Date ;
   createdAt?: Date | string;
   updatedAt?: Date | string;
 }
@@ -99,6 +101,14 @@ let JournalsSchema = new mongoose.Schema<IJournalDocument>(
     },
     totalTransTime: {
       type: Number,
+      default: null,
+    },
+    acknowlededAt: {
+      type: Date,
+      default: null,
+    },
+    zoneJournalPushedAt: {
+      type: Date,
       default: null,
     },
   },

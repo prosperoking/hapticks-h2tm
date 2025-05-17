@@ -7,6 +7,9 @@ export default ({mode}) =>{
   return defineConfig({
     plugins: [vue()],
     server:{
+      watch:{
+        usePolling: true,
+      },
       proxy:{
         '^/api/*': {
           target:process.env.VITE_DEV_BASE_URL+"api",

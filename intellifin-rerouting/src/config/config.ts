@@ -26,6 +26,9 @@ export interface AppConfig {
   processorPrefixes: {
     isw?: string,
     hydrogen?: string,
+  },
+  zone: {
+    baseURL: string
   }
 }
 export default class Config {
@@ -57,6 +60,9 @@ export default class Config {
               processorPrefixes: {
                 isw: process.env.ISW_TID_PREFIX,
                 hydrogen: process.env.HYDROGEN_TID_PREFIX
+              },
+              zone: {
+                baseURL: process.env.ZONE_BASE_URL ?? "https://zone.cluster.africa"
               }
             };
         }

@@ -211,9 +211,9 @@
       </div>
 
       <!-- Add margin if you want to see some of the overlay behind the modal-->
-      <div class="px-6 py-4 text-left modal-content">
+      <div class="py-4 text-left modal-content">
         <!--Title-->
-        <div class="flex items-center justify-between pb-3">
+        <div class="px-6 flex items-center justify-between pb-3 border-b">
           <p class="text-2xl font-bold text-gray-700">{{form.id?.length? "Update Profile":"Add Profile"}}</p>
           <div class="z-50 cursor-pointer modal-close" @click="open = false">
             <svg class="text-black fill-current" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
@@ -225,7 +225,7 @@
         </div>
 
         <!--Body-->
-        <div class="flex flex-col h-96">
+        <div class="px-6 flex flex-col h-96 overflow-hidden overflow-y-auto">
           <div>
             <Input title="Title" v-model:value="form.title" />
           </div>
@@ -354,16 +354,20 @@
           </DisclosurePanel>
           </Disclosure>
 
-          <div>
-            <Input title="Enable ISW ISO" type="checkbox" v-model:value="enableISWISO" />
-          </div>
-
-          <Disclosure as="div" v-if="enableISWISO" v-slot="{ open }" class="py-2 my-2">
-            <DisclosureButton class="flex justify-between w-full p-1 text-center text-white bg-gray-500 rounded">
-              <span>ISW ISO Settings</span>
-              <ChevronUpIcon :class="open ? 'rotate-180 transform' : ''" class="w-5 h-5 text-white" />
+          <Disclosure as="div" v-if="enableISWISO" v-slot="{ open }" class="my-2 bg-gray-100 rounded">
+            <DisclosureButton
+              :class="{
+                'bg-gray-500': enableISWISO,
+                'bg-gray-300': !enableISWISO
+              }"
+              class="flex justify-between w-full p-1 text-center text-white rounded">
+              <div class="flex space-x-2 items-center pr-4">
+                  <Input title="" type="checkbox" v-model:value="enableISWISO"  />
+                  <span>ISW ISO Settings</span>
+              </div>
+              <ChevronUpIcon v-if="enableISWISO":class="open ? 'rotate-180 transform' : ''" class="w-5 h-5 text-white" />
             </DisclosureButton>
-            <DisclosurePanel>
+            <DisclosurePanel v-if="enableISWISO" class="p-2">
               <div>
                 <Input title="Combined Key" v-model:value="form.iswISOConfig.zmk" />
               </div>
@@ -400,16 +404,20 @@
             </DisclosurePanel>
           </Disclosure>
 
-          <div>
-            <Input title="Enable Hydrogen" type="checkbox" v-model:value="enableHydrogen"  />
-          </div>
-
-          <Disclosure v-if="enableHydrogen" as="div" v-slot="{ open }" class="py-2 my-2">
-            <DisclosureButton class="flex justify-between w-full p-1 text-center text-white bg-gray-500 rounded">
-              <span>Hydrogen Settings</span>
-              <ChevronUpIcon :class="open ? 'rotate-180 transform' : ''" class="w-5 h-5 text-white" />
+          <Disclosure  as="div" v-slot="{ open }" class="my-2 bg-gray-100 rounded">
+            <DisclosureButton
+            :class="{
+                'bg-gray-500': enableHydrogen,
+                'bg-gray-300': !enableHydrogen
+              }"
+              class="flex justify-between w-full p-1 text-center text-whiterounded">
+              <div class="flex space-x-2 items-center pr-4">
+                  <Input title="" type="checkbox" v-model:value="enableHydrogen"  />
+                  <span>Hydrogen Settings</span>
+              </div>
+              <ChevronUpIcon v-if="enableHydrogen" :class="open ? 'rotate-180 transform' : ''" class="w-5 h-5 text-white" />
             </DisclosureButton>
-            <DisclosurePanel>
+            <DisclosurePanel v-if="enableHydrogen" class="p-2">
               <div>
                 <Input title="Combined Key" v-model:value="form.hydrogenConfig.zmk" />
               </div>
@@ -437,16 +445,21 @@
             </DisclosurePanel>
           </Disclosure>
 
-          <div>
-            <Input title="Enable Habari" type="checkbox" v-model:value="enableHabari"  />
-          </div>
 
-          <Disclosure v-if="enableHabari" as="div" v-slot="{ open }" class="py-2 my-2">
-            <DisclosureButton class="flex justify-between w-full p-1 text-center text-white bg-gray-500 rounded">
-              <span>Habari Settings</span>
-              <ChevronUpIcon :class="open ? 'rotate-180 transform' : ''" class="w-5 h-5 text-white" />
+          <Disclosure  as="div" v-slot="{ open }" class="my-2 bg-gray-100 rounded">
+            <DisclosureButton
+            :class="{
+                'bg-gray-500': enableHabari,
+                'bg-gray-300': !enableHabari
+              }"
+              class="flex justify-between w-full p-1 text-center text-whiterounded">
+              <div class="flex space-x-2 items-center pr-4">
+                  <Input title="" type="checkbox" v-model:value="enableHabari"  />
+                  <span>Habari Settings</span>
+              </div>
+              <ChevronUpIcon v-if="enableHabari" :class="open ? 'rotate-180 transform' : ''" class="w-5 h-5 text-white" />
             </DisclosureButton>
-            <DisclosurePanel>
+            <DisclosurePanel v-if="enableHabari" class="p-2">
               <div>
                 <Input title="Combined Key" v-model:value="form.habariConfig.zmk" />
               </div>
@@ -474,15 +487,23 @@
             </DisclosurePanel>
           </Disclosure>
 
-          <div>
+          <!-- <div>
             <Input title="Enable Zone" type="checkbox" v-model:value="enableZone"  />
-          </div>
-          <Disclosure v-if="enableZone" as="div" v-slot="{ open }" class="py-2 my-2">
-            <DisclosureButton class="flex justify-between w-full p-1 text-center text-white bg-gray-500 rounded">
-              <span>Zone Settings</span>
-              <ChevronUpIcon :class="open ? 'rotate-180 transform' : ''" class="w-5 h-5 text-white" />
+          </div> -->
+          <Disclosure  as="div" v-slot="{ open }" class="my-2 bg-gray-100 rounded">
+            <DisclosureButton
+              :class="{
+                'bg-gray-500': enableZone,
+                'bg-gray-300': !enableZone,
+              }"
+              class="flex justify-between w-full p-1 text-center text-white rounded">
+              <div class="flex space-x-2 items-center pr-4">
+                  <Input title="" type="checkbox" v-model:value="enableZone"  />
+                  <span>Zone Settings</span>
+              </div>
+              <ChevronUpIcon v-if="enableZone" :class="open ? 'rotate-180 transform' : ''" class="w-5 h-5 text-white" />
             </DisclosureButton>
-            <DisclosurePanel>
+            <DisclosurePanel v-if="enableZone" class="p-2">
               <div>
                 <Input title="Combined Key" v-model:value="form.zoneConfig.zmk" />
               </div>
@@ -501,11 +522,27 @@
               <div>
               <Input title="MCC" v-model:value="form.zoneConfig.mcc" type="number" />
               </div>
-              <div v-if="form?._id.length">
+              <div v-if="form?._id?.length">
                 <Input title="ZPK" v-model:value="form.zoneConfig.zpk" max-length="32" />
               </div>
               <div>
                 <Input title="Acquirer ID" v-model:value="form.zoneConfig.acqId" type="number" />
+              </div>
+              <div>
+                <Input title="API Key" v-model:value="form.zoneConfig.apiKey" type="text" />
+              </div>
+              <div>
+                <Input title="Posting Acc No:" v-model:value="form.zoneConfig.accountNumber" type="text" />
+              </div>
+              <div>
+                <label>Fallback Processor: </label>
+                <select  v-model="form.zoneConfig.fallbackProcessor"
+                  class="p-1 mt-2 border border-gray-200 rounded-md focus:outline-none focus:border-none focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
+                  name="fallback-processor">
+                  <template v-for="item in processors.filter(item=>item.key !== 'zone')" :key="item.key">
+                    <option :value="item.key" >{{item.title}}</option>
+                  </template>
+                </select>
               </div>
             </DisclosurePanel>
           </Disclosure>
@@ -523,16 +560,10 @@
                 <select v-model="bandForm.processor"
                   class="w-full p-1 mt-2 border border-gray-200 rounded-md focus:outline-none focus:border-none focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
                   name="processor" id="processor">
-                  <option value="nibss">Nibss</option>
-                  <option value="kimono">Kimono</option>
-                  <option value="bluesalt">BlueSalt</option>
-                  <option value="isw">ISW</option>
-                  <option value="hydrogen">Hydrogen</option>
-                  <option value="habari">Habari</option>
-                  <option value="3line">3line</option>
-                  <option value="zone">Zone</option>
+                  <template v-for="item in processors" :key="item.key">
+                    <option :value="item.key" >{{item.title}}</option>
+                  </template>
                 </select>
-                <!-- <label class="block mb-2 text-sm font-bold text-gray-700" for="processor">Processor</label> -->
               </div>
               <div class="w-1/3">
                 <Input title="Min" v-model:value="bandForm.minAmount" type="number" />
@@ -543,20 +574,24 @@
             </div>
             <button class="text-blue-500" @click="addBand">add</button>
             <table class="w-full border divide-y shadow">
-              <tr class="divide-x">
-                <th class="p-1 text-center">Processor</th>
-                <th class="p-1 text-center">Min Amount</th>
-                <th class="p-1 text-center">Max Amount</th>
-                <th class="p-1 text-center"></th>
-              </tr>
-              <tr class="divide-x" v-for="(band, index) of form.processorSettings" :key="index">
-                <td class="p-1 text-center">{{ band.processor }}</td>
-                <td class="p-1 text-center">{{ band.minAmount }}</td>
-                <td class="p-1 text-center">{{ band.maxAmount }}</td>
-                <th class="p-1 text-center">
-                  <button @click="removeBand(index)" class="font-bold text-gray-400">x</button>
-                </th>
-              </tr>
+              <thead>
+                <tr class="divide-x">
+                  <th class="p-1 text-center">Processor</th>
+                  <th class="p-1 text-center">Min Amount</th>
+                  <th class="p-1 text-center">Max Amount</th>
+                  <th class="p-1 text-center"></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="divide-x" v-for="(band, index) of form.processorSettings" :key="index">
+                  <td class="p-1 text-center">{{ band.processor }}</td>
+                  <td class="p-1 text-center">{{ band.minAmount }}</td>
+                  <td class="p-1 text-center">{{ band.maxAmount }}</td>
+                  <th class="p-1 text-center">
+                    <button @click="removeBand(index)" class="font-bold text-gray-400">x</button>
+                  </th>
+                </tr>
+              </tbody>
             </table>
           </DisclosurePanel>
           </Disclosure>
@@ -570,14 +605,18 @@
               <OrganisactionSelect placeholder="Pick organisation" v-model="form.organisationId" />
             </div>
           </div>
-          <div>
+
+
+
+        </div>
+        <!-- End BOdy -->
+        <div class="px-6 border-t">
             <p v-for="error of $v.$errors" :key="error.$uid">
               {{ error.$message }}
             </p>
           </div>
-
-          <!--Footer-->
-          <div class="flex justify-end py-2">
+         <!--Footer-->
+         <div class="flex justify-end px-6 py-2">
             <button :disabled="loading" @click="open = false"
               class="p-3 px-6 py-3 mr-2 text-indigo-500 bg-transparent rounded-lg disabled:pointer-events-none hover:bg-gray-100 hover:text-indigo-400 focus:outline-none">
               Close
@@ -587,8 +626,6 @@
               save
             </button>
           </div>
-        </div>
-
       </div>
     </div>
   </div>
@@ -637,7 +674,7 @@
               class="px-6 py-3 font-medium tracking-wide text-white bg-indigo-600 rounded-md disabled:opacity-25 disabled:pointer-events-none hover:bg-indigo-500 focus:outline-none">
               save
             </button>
-          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -706,6 +743,7 @@ export interface Profile {
   habariEnabled?: boolean,
   iswISOEnabled?: boolean,
   zoneEnabled?: boolean,
+  julianaEnabled?: boolean,
   isLinked?: boolean,
   linkedProfileId?: string,
   iswISOConfig?: {
@@ -758,11 +796,23 @@ export interface Profile {
       mcc: string,
       mid: string,
       acqId: string,
+      apiKey: string,
+      fallbackProcessor: string,
+      accountNumber: string,
   } | object
+  julianaConfig?: {
+      host: string,
+      zmk: string | null,
+      mid: string,
+      julianaKey: string,
+  } | object,
 }
 
+export type IProcessors = 'nibss' | 'kimono' | 'bluesalt' | '3line' | 'isw' | 'hydrogen' | 'habari' | 'zone' | 'juliana';
+
+
 type Band = {
-  processor: 'nibss' | 'kimono' | 'bluesalt' | '3line' | 'hydrogen' | 'isw' | 'habari' | 'zone',
+  processor: IProcessors,
   minAmount: number,
   maxAmount: number,
 }
@@ -785,6 +835,7 @@ let enableISWISO = ref(false)
 let enableHydrogen = ref(false)
 let enableHabari = ref(false)
 let enableZone = ref(false)
+let enableJuliana = ref(false)
 const loading = ref(false)
 let defaultDeleteState: { [key: string]: any, id: string | null } = {
   open: false,
@@ -835,6 +886,7 @@ const defualtState: Profile = {
   hydrogenConfig: {},
   habariConfig: {},
   zoneConfig: {},
+  julianaConfig: {},
 }
 
 const institutionCodes = [
@@ -845,6 +897,18 @@ const institutionCodes = [
   { title: "Zenith", value: 627629 },
   { title: "Providus", value: 506146 },
   { title: "GtBank", value: 506146 },
+]
+
+const processors  = [
+  {key: "nibss", title: "Nibss"},
+  {key: "kimono", title: "Kimono"},
+  {key: "bluesalt", title: "BlueSalt"},
+  {key: "isw", title: "ISW"},
+  {key: "hydrogen", title: "Hydrogen"},
+  {key: "habari", title: "Habari"},
+  {key: "3line", title: "3line"},
+  {key: "zone", title: "Zone"},
+  {key: "juliana", title: "Juliana"},
 ]
 
 const confirmType = (value: string) => ['generic', 'intelliffin'].includes(value) || 'Invalid type'
@@ -918,6 +982,12 @@ const editProfile = (value: Profile) => {
   if(value.habariEnabled) {
     enableHabari.value = true
   }
+  if(value.zoneEnabled) {
+    enableZone.value = true
+  }
+  if(value.julianaEnabled) {
+    enableJuliana.value = true
+  }
   form.value = {
     ...form.value,
     ...value,
@@ -927,8 +997,10 @@ const editProfile = (value: Profile) => {
     iswISOConfig: enableISWISO.value? {...form.value, ...value.iswISOConfig}: undefined,
     hydrogenConfig: enableHydrogen.value? {...form.value,...value.hydrogenConfig}: undefined,
     habariConfig: enableHabari.value? {...form.value,...value.habariConfig}: undefined,
-    zoneConfig: enableHabari.value? {...form.value,...value.zoneConfig}: undefined,
+    zoneConfig: enableZone.value? {...form.value,...value.zoneConfig}: undefined,
+    julianaConfig: enableJuliana.value? {...form.value,...value.julianaConfig}: undefined,
   }
+
 }
 
 const confirmProfileDelete = (profile: Profile) => {
@@ -1104,7 +1176,11 @@ watch(enableISWISO, (value, prev)=>{
 })
 
 watch(enableZone, (value, prev)=>{
-  form.value.iswZone = value?{...form.value.iswZone || {}}: undefined
+  form.value.zoneConfig = value?{...form.value.zoneConfig || {}}: undefined
+})
+
+watch(enableJuliana, (value, prev)=>{
+  form.value.julianaConfig = value?{...form.value.julianaConfig || {}}: undefined
 })
 
 

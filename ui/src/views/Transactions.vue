@@ -29,6 +29,9 @@
           <option value="isw">ISW</option>
           <option value="3line">3Line</option>
           <option value="hydrogen">Hydrogen</option>
+          <option value="habari">Habari</option>
+          <option value="zone">ZONE</option>
+          <option value="juliana">Juliana</option>
         </select>
       </div>
 

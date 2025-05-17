@@ -18,7 +18,6 @@
             <ChevronDownIcon v-if="!busy" class="w-5 h-5 text-gray-400" aria-hidden="true" />
           </ComboboxButton>
         </div>
-
         <TransitionRoot
           leave="transition ease-in duration-100"
           leaveFrom="opacity-100"
@@ -133,8 +132,8 @@ const fetchAsyncData = async (filter?: string)=>{
 
     try {
         busy.value = true;
-        let data = await props.options(filter || '');
-        asyncOptions.value = [...data] || [];
+        let data = await props.options(filter || '') ?? [];
+        asyncOptions.value = [...data];
     } catch (error) {
         console.log(error)
         return []
@@ -172,7 +171,6 @@ let data = computed<Option[]>(() =>{
 const display = computed( (value: any)=> {
  if(data.value instanceof Array === false || !value === undefined || value?.length < 1) return
  const item = (Array.from(data.value) || []).find(item=>item[props.valueKey] === props.modelValue) || {}
- console.log(item[props.titleKey], item)
  return ()=> item[props.titleKey]
 })
 

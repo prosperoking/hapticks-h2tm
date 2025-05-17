@@ -93,7 +93,8 @@ async function login() {
       rememberMe: rememberMe.value,
       password: password.value,
     });
-    router.push("/dashboard");
+
+    router.push((router.currentRoute.value.query.prevUrl as string) ?? "/dashboard");
   } catch (error: any) {
     console.log(error.response.status)
     if(error.isAxiosError) {

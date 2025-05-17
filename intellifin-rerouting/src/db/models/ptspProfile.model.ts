@@ -2,6 +2,8 @@ import { Schema, model, Document, SchemaTypes, PaginateModel } from "mongoose";
 import paginate from 'mongoose-paginate-v2';
 import * as mongoose from 'mongoose';
 import { decrypt, encrypt } from '../../helpers/crypt';
+
+export type IProcessors = 'nibss' | 'kimono' | 'bluesalt' | '3line' | 'isw' | 'hydrogen' | 'habari' | 'zone' | 'juliana';
 export interface IPTSPProfileData {
     title: string,
     isoHost: string,
@@ -64,6 +66,7 @@ export interface IPTSPProfileData {
         mid: string,
         acqId: string,
         tidPrefix: string,
+        journalKey: string,
     },
     habariConfig?: {
         zmk: string,
@@ -89,17 +92,23 @@ export interface IPTSPProfileData {
         mcc: string,
         mid: string,
         acqId: string,
-        tidPrefix: string,
+        apiKey?: string,
+        accountNumber?: string | null,
+        fallbackProcessor: IProcessors
     },
     julianaConfig?: {
         host: string,
         zmk: string | null,
         mid: string,
+        mcc: string,
+        acqid: string,
+        julianaKey: string,
+        configKey: string,
     },
     processorSettings?: {
         minAmount: number,
         maxAmount: number,
-        processor: 'nibss' | 'kimono' | 'bluesalt' | '3line' | 'isw' | 'hydrogen' | 'habari' | 'zone' | 'juliana',
+        processor: IProcessors,
     }[],
     isLinked: boolean,
 }
@@ -390,8 +399,54 @@ const ptspProfileSchema = new mongoose.Schema<IPTSPProfileData>({
         acqId: {
             type: String,
         },
+        apiKey: {
+            type: String,
+            default: null,
+            set: (value: string)=> (value !== null && value?.length) ? encrypt(value) : null,
+            get: (value: string)=> (value !== null && value?.length) ? decrypt(value) : null,
+        },
+        fallbackProcessor: {
+            type: String,
+            default: null,
+        },
+        accountNumber: {
+            type: String,
+            default: null,
+        }
     },
-    julianaConfig: {},
+    julianaConfig: {
+        host: {
+            type: String,
+        },
+        zmk: {
+            type: String,
+            default: null,
+            set: (value: string)=> (value !== null && value?.length) ? encrypt(value) : null,
+            get: (value: string)=> (value !== null && value?.length) ? decrypt(value) : null,
+        },
+        mid: {
+            type: String,
+            default: null
+        },
+        mcc: {
+            type: String,
+            default: null
+        },
+        acqid: {
+            type: String,
+            default: null
+        },
+        julianaKey: {
+            type: String,
+            default: null,
+            set: (value: string)=> (value !== null && value?.length) ? encrypt(value) : null,
+            get: (value: string)=> (value !== null && value?.length) ? decrypt(value) : null,
+        },
+        configKey: {
+            type: String,
+            default: null
+        }
+    },
     transactionLimits: {},
     processorSettings: [SchemaTypes.Mixed],
     linkedProfileId: {
@@ -454,6 +509,14 @@ ptspProfileSchema.virtual('hydrogenEnabled').get(function(){
 
 ptspProfileSchema.virtual('habariEnabled').get(function(){
     return this.habariConfig?.host?.length > 0
+})
+
+ptspProfileSchema.virtual('zoneEnabled').get(function(){
+    return this.zoneConfig?.host?.length > 0
+})
+
+ptspProfileSchema.virtual('julianaEnabled').get(function(){
+    return this.julianaConfig?.host?.length > 0
 })
 
 ptspProfileSchema.virtual('isLinked').get(function(){

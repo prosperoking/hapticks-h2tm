@@ -58,7 +58,7 @@
                         v-if="profile.zoneEnabled"
                         :disabled="rotating.has('zone')"
                         @click="rotateKPK('zone')"
-                        class="px-3 py-2 text-purple-600 bg-white border border-orange-100 rounded shadow hover:shadow-sm disabled:bg-gray-200">Habari ZPK</button>
+                        class="px-3 py-2 text-purple-600 bg-white border border-orange-100 rounded shadow hover:shadow-sm disabled:bg-gray-200">ZONE ZPK</button>
                 </div>
                 <!--Footer-->
                 <div class="flex justify-end pt-2">

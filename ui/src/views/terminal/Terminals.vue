@@ -132,6 +132,16 @@
                           ISW ISO NEW TID: <span class="font-bold">{{ terminal.iswISOTIDNew }}</span>
                         </p>
                       </template>
+                      <template v-if="terminal?.zoneTID?.length">
+                        <p class=" whitespace-nowrap">
+                          ZONE TID: <span class="font-bold">{{ terminal.iswISOTIDNew }}</span>
+                        </p>
+                      </template>
+                      <template v-if="terminal?.julianaTID?.length">
+                        <p class=" whitespace-nowrap">
+                          JULIANA TID: <span class="font-bold">{{ terminal.julianaTID }}</span>
+                        </p>
+                      </template>
                     </div>
                   </div>
                 </td>
@@ -374,15 +384,23 @@
           <div>
             <Input title="KIMONO Unique ID" v-model:value="form.iswUniqueId" />
           </div>
-          <div>
-            <Input title="ISW ISO Tid" v-model:value="form.iswISOTID" />
+          <div v-if="form.iswISOTID">
+            <Input title="ISW ISO Tid OLD" v-model:value="form.iswISOTID" />
           </div>
-
+          <div>
+            <Input title="ISW ISO Tid" v-model:value="form.iswISOTIDNew" />
+          </div>
           <div>
             <Input title="Hydrogen Tid" v-model:value="form.hydrogenTID" />
           </div>
           <div>
             <Input title="Habari Tid" v-model:value="form.habariTID" />
+          </div>
+          <div>
+            <Input title="ZONE Tid" v-model:value="form.zoneTID" />
+          </div>
+          <div>
+            <Input title="JULIANA Tid" v-model:value="form.julianaTID" />
           </div>
           <div>
             <Input title="Max Transaction Amount" v-model:value="form.maxTransAmount" />
@@ -512,6 +530,8 @@ interface Terminal {
   hydrogenTID?: string,
   habariTID?: string,
   iswISOTID?: string,
+  zoneTID?: string,
+  julianaTID?: string,
   iswISOTIDNew?: string,
   maxTransAmount?: number,
   terminalLocation: {
@@ -536,6 +556,8 @@ interface TerminalForm {
   hydrogenTID?: string | null,
   habariTID?: string | null,
   iswISOTID?: string | null,
+  zoneTID?: string | null,
+  julianaTID?: string | null,
   iswISOTIDNew?: string | null,
   terminalGroupId: string | null,
   maxTransAmount: number | null,
@@ -688,6 +710,8 @@ const editTerminal = (terminal: Terminal) => {
     hydrogenTID: terminal.hydrogenTID,
     habariTID: terminal.habariTID,
     iswISOTID: terminal.iswISOTID,
+    zoneTID: terminal.zoneTID,
+    julianaTID: terminal.julianaTID,
     maxTransAmount: terminal.maxTransAmount? Number.parseInt(`${terminal.maxTransAmount / 100}`)??null :  null,
     terminalLocation: {
       name: '',

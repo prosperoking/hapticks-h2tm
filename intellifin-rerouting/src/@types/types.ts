@@ -77,7 +77,9 @@ export enum Processor {
     THREELINE = "3LINE",
     ISW = "ISW",
     HYDROGEN = "HYDROGEN",
-    HABARI = "HABARI"
+    HABARI = "HABARI",
+    ZONE = "ZONE",
+    JULIANA = "JULIANA",
 }
 
 
