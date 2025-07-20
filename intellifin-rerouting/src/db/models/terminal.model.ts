@@ -70,8 +70,6 @@ export interface ITerminal {
   zoneTID?: string;
   julianaTID?: string;
   maxTransAmount: number;
-  acknowlededAt: Date ,
-  zoneJournalPushedAt: Date ,
   nibssParams?: {
     clrpinkey: string;
     clrMasterKey: string;
@@ -327,14 +325,6 @@ const terminalSchema = new mongoose.Schema<ITerminal>(
     maxTransAmount: {
       type: Number,
       default: 1e8
-    },
-    acknowlededAt: {
-      type: Date,
-      default: null,
-    },
-    zoneJournalPushedAt: {
-      type: Date,
-      default: null,
     },
   },
   {

@@ -100,8 +100,6 @@ export interface IPTSPProfileData {
         host: string,
         zmk: string | null,
         mid: string,
-        mcc: string,
-        acqid: string,
         julianaKey: string,
         configKey: string,
     },

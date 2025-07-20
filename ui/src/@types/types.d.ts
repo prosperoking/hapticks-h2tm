@@ -29,6 +29,11 @@ export type Transaction = {
   createdAt?: string;
   updatedAt?: string;
   totalTransTime?: number;
+  deviceInfo: {
+    brand: string,
+    model: string,
+    serial: string,
+  }
 };
 
 export type ProcessorStats = {

@@ -166,6 +166,12 @@ export async function retryWebhook(req: Request, res: Response) {
             organisationId: webhookRequest.organisationId,
             retry: true,
             url: webhookRequest.url,
+        }, {
+            attempts: 5,
+            backoff: {
+            type: "exponential",
+            delay: 1000 * 5
+            }
         })
         return res.json(webhookRequests)
     } catch (error) {

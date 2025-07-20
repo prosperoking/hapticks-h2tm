@@ -213,7 +213,7 @@
       <!-- Add margin if you want to see some of the overlay behind the modal-->
       <div class="py-4 text-left modal-content">
         <!--Title-->
-        <div class="px-6 flex items-center justify-between pb-3 border-b">
+        <div class="flex items-center justify-between px-6 pb-3 border-b">
           <p class="text-2xl font-bold text-gray-700">{{form.id?.length? "Update Profile":"Add Profile"}}</p>
           <div class="z-50 cursor-pointer modal-close" @click="open = false">
             <svg class="text-black fill-current" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
@@ -225,7 +225,7 @@
         </div>
 
         <!--Body-->
-        <div class="px-6 flex flex-col h-96 overflow-hidden overflow-y-auto">
+        <div class="flex flex-col px-6 overflow-hidden overflow-y-auto h-96">
           <div>
             <Input title="Title" v-model:value="form.title" />
           </div>
@@ -361,7 +361,7 @@
                 'bg-gray-300': !enableISWISO
               }"
               class="flex justify-between w-full p-1 text-center text-white rounded">
-              <div class="flex space-x-2 items-center pr-4">
+              <div class="flex items-center pr-4 space-x-2">
                   <Input title="" type="checkbox" v-model:value="enableISWISO"  />
                   <span>ISW ISO Settings</span>
               </div>
@@ -411,7 +411,7 @@
                 'bg-gray-300': !enableHydrogen
               }"
               class="flex justify-between w-full p-1 text-center text-whiterounded">
-              <div class="flex space-x-2 items-center pr-4">
+              <div class="flex items-center pr-4 space-x-2">
                   <Input title="" type="checkbox" v-model:value="enableHydrogen"  />
                   <span>Hydrogen Settings</span>
               </div>
@@ -453,7 +453,7 @@
                 'bg-gray-300': !enableHabari
               }"
               class="flex justify-between w-full p-1 text-center text-whiterounded">
-              <div class="flex space-x-2 items-center pr-4">
+              <div class="flex items-center pr-4 space-x-2">
                   <Input title="" type="checkbox" v-model:value="enableHabari"  />
                   <span>Habari Settings</span>
               </div>
@@ -497,7 +497,7 @@
                 'bg-gray-300': !enableZone,
               }"
               class="flex justify-between w-full p-1 text-center text-white rounded">
-              <div class="flex space-x-2 items-center pr-4">
+              <div class="flex items-center pr-4 space-x-2">
                   <Input title="" type="checkbox" v-model:value="enableZone"  />
                   <span>Zone Settings</span>
               </div>
@@ -547,6 +547,40 @@
             </DisclosurePanel>
           </Disclosure>
 
+          <Disclosure  as="div" v-slot="{ open }" class="my-2 bg-gray-100 rounded">
+            <DisclosureButton
+              :class="{
+                'bg-gray-500': enableJuliana,
+                'bg-gray-300': !enableJuliana,
+              }"
+              class="flex justify-between w-full p-1 text-center text-white rounded">
+              <div class="flex items-center pr-4 space-x-2">
+                  <Input title="" type="checkbox" v-model:value="enableJuliana"  />
+                  <span>Juliana Settings</span>
+              </div>
+              <ChevronUpIcon v-if="enableJuliana" :class="open ? 'rotate-180 transform' : ''" class="w-5 h-5 text-white" />
+            </DisclosureButton>
+            <DisclosurePanel v-if="enableJuliana" class="p-2">
+              <div>
+                <Input title="Combined Key" v-model:value="form.julianaConfig.zmk" />
+              </div>
+              <div>
+                <Input title="Host" v-model:value="form.julianaConfig.host" />
+              </div>
+              <div>
+              <Input title="MID" v-model:value="form.julianaConfig.mid" type="text" />
+              </div>
+               <div>
+                <Input title="MCC" v-model:value="form.julianaConfig.mcc" type="text" />
+              </div>
+              <div>
+                <Input title="API Key" v-model:value="form.julianaConfig.julianaKey" type="text" />
+              </div>
+              <div>
+                <Input title="Config Key" v-model:value="form.julianaConfig.configKey" type="text" />
+              </div>
+            </DisclosurePanel>
+          </Disclosure>
 
           <Disclosure as="div" v-slot="{ open }" class="py-2 my-2">
             <DisclosureButton class="flex justify-between w-full p-1 text-center text-white bg-gray-500 rounded">

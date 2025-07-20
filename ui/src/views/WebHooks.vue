@@ -1,5 +1,5 @@
 <template>
-    <h3 class="text-gray-700 text-3xl font-medium space-x-2">
+    <h3 class="space-x-2 text-3xl font-medium text-gray-700">
         <span>WebHook Requests</span>
         <small class="text-sm text-blue-500" v-if="state.busy">Loading ...</small>
     </h3>
@@ -27,7 +27,7 @@
     </div>
     <div class="flex space-x-5">
         <section class="w-full">
-            <div class="inline-block w-full overflow-hidden rounded-lg shadow bg-white">
+            <div class="inline-block w-full overflow-hidden bg-white rounded-lg shadow">
                 <table class="min-w-full leading-normal">
                     <thead>
                         <tr>
@@ -69,7 +69,7 @@
                                         </svg>
 
                                         <div class="ml-3">
-                                            <p class="text-gray-900 text-xs whitespace-nowrap">
+                                            <p class="text-xs text-gray-900 whitespace-nowrap">
                                                 {{ u.terminalId }}
                                             </p>
                                         </div>
@@ -77,16 +77,16 @@
                                 </td>
                                 <td class="px-5 py-5 text-xs bg-white border-b border-gray-200">
                                     <p
-                                        class="text-gray-900 whitespace-nowrap w-24 lg:w-44 overflow-hidden text-ellipsis">
+                                        class="w-24 overflow-hidden text-gray-900 whitespace-nowrap lg:w-44 text-ellipsis">
                                         {{ u.payload.merchantName }}
                                     </p>
                                     <p class="text-gray-900 whitespace-nowrap">
                                         {{ dateFormatter(u.createdAt ?? '') }}
                                     </p>
-                                    <p :title="u.url" v-if="u.url?.length" class="text-blue-400 my-1 text-xs whitespace-nowrap overflow-hidden text-ellipsis">
+                                    <p :title="u.url" v-if="u.url?.length" class="my-1 overflow-hidden text-xs text-blue-400 whitespace-nowrap text-ellipsis">
                                         {{ u.url }}
                                     </p>
-                                    <p class="text-gray-700 whitespace-nowrap text-xs"><span class="font-bold">HTTP CODE:</span> {{ u.responseCode }}</p>
+                                    <p class="text-xs text-gray-700 whitespace-nowrap"><span class="font-bold">HTTP CODE:</span> {{ u.responseCode }}</p>
                                 </td>
                                 <td class="px-5 py-5 text-xs bg-white border-b border-gray-200">
                                     <span
@@ -119,7 +119,7 @@
                             </tr>
                             <tr v-if="selected?._id === u._id">
                                 <td class="bg-gray-300" colspan="5">
-                                    <section class="py-4 px-2 rounded space-y-3">
+                                    <section class="px-2 py-4 space-y-3 rounded">
 
                                         <div class="flex justify-end">
                                             <button class="text-gray-500" @click="selected = null">
@@ -132,7 +132,7 @@
 
                                             </button>
                                         </div>
-                                        <Disclosure as="div" class="bg-white p-2 rounded">
+                                        <Disclosure as="div" class="p-2 bg-white rounded">
                                             <DisclosureButton class="flex w-full">
                                                 Payload
                                             </DisclosureButton>
@@ -140,7 +140,7 @@
                                                 <HighLightJS lang="json" :code="selectedData.payload ?? ''" />
                                             </DisclosurePanel>
                                         </Disclosure>
-                                        <Disclosure as="div" class="bg-white p-2 rounded">
+                                        <Disclosure as="div" class="p-2 bg-white rounded">
                                             <DisclosureButton class="flex w-full">
                                                 Headers
                                             </DisclosureButton>
@@ -148,11 +148,11 @@
                                                 <HighLightJS lang="json" :code="selectedData.headers ?? ''" />
                                             </DisclosurePanel>
                                         </Disclosure>
-                                        <Disclosure as="div" class="bg-white p-2 rounded">
+                                        <Disclosure as="div" class="p-2 bg-white rounded">
                                             <DisclosureButton class="flex w-full">
                                                 Response
                                             </DisclosureButton>
-                                            <DisclosurePanel class="text-gray-500 max-h-96 overflow-y-auto">
+                                            <DisclosurePanel class="overflow-y-auto text-gray-500 max-h-96">
                                                 <HighLightJS :lang="selectedData.responseLang"
                                                     :code="selectedData.responseBody ?? ''" />
                                             </DisclosurePanel>
@@ -164,7 +164,7 @@
                             </tr>
                         </template>
 
-                        <tr v-if="state.webhooks.docs.length < 1">
+                        <tr v-if="state.webhooks?.docs?.length < 1">
                             <td class="px-5 py-5 text-sm bg-white border-b border-gray-200">
                                 <div class="flex items-center text-center text-gray-400">
                                     No request here
@@ -191,7 +191,7 @@
                         </button>
                         <button :disabled="!state.webhooks.hasNextPage"
                             @click="() => gotoPage(state.webhooks.nextPage || 1)"
-                            class=" disabled:text-gray-400 px-4 py-2 text-sm font-semibold text-gray-800 bg-gray-300 rounded-r disabled:opacity-20 hover:bg-gray-400">
+                            class="px-4 py-2 text-sm font-semibold text-gray-800 bg-gray-300 rounded-r  disabled:text-gray-400 disabled:opacity-20 hover:bg-gray-400">
                             Next
                         </button>
                     </div>

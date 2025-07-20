@@ -84,7 +84,10 @@ async (job: Job) => {
         url: data.url
     });
 
-    return webhookRequest;
+    if(response.status !== 200) {
+        throw new Error(response.statusText);
+    }
+    return true;
 },{
     autorun: false,
     limiter:{

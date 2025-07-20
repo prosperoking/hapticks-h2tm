@@ -6,6 +6,9 @@ export default ({mode}) =>{
   // https://vitejs.dev/config/
   return defineConfig({
     plugins: [vue()],
+    define:{
+      __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: "false"
+    },
     server:{
       watch:{
         usePolling: true,

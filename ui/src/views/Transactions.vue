@@ -85,7 +85,7 @@
               </th>
               <th
                 class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
-                MERCHANT INFO
+                MERCHANT & Device INFO
               </th>
               <th
                 class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
@@ -123,27 +123,27 @@
                         Amount: {{ currencyFormatter(u.amount / 100) }}
                       </div>
                       <div class="text-sm leading-5 text-gray-500">
-                        <span class="inline-flex font-semibold leading-5  rounded-full">
+                        <span class="inline-flex font-semibold leading-5 rounded-full">
                           PAN:
                         </span> {{ u.PAN }}
                       </div>
                       <div class="text-sm leading-5 text-gray-500">
-                        <span class="inline-flex font-semibold leading-5  rounded-full">
+                        <span class="inline-flex font-semibold leading-5 rounded-full">
                           ISSUER:
                         </span> {{ u.issuer }}
                       </div>
                       <div class="text-sm leading-5 text-gray-500">
-                        <span class="inline-flex font-semibold leading-5  rounded-full">
+                        <span class="inline-flex font-semibold leading-5 rounded-full">
                           Response Code:
                         </span> {{ u.responseCode }}
                       </div>
                       <div class="text-sm leading-5 text-gray-500">
-                        <span class="inline-flex font-semibold leading-5  rounded-full">
+                        <span class="inline-flex font-semibold leading-5 rounded-full">
                           Meaning:
                         </span> {{ u.responseDescription }}
                       </div>
                       <div v-if="u.totalTransTime" class="text-sm leading-5 text-gray-500">
-                        <span class="inline-flex font-semibold leading-5  rounded-full">
+                        <span class="inline-flex font-semibold leading-5 rounded-full">
                           Total Trans Time:
                         </span> {{ formatSeconds(u.totalTransTime/1000) }}
                       </div>
@@ -166,6 +166,9 @@
                   </div>
                   <div class="text-sm leading-5 text-gray-500">
                     {{ u.merchantId }}
+                  </div>
+                  <div class="text-xs font-bold leading-5 text-gray-500">
+                   {{ u?.deviceInfo?.model }} / {{ u?.deviceInfo?.brand }} / {{ u?.deviceInfo?.serial }}
                   </div>
                 </td>
 

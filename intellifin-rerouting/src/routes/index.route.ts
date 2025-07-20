@@ -12,7 +12,9 @@ const authenticate = authMiddleware();
 indexRoutes.use('/card', isoCardRoutes);
 indexRoutes.use('/organisation', organisationRoutes);
 indexRoutes.use('/dashboard', authenticate , adminRoutes );
-indexRoutes.get('/', (req, res) => Response.send(res, codes.success, 'This app is running.'));
+indexRoutes.get('/', (req, res) =>
+    Response.send(res, codes.success, 'This app is running.')
+);
 
 indexRoutes.get('*', (req, res) => Response.send(res, codes.notFound, 'Endpoint not found.'));
 
