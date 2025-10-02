@@ -12,6 +12,7 @@ import path from 'path';
 import 'dotenv/config';
 import applyAuthSetup, {authMiddleware} from './auth/index';
 import { registerQueueDashBoard, startQueWorkers } from './queue/queue';
+import { loadZoneBins, zoneSupportedBins } from './helpers/zonebins';
 
 
 const app = express();
@@ -50,5 +51,6 @@ app.use('*',express.static(path.join(__dirname,'public')))
 
 app.listen(port, () => {
     startQueWorkers();
+    loadZoneBins();
     return console.log(`Server Magic happening on port ${port}`);
 });

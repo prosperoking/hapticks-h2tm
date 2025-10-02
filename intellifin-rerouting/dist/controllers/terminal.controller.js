@@ -96,6 +96,8 @@ class TerminalController {
                     "iswISOTIDNew",
                     "hydrogenTID",
                     "habariTID",
+                    "zoneTID",
+                    "julianaTID",
                     "terminalLocation",
                     "terminalGroupId"
                 ]));

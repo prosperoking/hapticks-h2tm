@@ -26,6 +26,7 @@ const appUtils_1 = require("../helpers/appUtils");
 const moment_1 = __importDefault(require("moment"));
 const cardBins_1 = require("../helpers/cardBins");
 const webhook_model_1 = __importDefault(require("../db/models/webhook.model"));
+const zonebins_1 = require("../helpers/zonebins");
 class IsoCardContoller {
     performKeyExchange(request, response) {
         var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
@@ -246,6 +247,40 @@ class IsoCardContoller {
             }
         });
     }
+    acknowledgeTransaction(request, response) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { rrn, stan, tid } = request.body;
+            const journal = yield transaction_model_1.default.findOne({
+                terminalId: tid,
+                rrn,
+                STAN: stan,
+            }, {}, { sort: { _id: -1 } });
+            if (!journal)
+                return response.status(404).json({ message: "Transaction not found" });
+            if (journal.processor === 'ZONE') {
+                queue_1.ZoneJournalQueue.add("zoneJournal", {
+                    id: String(journal._id),
+                }, {
+                    attempts: 5,
+                    backoff: {
+                        type: "exponential",
+                        delay: 1000 * 5
+                    }
+                }).catch(err => {
+                    console.error("Failed to add to journal push queue:  ", err);
+                });
+            }
+            journal.acknowlededAt = new Date();
+            journal.save();
+            return response.json({
+                responseCode: journal.responseCode,
+                responseDescription: journal.responseDescription,
+                terminalId: journal.terminalId,
+                mid: journal.merchantId,
+                address: journal.merchantAddress,
+            });
+        });
+    }
     static handleIntelifinKeyExchange(terminal, response) {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
@@ -456,9 +491,11 @@ class IsoCardContoller {
                             "ISW",
                             "HYDROGEN",
                             "HABARI",
+                            "ZONE",
+                            "JULIANA",
                         ].includes(processor)
                         ? IsoCardContoller.resolveProcessorTransType(processor.toLowerCase())
-                        : IsoCardContoller.getMessageType(terminal, Number(body.field4));
+                        : IsoCardContoller.getMessageType(terminal, Number(body.field4), body.field2);
                 patchedPayload = IsoCardContoller.getPayload(messageType, body, terminal);
                 transactingTid = patchedPayload.tid;
                 transactingMid = patchedPayload.mid;
@@ -548,6 +585,10 @@ class IsoCardContoller {
                 return IsoCardContoller.createHydrogenJournal(responseData, patchedPayload, terminal, IsoCardContoller.getISOProcessor(type));
             case cardsockethelper_1.TransactionTypes.HABARI_PURCHASE:
                 return IsoCardContoller.createHabariJournal(responseData, patchedPayload, terminal, IsoCardContoller.getISOProcessor(type));
+            case cardsockethelper_1.TransactionTypes.ZONE_PURCHASE:
+                return IsoCardContoller.createZoneJournal(responseData, patchedPayload, terminal, IsoCardContoller.getISOProcessor(type));
+            case cardsockethelper_1.TransactionTypes.JULIANA_PURCHASE:
+                return IsoCardContoller.createJulianaJournal(responseData, patchedPayload, terminal, IsoCardContoller.getISOProcessor(type));
             default:
                 return IsoCardContoller.createNIBBSJournal(responseData, patchedPayload, IsoCardContoller.getISOProcessor(type));
         }
@@ -570,6 +611,10 @@ class IsoCardContoller {
                 return Object.assign({}, IsoCardContoller.patchHydrogenPayload(body, terminal.profile, terminal));
             case cardsockethelper_1.TransactionTypes.HABARI_PURCHASE:
                 return Object.assign({}, IsoCardContoller.patchHabariPayload(body, terminal.profile, terminal));
+            case cardsockethelper_1.TransactionTypes.ZONE_PURCHASE:
+                return Object.assign({}, IsoCardContoller.patchZonePayload(body, terminal.profile, terminal));
+            case cardsockethelper_1.TransactionTypes.JULIANA_PURCHASE:
+                return Object.assign({}, IsoCardContoller.patchJulianaPayload(body, terminal.profile, terminal));
             default:
                 throw new Error("Invalid Message Type");
         }
@@ -692,7 +737,7 @@ class IsoCardContoller {
         const { host, port, ssl, zpk, mid, rid, oRid, mcc, ett, settlementAccount, } = profile.iswISOConfig;
         return Object.assign(Object.assign({}, data), { destInstitutionCode: profile.iswInstitutionCode, destAccountNumber: profile.iswDestinationAccount, merchantLocation: data.terminalLocation ||
                 ((_a = terminal === null || terminal === void 0 ? void 0 : terminal.terminalLocation) === null || _a === void 0 ? void 0 : _a.location) ||
-                ((_b = terminal.parsedParams) === null || _b === void 0 ? void 0 : _b.merchantNameLocation), tid: (_c = terminal.iswISOTIDNew) !== null && _c !== void 0 ? _c : terminal.iswISOTID, mid: mid, field42: mid, field18: mcc, field41: terminal.iswISOTID, field43: data.field43 || ((_d = terminal.parsedParams) === null || _d === void 0 ? void 0 : _d.merchantNameLocation), uniqueId: terminal.iswUniqueId, amount: data.field4 || data.amount || 0, totalamount: data.field4 || data.amount || 0, clrsesskey: terminal.clrsesskey, clrpin: terminal.clrpinkey, pinblock: data.pinblock || "", clearZpk: zpk, host,
+                ((_b = terminal.parsedParams) === null || _b === void 0 ? void 0 : _b.merchantNameLocation), tid: (_c = terminal.iswISOTIDNew) !== null && _c !== void 0 ? _c : terminal.iswISOTID, mid: mid, field42: mid, field18: mcc, field41: terminal.iswISOTIDNew || terminal.iswISOTID, field43: data.field43 || ((_d = terminal.parsedParams) === null || _d === void 0 ? void 0 : _d.merchantNameLocation), uniqueId: terminal.iswUniqueId, amount: data.field4 || data.amount || 0, totalamount: data.field4 || data.amount || 0, clrsesskey: terminal.clrsesskey, clrpin: terminal.clrpinkey, pinblock: data.pinblock || "", clearZpk: zpk, host,
             port,
             rid,
             oRid,
@@ -720,8 +765,28 @@ class IsoCardContoller {
             ssl,
             acqId });
     }
-    static getMessageType(terminal, amount) {
-        var _a, _b, _c;
+    static patchZonePayload(data, profile, terminal) {
+        var _a, _b;
+        const { host, port, ssl, zpk, mid, acqId, mcc } = profile.zoneConfig;
+        return Object.assign(Object.assign({}, data), { merchantLocation: data.terminalLocation ||
+                ((_a = terminal === null || terminal === void 0 ? void 0 : terminal.terminalLocation) === null || _a === void 0 ? void 0 : _a.location) ||
+                (terminal === null || terminal === void 0 ? void 0 : terminal.parsedParams.merchantNameLocation), tid: terminal.zoneTID, mid: mid, field18: mcc, field43: ((_b = terminal.parsedParams) === null || _b === void 0 ? void 0 : _b.merchantNameLocation) || data.field43, amount: data.field4 || data.amount || 0, totalamount: data.field4 || data.amount || 0, clrsesskey: terminal.clrsesskey, clrpin: terminal.clrpinkey, pinblock: data.pinblock || "", clearZpk: zpk, host,
+            port,
+            ssl,
+            acqId, institutionCode: acqId });
+    }
+    static patchJulianaPayload(data, profile, terminal) {
+        var _a, _b;
+        //@ts-ignore
+        const { host, zmk, mid, julianaKey, mcc, acqid, configKey } = profile.julianaConfig;
+        return Object.assign(Object.assign({}, data), { merchantLocation: data.terminalLocation ||
+                ((_a = terminal === null || terminal === void 0 ? void 0 : terminal.terminalLocation) === null || _a === void 0 ? void 0 : _a.location) ||
+                (terminal === null || terminal === void 0 ? void 0 : terminal.parsedParams.merchantNameLocation), tid: terminal.julianaTID, mid: mid, field18: mcc, field43: ((_b = terminal.parsedParams) === null || _b === void 0 ? void 0 : _b.merchantNameLocation) || data.field43, amount: data.field4 || data.amount || 0, totalamount: data.field4 || data.amount || 0, clrsesskey: terminal.clrsesskey, clrpin: terminal.clrpinkey, pinblock: data.pinblock || "", clearZpk: zmk, host,
+            acqid,
+            julianaKey, configKey: configKey });
+    }
+    static getMessageType(terminal, amount, pan = '') {
+        var _a, _b, _c, _d;
         const profile = terminal === null || terminal === void 0 ? void 0 : terminal.profile;
         if (!((_a = terminal === null || terminal === void 0 ? void 0 : terminal.profile) === null || _a === void 0 ? void 0 : _a.iswSwitchAmount) && !profile.processorSettings)
             return cardsockethelper_1.TransactionTypes.ISO_TRANSACTION;
@@ -729,8 +794,12 @@ class IsoCardContoller {
             return amount / 100 >= (terminal === null || terminal === void 0 ? void 0 : terminal.profile.iswSwitchAmount)
                 ? cardsockethelper_1.TransactionTypes.ISW_KIMONO
                 : cardsockethelper_1.TransactionTypes.ISO_TRANSACTION;
-        const type = (_c = profile.processorSettings.find((band) => amount / 100 >= band.minAmount && amount / 100 <= band.maxAmount)) === null || _c === void 0 ? void 0 : _c.processor;
+        let type = (_c = profile.processorSettings.find((band) => amount / 100 >= band.minAmount && amount / 100 <= band.maxAmount)) === null || _c === void 0 ? void 0 : _c.processor;
         console.log(type);
+        if (type === 'zone' && !(0, zonebins_1.isZoneSupportedBin)(pan)) {
+            const processor = (_d = terminal.profile.zoneConfig.fallbackProcessor) !== null && _d !== void 0 ? _d : "nibss";
+            return IsoCardContoller.resolveProcessorTransType(processor);
+        }
         return IsoCardContoller.resolveProcessorTransType(type);
     }
     static resolveProcessorTransType(type) {
@@ -749,6 +818,10 @@ class IsoCardContoller {
                 return cardsockethelper_1.TransactionTypes.HYDROGEN_PURCHASE;
             case "habari":
                 return cardsockethelper_1.TransactionTypes.HABARI_PURCHASE;
+            case "zone":
+                return cardsockethelper_1.TransactionTypes.ZONE_PURCHASE;
+            case "juliana":
+                return cardsockethelper_1.TransactionTypes.JULIANA_PURCHASE;
             default:
                 return cardsockethelper_1.TransactionTypes.ISO_TRANSACTION;
         }
@@ -842,6 +915,54 @@ class IsoCardContoller {
             reversalData: response.reversal,
         };
     }
+    static createZoneJournal(response, payload, terminal, processor) {
+        var _a;
+        return {
+            PAN: utils_1.default.getMaskPan(payload.pan),
+            rrn: payload.rrn,
+            amount: Number.parseFloat(payload.field4),
+            STAN: payload.stan,
+            cardExpiration: payload.expirydate,
+            terminalId: payload.tid,
+            merchantId: payload.mid,
+            responseCode: response.resp,
+            responseDescription: response.meaning,
+            authCode: response.auth,
+            merchantName: (_a = payload.merchantLocation) !== null && _a !== void 0 ? _a : terminal.parsedParams.merchantNameLocation,
+            merchantCategoryCode: terminal === null || terminal === void 0 ? void 0 : terminal.parsedParams.mechantCategoryCode,
+            product: "CASHOUT",
+            transactionTime: new Date().toUTCString(),
+            handlerResponseTime: new Date().toUTCString(),
+            isCompleted: true,
+            processor: processor !== null && processor !== void 0 ? processor : types_1.Processor.ZONE,
+            reversal: Boolean(response.reversal),
+            reversalData: response.reversal,
+        };
+    }
+    static createJulianaJournal(response, payload, terminal, processor) {
+        var _a;
+        return {
+            PAN: utils_1.default.getMaskPan(payload.pan),
+            rrn: payload.rrn,
+            amount: Number.parseFloat(payload.field4),
+            STAN: payload.stan,
+            cardExpiration: payload.expirydate,
+            terminalId: payload.tid,
+            merchantId: payload.mid,
+            responseCode: response.resp,
+            responseDescription: response.meaning,
+            authCode: response.auth,
+            merchantName: (_a = payload.merchantLocation) !== null && _a !== void 0 ? _a : terminal.parsedParams.merchantNameLocation,
+            merchantCategoryCode: terminal === null || terminal === void 0 ? void 0 : terminal.parsedParams.mechantCategoryCode,
+            product: "CASHOUT",
+            transactionTime: new Date().toUTCString(),
+            handlerResponseTime: new Date().toUTCString(),
+            isCompleted: true,
+            processor: processor !== null && processor !== void 0 ? processor : types_1.Processor.JULIANA,
+            reversal: Boolean(response.reversal),
+            reversalData: response.reversal,
+        };
+    }
     static createHydrogenJournal(response, payload, terminal, processor) {
         var _a;
         return {
@@ -896,7 +1017,6 @@ class IsoCardContoller {
                 return;
             const webhook = yield webhook_model_1.default.findById(terminal.profile.webhookId);
             webhook.dest_urls.forEach((url) => {
-                console.log("Firing for url: ", url);
                 queue_1.webhookQueue.add("sendNotification", {
                     tranactionId: transaction._id,
                     webhookId: terminal.profile.webhookId,

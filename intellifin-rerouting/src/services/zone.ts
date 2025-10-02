@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from "axios";
 import { IJournal } from "../db/models/transaction.model";
 import moment from "moment"
-
+import https from "https"
 type IZoneJournal = {
     Rrn: string,
     Stan: string,
@@ -19,8 +19,12 @@ type IZoneJournal = {
 }
 class ZoneApi {
     static get client () {
+        const httpsAgent = new https.Agent({
+          rejectUnauthorized: false,
+        });
         return axios.create({
-            baseURL: process.env.ZONE_BASE_URL ?? "https://zone.cluster.africa",
+            baseURL: process.env.ZONE_BASE_URL ?? "https://ofi.zonenetwork.com",
+            httpsAgent
         });
     }
 
@@ -40,7 +44,7 @@ class ZoneApi {
                 TerminalId: transaction.terminalId,
                 Error: transaction.responseCode === '00'? "": transaction.responseDescription,
                 TransactionDate: moment(new Date(transaction.createdAt)).format("DD/MM/YYYY"),
-                TransactionTime: moment(new Date(transaction.createdAt)).format("hh:mm")
+                TransactionTime: moment(new Date(transaction.createdAt)).format("hh:mm"),
              };
             const { data } = await ZoneApi.client.post<IZoneJournal, AxiosResponse<{message: string, status:boolean}>>(
                 "/pushjournal/api/push-journal",paylaod,{
@@ -51,7 +55,16 @@ class ZoneApi {
 
             return data.status;
         }catch (e) {
-            e.isAxiosError ?console.log(e.response.data):console.log(e.message);
+            console.log(e)
+            const message = e.message
+            const response: AxiosResponse | null = e.isAxiosError? e.response : null
+            console.log({
+                data: response?.data ?? null,
+                status: response?.status?? null,
+                statusText: response?.statusText ?? null,
+                responseHeaders: response? JSON.parse(JSON.stringify(response?.headers)): null,
+                message
+            })
             return false;
         }
     }

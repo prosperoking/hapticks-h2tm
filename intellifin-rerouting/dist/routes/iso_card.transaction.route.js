@@ -12,6 +12,7 @@ router.get('/terminal-info', index_controller_1.isoCardController.getTerminalInf
 router.post('/processCard', index_controller_1.isoCardController.processCard);
 router.post('/checkBalance', index_controller_1.isoCardController.checkBalance);
 router.post('/requery', index_controller_1.isoCardController.requeryTransaction);
+router.post('/acknowledge', index_controller_1.isoCardController.acknowledgeTransaction);
 router.post('/purchase', iso_1.translateSlimCardPayload, index_controller_1.isoCardController.processCard);
 router.post('/balance', iso_1.translateSlimCardPayload, index_controller_1.isoCardController.checkBalance);
 exports.default = router;

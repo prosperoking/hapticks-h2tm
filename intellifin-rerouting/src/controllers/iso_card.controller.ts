@@ -1271,6 +1271,7 @@ class IsoCardContoller {
     profile: IPTSPProfile,
     terminal: ITerminal
   ): object {
+    //@ts-ignore
     const { host, zmk, mid, julianaKey, mcc, acqid, configKey} = profile.julianaConfig;
     return {
       ...data,

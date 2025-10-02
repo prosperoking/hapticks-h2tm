@@ -303,7 +303,7 @@ class DashboardController {
                 ] });
         }
         if (processor !== undefined &&
-            ["kimono", "nibss", "3line", "hydrogen", "isw"].includes(processor.toLowerCase())) {
+            ["kimono", "nibss", "3line", "hydrogen", "isw", 'zone', 'habari', 'juliana'].includes(processor.toLowerCase())) {
             query = Object.assign(Object.assign({}, query), { processor: processor.toUpperCase() });
         }
         if (organisation !== undefined) {

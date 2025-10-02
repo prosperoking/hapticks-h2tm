@@ -8,3 +8,18 @@ declare global {
         user?: IUserData
     }
 }
+
+
+export type ZoneBinsResponse = {
+    message: string,
+    status: boolean,
+    data: {
+        bankCode: string,
+        cardProfiles: {
+            cardPrefix: string,
+            bankCode: string,
+            shortName: string,
+            cardScheme: string,
+        }[]
+    }[]
+}

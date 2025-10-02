@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 require("dotenv/config");
 class Config {
     constructor() {
+        var _a;
         this.configObject = {
             DATABASE_URL: process.env.DATABASE_URL,
             SECRET_KEY: process.env.API_SECRET_KEY,
@@ -28,6 +29,9 @@ class Config {
             processorPrefixes: {
                 isw: process.env.ISW_TID_PREFIX,
                 hydrogen: process.env.HYDROGEN_TID_PREFIX
+            },
+            zone: {
+                baseURL: (_a = process.env.ZONE_BASE_URL) !== null && _a !== void 0 ? _a : "https://zone.cluster.africa"
             }
         };
     }

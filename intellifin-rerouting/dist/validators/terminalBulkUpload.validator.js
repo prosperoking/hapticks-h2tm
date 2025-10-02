@@ -184,6 +184,28 @@ const terminalBulkUploadValidator = (0, index_1.createValidatedRequest)((0, sche
             errorMessage: "hydrogenTID alread taken",
         },
     },
+    "terminals.*.zoneTID": {
+        in: ["body"],
+        trim: true,
+        custom: {
+            options: (zoneTID, { req, location, path }) => __awaiter(void 0, void 0, void 0, function* () {
+                if (yield terminal_model_1.default.findOne({ zoneTID }))
+                    throw Error("Exists");
+            }),
+            errorMessage: "zoneTID alread taken",
+        },
+    },
+    "terminals.*.julianaTID": {
+        in: ["body"],
+        trim: true,
+        custom: {
+            options: (julianaTID, { req, location, path }) => __awaiter(void 0, void 0, void 0, function* () {
+                if (yield terminal_model_1.default.findOne({ julianaTID }))
+                    throw Error("Exists");
+            }),
+            errorMessage: "julianaTID alread taken",
+        },
+    },
     "terminals.*.iswUniqueId": {
         in: ["body"],
         trim: true,

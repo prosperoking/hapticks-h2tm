@@ -33,6 +33,8 @@ var TransactionTypes;
     TransactionTypes["HABARI_CONNECTIONS"] = "HABARI_CONNECTIONS";
     TransactionTypes["ZONE_KEY_EXCHANGE"] = "ZONE_KEY_EXCHANGE";
     TransactionTypes["ZONE_PURCHASE"] = "ZONE_PURCHASE";
+    TransactionTypes["JULIANA_PURCHASE"] = "JULIANA_PURCHASE";
+    TransactionTypes["JULIANA_REVERSAL"] = "JULIANA_PURCHASE";
     TransactionTypes["ZONE_CLOSE_CONNECTIONS"] = "ZONE_CLOSE_CONNECTIONS";
     TransactionTypes["ZONE_CONNECTIONS_COUNT"] = "ZONE_CONNECTIONS_COUNT";
     TransactionTypes["ZONE_CONNECTIONS"] = "HABARI_CONNECTIONS";

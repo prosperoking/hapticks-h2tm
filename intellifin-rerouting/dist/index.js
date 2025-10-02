@@ -39,6 +39,7 @@ const path_1 = __importDefault(require("path"));
 require("dotenv/config");
 const index_1 = __importStar(require("./auth/index"));
 const queue_1 = require("./queue/queue");
+const zonebins_1 = require("./helpers/zonebins");
 const app = (0, express_1.default)();
 const port = process.env.PORT || '5009';
 /** connection mongodb */
@@ -71,6 +72,7 @@ app.use(express_1.default.static(path_1.default.join(__dirname, 'public')));
 app.use('*', express_1.default.static(path_1.default.join(__dirname, 'public')));
 app.listen(port, () => {
     (0, queue_1.startQueWorkers)();
+    (0, zonebins_1.loadZoneBins)();
     return console.log(`Server Magic happening on port ${port}`);
 });
 //# sourceMappingURL=index.js.map

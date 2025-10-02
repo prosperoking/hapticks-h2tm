@@ -254,10 +254,32 @@ const terminalSchema = new mongoose.Schema({
         },
         set: (value) => (value === null || value === void 0 ? void 0 : value.length) ? value : null
     },
+    zoneTID: {
+        type: String,
+        default: null,
+        index: {
+            unique: true,
+            partialFilterExpression: {
+                iswISOTID: { $type: "string" }
+            }
+        },
+        set: (value) => (value === null || value === void 0 ? void 0 : value.length) ? value : null
+    },
+    julianaTID: {
+        type: String,
+        default: null,
+        index: {
+            unique: true,
+            partialFilterExpression: {
+                iswISOTID: { $type: "string" }
+            }
+        },
+        set: (value) => (value === null || value === void 0 ? void 0 : value.length) ? value : null
+    },
     maxTransAmount: {
         type: Number,
         default: 1e8
-    }
+    },
 }, {
     timestamps: true,
     toJSON: {

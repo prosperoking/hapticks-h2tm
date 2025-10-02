@@ -314,7 +314,55 @@ const ptspProfileSchema = new mongoose.Schema({
         acqId: {
             type: String,
         },
+        apiKey: {
+            type: String,
+            default: null,
+            set: (value) => (value !== null && (value === null || value === void 0 ? void 0 : value.length)) ? (0, crypt_1.encrypt)(value) : null,
+            get: (value) => (value !== null && (value === null || value === void 0 ? void 0 : value.length)) ? (0, crypt_1.decrypt)(value) : null,
+        },
+        fallbackProcessor: {
+            type: String,
+            default: null,
+        },
+        accountNumber: {
+            type: String,
+            default: null,
+        }
     },
+    julianaConfig: {
+        host: {
+            type: String,
+        },
+        zmk: {
+            type: String,
+            default: null,
+            set: (value) => (value !== null && (value === null || value === void 0 ? void 0 : value.length)) ? (0, crypt_1.encrypt)(value) : null,
+            get: (value) => (value !== null && (value === null || value === void 0 ? void 0 : value.length)) ? (0, crypt_1.decrypt)(value) : null,
+        },
+        mid: {
+            type: String,
+            default: null
+        },
+        mcc: {
+            type: String,
+            default: null
+        },
+        acqid: {
+            type: String,
+            default: null
+        },
+        julianaKey: {
+            type: String,
+            default: null,
+            set: (value) => (value !== null && (value === null || value === void 0 ? void 0 : value.length)) ? (0, crypt_1.encrypt)(value) : null,
+            get: (value) => (value !== null && (value === null || value === void 0 ? void 0 : value.length)) ? (0, crypt_1.decrypt)(value) : null,
+        },
+        configKey: {
+            type: String,
+            default: null
+        }
+    },
+    transactionLimits: {},
     processorSettings: [mongoose_1.SchemaTypes.Mixed],
     linkedProfileId: {
         type: mongoose_1.SchemaTypes.ObjectId,
@@ -370,6 +418,14 @@ ptspProfileSchema.virtual('hydrogenEnabled').get(function () {
 ptspProfileSchema.virtual('habariEnabled').get(function () {
     var _a, _b;
     return ((_b = (_a = this.habariConfig) === null || _a === void 0 ? void 0 : _a.host) === null || _b === void 0 ? void 0 : _b.length) > 0;
+});
+ptspProfileSchema.virtual('zoneEnabled').get(function () {
+    var _a, _b;
+    return ((_b = (_a = this.zoneConfig) === null || _a === void 0 ? void 0 : _a.host) === null || _b === void 0 ? void 0 : _b.length) > 0;
+});
+ptspProfileSchema.virtual('julianaEnabled').get(function () {
+    var _a, _b;
+    return ((_b = (_a = this.julianaConfig) === null || _a === void 0 ? void 0 : _a.host) === null || _b === void 0 ? void 0 : _b.length) > 0;
 });
 ptspProfileSchema.virtual('isLinked').get(function () {
     return this.linkedProfileId !== null;

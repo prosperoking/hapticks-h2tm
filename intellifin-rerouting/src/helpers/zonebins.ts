@@ -1,4 +1,8 @@
-export const zoneSupportedBins = [
+import axios from "axios";
+import { ZoneBinsResponse } from "index";
+import logger from "./logger";
+
+export let zoneSupportedBins = [
   "404905",
   "407591",
   "420358",
@@ -171,6 +175,32 @@ export const zoneSupportedBins = [
   "483953",
 ];
 
+export const loadZoneBins = async () => {
+ try {
+  const {data}  = await axios.get<ZoneBinsResponse>("https://sandbox.zonenetwork.com/gateway/api/banks/bins")
+  zoneSupportedBins = data.data.reduce((acc, bank)=>{
+    return [
+      ...acc,
+      ... bank.cardProfiles.filter(item=>!['fbn','keystone'].includes(item.shortName)).map(item=>item.cardPrefix)
+    ]
+  }, [])
+ } catch (error) {
+  console.log(error)
+  logger.error("failed to load zone bins")
+ }
+ return zoneSupportedBins;
+}
+
+/**
+ *
+ * @param ttl time to reload in seconds, default 6 minutes
+ */
+
+export const loadZoneBinsPeriodically = async (ttl: number = 360) => {
+  await loadZoneBins();
+  const totalTTl = ttl * 1000;
+  setTimeout(loadZoneBinsPeriodically, totalTTl)
+}
 
 export const isZoneSupportedBin = (pan: string):boolean =>{
     const bin = pan.startsWith("564000") ? pan.substring(0,9) : pan.substring(0,6)

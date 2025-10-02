@@ -84,7 +84,10 @@ exports.webhookWorker = new bullmq_1.Worker('webhook', (job) => __awaiter(void 0
         verifySignature: signature,
         url: data.url
     });
-    return webhookRequest;
+    if (response.status !== 200) {
+        throw new Error(response.statusText);
+    }
+    return true;
 }), {
     autorun: false,
     limiter: {

@@ -1,5 +1,6 @@
 var CryptoJS = require('crypto-js');
-
+var axios = require('axios')
+var https = require('https')
 // Define your plaintext data
 var plaintext = "53347711338122990000064000002501305061052TARAV0000000010303";
 
@@ -17,3 +18,9 @@ var encryptedData = CryptoJS.AES.encrypt(plaintext, secretKey, {
 var encryptedBase64 = encryptedData.ciphertext.toString(CryptoJS.enc.Base64);
 
 console.log(encryptedBase64)
+const httpsAgent = new https.Agent({
+  rejectUnauthorized: false,
+});
+axios.get("https://ofi.zonenetwork.com/pushjournal/api/push-journal",{httpsAgent}).then(({data})=>console.log(data)).catch(e=>{
+    console.log(e)
+})

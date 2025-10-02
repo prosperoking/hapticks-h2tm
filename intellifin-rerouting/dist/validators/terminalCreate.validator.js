@@ -91,6 +91,14 @@ const terminalCreateValidator = (0, index_1.createValidatedRequest)((0, schema_1
         in: ['body'],
         trim: true,
     },
+    zoneTID: {
+        in: ['body'],
+        trim: true,
+    },
+    julianaTID: {
+        in: ['body'],
+        trim: true,
+    },
     organisationId: {
         in: ['body'],
         optional: true,

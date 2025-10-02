@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RotateKeysWorker = exports.GroupKeyExchangeWorker = exports.keyExchangeWorker = void 0;
+exports.RotateKeysWorker = exports.SendZoneJournalWorker = exports.GroupKeyExchangeWorker = exports.keyExchangeWorker = void 0;
 const bullmq_1 = require("bullmq");
 const terminal_model_1 = __importDefault(require("../../db/models/terminal.model"));
 const cardsockethelper_1 = require("../../helpers/cardsockethelper");
@@ -20,6 +20,8 @@ const config_1 = __importDefault(require("../../config/config"));
 const inteliffin_1 = __importDefault(require("../../services/inteliffin"));
 const groupTid_model_1 = __importDefault(require("../../db/models/groupTid.model"));
 const ptspProfile_model_1 = __importDefault(require("../../db/models/ptspProfile.model"));
+const transaction_model_1 = __importDefault(require("../../db/models/transaction.model"));
+const zone_1 = __importDefault(require("../../services/zone"));
 const config = (new config_1.default()).getConfig('');
 const connection = {
     host: config.redis.host,
@@ -132,6 +134,45 @@ exports.GroupKeyExchangeWorker = new bullmq_1.Worker('groupkeyexchange', (job) =
 }), {
     autorun: false,
     connection,
+});
+exports.SendZoneJournalWorker = new bullmq_1.Worker('zoneJournal', (job) => __awaiter(void 0, void 0, void 0, function* () {
+    const journal = yield transaction_model_1.default.findOne({ _id: job.data.id });
+    if (!journal || journal.processor !== 'ZONE')
+        return;
+    const tid = journal.terminalId;
+    const terminal = yield terminal_model_1.default.findOne({
+        $or: [
+            { terminalId: tid },
+            { threeLineTid: tid },
+            { iswTid: tid },
+            { iswISOTID: tid },
+            { iswISOTIDNew: tid },
+            { hydrogenTID: tid },
+            { habariTID: tid },
+            { zoneTID: tid },
+            { julianaTID: tid },
+        ],
+    })
+        .populate({ path: "profile", select: "title isoHost isoPort isSSL zoneConfig" })
+        .populate({ path: "groupTid" });
+    if (!terminal)
+        return;
+    const config = terminal.profile.zoneConfig;
+    if (!config)
+        return;
+    const result = zone_1.default.postJournal(journal, {
+        accno: config.accountNumber,
+        apiKey: config.apiKey,
+        acqID: config.acqId
+    });
+    if (!result) {
+        throw new Error("Failed to deliver message");
+    }
+    journal.zoneJournalPushedAt = new Date();
+    yield journal.save();
+}), {
+    autorun: false,
+    connection
 });
 exports.RotateKeysWorker = new bullmq_1.Worker('rotateKeys', (job) => __awaiter(void 0, void 0, void 0, function* () {
     const profile = yield ptspProfile_model_1.default.findById(job.data.id);
