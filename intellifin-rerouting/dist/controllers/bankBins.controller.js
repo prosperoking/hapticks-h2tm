@@ -12,7 +12,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteBin = exports.updateBin = exports.addBin = exports.getBins = exports.getBanks = void 0;
+exports.getBanks = getBanks;
+exports.getBins = getBins;
+exports.addBin = addBin;
+exports.updateBin = updateBin;
+exports.deleteBin = deleteBin;
 const bank_model_1 = __importDefault(require("../db/models/bank.model"));
 function getBanks(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -20,21 +24,16 @@ function getBanks(req, res) {
         return res.json(banks);
     });
 }
-exports.getBanks = getBanks;
 function getBins(req, res) {
     return __awaiter(this, void 0, void 0, function* () { });
 }
-exports.getBins = getBins;
 function addBin(req, res) {
     return __awaiter(this, void 0, void 0, function* () { });
 }
-exports.addBin = addBin;
 function updateBin(req, res) {
     return __awaiter(this, void 0, void 0, function* () { });
 }
-exports.updateBin = updateBin;
 function deleteBin(req, res) {
     return __awaiter(this, void 0, void 0, function* () { });
 }
-exports.deleteBin = deleteBin;
 //# sourceMappingURL=bankBins.controller.js.map

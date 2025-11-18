@@ -18,9 +18,7 @@ var encryptedData = CryptoJS.AES.encrypt(plaintext, secretKey, {
 var encryptedBase64 = encryptedData.ciphertext.toString(CryptoJS.enc.Base64);
 
 console.log(encryptedBase64)
-const httpsAgent = new https.Agent({
-  rejectUnauthorized: false,
-});
+
 axios.get("https://ofi.zonenetwork.com/pushjournal/api/push-journal",{httpsAgent}).then(({data})=>console.log(data)).catch(e=>{
     console.log(e)
 })

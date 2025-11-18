@@ -15,13 +15,23 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -36,8 +46,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.authMiddleware = void 0;
-const cookie_parser_1 = __importDefault(require("cookie-parser"));
-const express_session_1 = __importDefault(require("express-session"));
+exports.default = applyAuthSetup;
 const passport_1 = __importDefault(require("passport"));
 const passport_local_1 = __importDefault(require("passport-local"));
 const passport_remember_me_1 = __importDefault(require("passport-remember-me"));
@@ -67,12 +76,25 @@ passport_1.default.use(new passport_local_1.default.Strategy(function (username,
     });
 }));
 passport_1.default.use(new passport_remember_me_1.default.Strategy(function (token, done) {
-    user_model_1.default.findOne({ rememberToken: (0, crypt_1.decrypt)(token) }).populate('organisation')
-        .then(user => {
-        if (!user)
+    try {
+        console.log({ cookieToken: token });
+        const decrypted = (0, crypt_1.decrypt)(Buffer.from(token, 'base64').toString());
+        if (!decrypted || !(decrypted === null || decrypted === void 0 ? void 0 : decrypted.length))
             return done(null, false);
-        done(null, user);
-    }).catch(err => done(err));
+        console.log({ decrypted });
+        const payload = JSON.parse(decrypted);
+        user_model_1.default.findById(payload.id).populate('organisation')
+            .then(user => {
+            console.log({ user });
+            if (!user)
+                return done(null, false);
+            done(null, user);
+        }).catch(err => done(err));
+    }
+    catch (error) {
+        console.trace(error);
+        done(error);
+    }
 }, function (user, done) {
     const rememberToken = Buffer.from(crypto_1.default.randomUUID()).toString('base64');
     user_model_1.default.updateOne({ _id: user.id, }, { rememberToken })
@@ -99,8 +121,6 @@ passport_1.default.deserializeUser(function (user, done) {
     }).catch(e => done(e));
 });
 function applyAuthSetup(app) {
-    app.use((0, cookie_parser_1.default)());
-    app.use((0, express_session_1.default)({ secret: process.env.APP_SECRET, resave: true, saveUninitialized: false }));
     // app.use(cookieSession({
     //     name: 'h2tm',
     //     maxAge: 60 * 60 * 1000,
@@ -116,14 +136,12 @@ function applyAuthSetup(app) {
         if (err)
             return res.status(422).json({ message: err });
         next();
-    }, (req, res) => {
+    }, (req, res) => __awaiter(this, void 0, void 0, function* () {
         //
         if (req.body.rememberMe) {
-            const token = crypto_1.default.randomUUID();
-            const clear = Buffer.from(token).toString('base64');
             const id = req.user.id;
-            user_model_1.default.updateOne({ _id: id, }, { rememberToken: clear }).exec();
-            res.cookie('remember_me', clear, { path: '/', httpOnly: true, maxAge: 604800000 }); // 7 days
+            const clear = JSON.stringify({ id });
+            res.cookie('remember_me', Buffer.from((0, crypt_1.encrypt)(clear)).toString('base64'), { path: '/', httpOnly: true, maxAge: 604800000 }); // 7 days
         }
         const { username, email, fullname, role, permissions } = req.user;
         res.json({
@@ -136,9 +154,8 @@ function applyAuthSetup(app) {
                 permissions
             }
         });
-    });
+    }));
 }
-exports.default = applyAuthSetup;
 const authMiddleware = (roles = [], permissions = []) => {
     return (req, res, next) => {
         var _a, _b, _c, _d;

@@ -16,7 +16,7 @@ indexRoutes.get('/', (req, res) =>
     Response.send(res, codes.success, 'This app is running.')
 );
 
-indexRoutes.get('*', (req, res) => Response.send(res, codes.notFound, 'Endpoint not found.'));
+indexRoutes.get('/{*splat}', (req, res) => Response.send(res, codes.notFound, 'Endpoint not found.'));
 
 
 

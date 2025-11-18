@@ -70,7 +70,7 @@ export default class TerminalController {
                 return response.status(404).json({message: "Terminal not found"});
             }
 
-            const data = await terminal.update(pick(request.body,[
+            const data = await terminal.updateOne(pick(request.body,[
                 "serialNo",
                 "terminalId",
                 "profileId",
@@ -111,7 +111,7 @@ export default class TerminalController {
                 return response.status(404).json({message: "Terminal not found"});
             }
 
-            const data = await terminal.delete();
+            const data = await terminal.deleteOne();
 
             response.json({status: true, data})
         } catch (error) {
@@ -217,6 +217,7 @@ export default class TerminalController {
             response.header('Content-Type', 'text/csv; charset=utf-8')
             response.attachment(`terminals-${Date.now()}.csv`)
             Terminal.find(filter).cursor()
+            //@ts-ignore
             .pipe(Terminal.csvTransformStream()).pipe(response);
         } catch (error) {
             console.log(error)

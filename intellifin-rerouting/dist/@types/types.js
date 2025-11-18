@@ -11,5 +11,5 @@ var Processor;
     Processor["HABARI"] = "HABARI";
     Processor["ZONE"] = "ZONE";
     Processor["JULIANA"] = "JULIANA";
-})(Processor = exports.Processor || (exports.Processor = {}));
+})(Processor || (exports.Processor = Processor = {}));
 //# sourceMappingURL=types.js.map

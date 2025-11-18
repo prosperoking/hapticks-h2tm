@@ -151,7 +151,7 @@ export async function updateTermial(req: Request, res: Response) {
       return res.status(400).json({ message: "No data found!" });
     }
 
-    const data = await terminal.update(
+    const data = await terminal.updateOne(
       pick(req.body, [
         "serialNo",
         "terminalId",
@@ -191,7 +191,7 @@ export async function updateTermialTidGroupTid(req: Request, res: Response) {
       return res.status(400).json({ message: "No data found!" });
     }
 
-    const data = await terminal.update(
+    const data = await terminal.updateOne(
       pick(req.body, ["terminalId", "terminalGroupId"])
     );
     terminal = await TerminalModel.findOne({

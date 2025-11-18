@@ -1,7 +1,5 @@
 import { Application, NextFunction } from "express";
-import cookeParser from "cookie-parser";
-import session from "express-session";
-import cookieSession from "cookie-session";
+
 import passport, { use } from "passport";
 import LocalStrategy from "passport-local";
 import RememeberMeStrategy from "passport-remember-me";
@@ -12,9 +10,9 @@ import argon2 from 'argon2';
 import { IUserData } from '../db/models/user.model';
 import {RequestHandler} from 'express';
 import *  as _ from 'lodash'
-import { AppConfig } from '../config/config';
 import Config from '../config/config';
 import { encrypt, decrypt } from '../helpers/crypt';
+import { cookie } from "express-validator/lib";
 
 passport.use(new LocalStrategy.Strategy(function (username, password, done) {
     User.findOne({
@@ -38,11 +36,22 @@ passport.use(new LocalStrategy.Strategy(function (username, password, done) {
 
 passport.use(new RememeberMeStrategy.Strategy(
     function (token, done) {
-        User.findOne({ rememberToken: decrypt(token) }).populate('organisation')
+        try {
+            console.log({cookieToken: token})
+            const decrypted =  decrypt(Buffer.from(token,'base64').toString())
+            if(!decrypted || !decrypted?.length) return done(null, false);
+            console.log({decrypted})
+            const payload = JSON.parse(decrypted);
+        User.findById(payload.id).populate('organisation')
             .then(user => {
+                console.log({user})
                 if (!user) return done(null, false);
                 done(null,user);
             }).catch(err => done(err))
+        } catch (error) {
+            console.trace(error)
+            done(error);
+        }
     },
     function (user, done) {
         const rememberToken = Buffer.from(crypto.randomUUID()).toString('base64');
@@ -71,9 +80,6 @@ passport.deserializeUser(function (user: any, done) {
 });
 
 export default function applyAuthSetup(app: Application) {
-
-    app.use(cookeParser());
-    app.use(session({ secret: process.env.APP_SECRET, resave: true, saveUninitialized: false}))
     // app.use(cookieSession({
     //     name: 'h2tm',
     //     maxAge: 60 * 60 * 1000,
@@ -92,15 +98,13 @@ export default function applyAuthSetup(app: Application) {
         ),(err, req,res,next)=>{
             if(err) return res.status(422).json({message: err});
             next();
-        }, (req, res) => {
+        },async (req, res) => {
             //
 
             if (req.body.rememberMe) {
-                const token = crypto.randomUUID();
-                const clear = Buffer.from(token).toString('base64');
                 const id: string = (req.user as any).id
-                User.updateOne({ _id: id, }, { rememberToken: clear }).exec()
-                res.cookie('remember_me', clear, { path: '/', httpOnly: true, maxAge: 604800000 }); // 7 days
+                const clear = JSON.stringify({id});
+                res.cookie('remember_me', Buffer.from(encrypt(clear)).toString('base64'), { path: '/', httpOnly: true, maxAge: 604800000 }); // 7 days
             }
             const {username, email,fullname, role, permissions} = req.user as IUserData
 

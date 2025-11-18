@@ -2,7 +2,6 @@ import { App } from "vue";
 import Axios from 'axios';
 import { AxiosError } from 'axios';
 import { notify } from '@kyvg/vue3-notification';
-import router from '../../../intellifin-rerouting/src/routes/admin.dashboard.route';
 import { useRouter, Router } from 'vue-router';
 import { Pinia } from "pinia";
 import { useUserStore } from '../stores/user.store';

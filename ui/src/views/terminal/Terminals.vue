@@ -89,7 +89,7 @@
                   <div class="flex items-center">
                     <Input type="checkbox" :checked="false" :value="terminal.terminalId" class="inline-flex mr-2" />
 
-                    <div class="ml-3 flex flex-col">
+                    <div class="flex flex-col ml-3">
                       <div class="flex space-x-2">
                         <svg v-if="terminal.usingGroupedTid" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5"
                           fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -297,7 +297,7 @@
             } z-50 fixed w-full h-full top-0 left-0 flex items-center justify-center`">
     <div class="absolute w-full h-full bg-gray-900 opacity-50 modal-overlay"></div>
 
-    <div class="z-50 w-11/12 mx-auto  bg-white rounded shadow-lg modal-container md:max-w-md">
+    <div class="z-50 w-11/12 mx-auto bg-white rounded shadow-lg modal-container md:max-w-md">
       <div @click="open = false"
         class="absolute top-0 right-0 z-50 flex flex-col items-center mt-4 mr-4 text-sm text-white cursor-pointer modal-close">
         <svg class="text-white fill-current" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
@@ -309,9 +309,9 @@
       </div>
 
       <!-- Add margin if you want to see some of the overlay behind the modal-->
-      <div class=" py-4 text-left modal-content divide-y">
+      <div class="py-4 text-left divide-y  modal-content">
         <!--Title-->
-        <div class=" px-6 flex items-center justify-between pb-3">
+        <div class="flex items-center justify-between px-6 pb-3 ">
           <p class="text-2xl font-bold">{{ form._id ? 'Update' : 'Add' }} Terminal</p>
           <div class="z-50 cursor-pointer modal-close" @click="open = false">
             <svg class="text-black fill-current" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
@@ -323,7 +323,7 @@
         </div>
 
         <!--Body-->
-        <div class=" px-6 pb-2 flex flex-col overflow-y-auto max-h-96">
+        <div class="flex flex-col px-6 pb-2 overflow-y-auto  max-h-96">
           <div>
             <div class="flex items-baseline mb-2 space-x-2">
               <label class="w-1/5 text-sm font-bold text-gray-700" for="emailAddress">Profile:</label>
@@ -405,8 +405,8 @@
           <div>
             <Input title="Max Transaction Amount" v-model:value="form.maxTransAmount" />
           </div>
-          <div class="divide-y space-y-2 mt-2">
-            <h3 class="font-bold text-gray-800 text-center">Terminal Location</h3>
+          <div class="mt-2 space-y-2 divide-y">
+            <h3 class="font-bold text-center text-gray-800">Terminal Location</h3>
             <section>
               <div>
                 <Input labelClass='w-1/5 text-sm text-gray-700' max-length="22" title="Name/Address"
@@ -432,7 +432,7 @@
 
 
         <!--Footer-->
-        <div class="flex justify-end pt-2 px-4">
+        <div class="flex justify-end px-4 pt-2">
           <div>
             <p v-for="error of $v.$errors" :key="error.$uid">
               {{ error.$message }}
@@ -473,7 +473,6 @@ import { required, ipAddress, numeric, minLength, maxLength, requiredIf } from "
 import { parse, format } from "date-fns"
 import { Organisation, PaginatedData } from '../../@types/types';
 import useDebouncedRef from '../../utils/DebounceRef';
-import { keyExchange } from '../../../../intellifin-rerouting/src/queue/queue';
 import states from "./iso_state.json"
 
 interface Profile {

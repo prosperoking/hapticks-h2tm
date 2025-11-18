@@ -21,7 +21,7 @@ var UserRole;
 (function (UserRole) {
     UserRole["ADMIN"] = "admin";
     UserRole["USER"] = "user";
-})(UserRole = exports.UserRole || (exports.UserRole = {}));
+})(UserRole || (exports.UserRole = UserRole = {}));
 const UserSchema = new mongoose_1.Schema({
     username: {
         unique: true,

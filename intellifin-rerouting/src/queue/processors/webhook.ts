@@ -30,7 +30,7 @@ export const webhookWorker = new Worker<IWebhookRequest>('webhook',
 async (job: Job) => {
     const data: WebhookJobData = job.data;
     const journal = await TransactionModel.findById(data.tranactionId);
-    const webhook = await WebhookModel.findById(data.webhookId);
+    const webhook: IWebhookRequest = await WebhookModel.findById(data.webhookId);
     const organisation = await OrganisationModel.findById(data.organisationId);
     if(!webhook || !journal) return;
     const payloadObject = {

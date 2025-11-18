@@ -28,7 +28,7 @@ export default class DashboardController {
           transactionTime,
           ...orgFilter,
         })
-        .count();
+        .countDocuments();
       const totalFailedTransactionsToday = await vasjournalsModel
         .where({
           transactionTime,
@@ -37,7 +37,7 @@ export default class DashboardController {
           },
           ...orgFilter,
         })
-        .count();
+        .countDocuments();
       const lastestTransacions = await vasjournalsModel
         .find({
           transactionTime,
@@ -45,7 +45,7 @@ export default class DashboardController {
         })
         .sort({ _id: -1 })
         .limit(50);
-      const terminalCount = await Terminal.find({}).count();
+      const terminalCount = await Terminal.find({}).countDocuments();
       return response.json({
         totalTransactionsToday,
         totalFailedTransactionsToday,
@@ -283,6 +283,7 @@ export default class DashboardController {
         })
         .sort({ _id: -1 })
         .cursor()
+        // @ts-ignore
         .pipe(vasjournalsModel.csvTransformStream())
         .pipe(response);
     } catch (error) {

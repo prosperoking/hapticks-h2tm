@@ -63,8 +63,8 @@ class ProfileController {
         });
     }
     edit(request, response) {
-        var _a;
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             try {
                 const profile = yield ptspProfile_model_1.default.findById((_a = request.params) === null || _a === void 0 ? void 0 : _a.id);
                 if (!profile)
@@ -75,7 +75,8 @@ class ProfileController {
                 body.habariConfig = body.habariConfig === undefined ? null : body.habariConfig;
                 body.zoneConfig = body.zoneConfig === undefined ? null : body.zoneConfig;
                 body.julianaConfig = body.julianaConfig === undefined ? null : body.julianaConfig;
-                const data = yield profile.update((0, lodash_1.pick)(body, [
+                body.nibssConfig = body.nibssConfig === undefined ? null : body.nibssConfig;
+                const data = yield profile.updateOne((0, lodash_1.pick)(body, [
                     "title",
                     "isoHost",
                     "isoPort",
@@ -106,6 +107,7 @@ class ProfileController {
                     "zoneConfig",
                     "julianaConfig",
                     "zpk",
+                    "nibssConfig",
                 ]));
                 response.json({ status: true, data });
             }
@@ -116,8 +118,8 @@ class ProfileController {
         });
     }
     delete(request, response) {
-        var _a;
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             try {
                 const profile = yield ptspProfile_model_1.default.findById((_a = request.params) === null || _a === void 0 ? void 0 : _a.id);
                 if (!profile)
@@ -135,8 +137,8 @@ class ProfileController {
         });
     }
     rotateZpk(request, response) {
-        var _a;
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             try {
                 const profile = yield ptspProfile_model_1.default.findById((_a = request.params) === null || _a === void 0 ? void 0 : _a.id);
                 if (!profile)
@@ -209,8 +211,8 @@ class ProfileController {
         });
     }
     cloneProfile(request, response) {
-        var _a;
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             try {
                 const profile = yield ptspProfile_model_1.default.findById((_a = request.body) === null || _a === void 0 ? void 0 : _a.profileId);
                 if (!profile)
@@ -234,8 +236,8 @@ class ProfileController {
         });
     }
     unlink(request, response) {
-        var _a;
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             try {
                 const profile = yield ptspProfile_model_1.default.findById((_a = request.params) === null || _a === void 0 ? void 0 : _a.id);
                 if (!profile)

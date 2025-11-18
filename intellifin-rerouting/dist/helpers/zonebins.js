@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isZoneSupportedBin = exports.loadZoneBins = exports.zoneSupportedBins = void 0;
+exports.isZoneSupportedBin = exports.loadZoneBinsPeriodically = exports.loadZoneBins = exports.zoneSupportedBins = void 0;
 const axios_1 = __importDefault(require("axios"));
 const logger_1 = __importDefault(require("./logger"));
 exports.zoneSupportedBins = [
@@ -31,10 +31,8 @@ exports.zoneSupportedBins = [
     "444586",
     "445493",
     "482132",
-    "484842",
     "492069",
     "521090",
-    "522899",
     "525634",
     "528655",
     "531165",
@@ -47,16 +45,6 @@ exports.zoneSupportedBins = [
     "519911",
     "545993",
     "506108",
-    "524282",
-    "516005",
-    "519830",
-    "520725",
-    "521886",
-    "521973",
-    "527699",
-    "533797",
-    "536337",
-    "542390",
     "400691",
     "416919",
     "462516",
@@ -75,10 +63,8 @@ exports.zoneSupportedBins = [
     "419760",
     "419761",
     "419762",
-    "419763",
     "419764",
     "419765",
-    "419766",
     "419767",
     "419768",
     "420332",
@@ -109,8 +95,6 @@ exports.zoneSupportedBins = [
     "413185",
     "413197",
     "443862",
-    "450073",
-    "450074",
     "450075",
     "450090",
     "450091",
@@ -127,7 +111,6 @@ exports.zoneSupportedBins = [
     "527282",
     "530519",
     "521952",
-    "531525",
     "515803",
     "542231",
     "533301",
@@ -135,7 +118,6 @@ exports.zoneSupportedBins = [
     "549970",
     "513469",
     "506115",
-    "650004",
     "460055",
     "446965",
     "468219",
@@ -164,34 +146,17 @@ exports.zoneSupportedBins = [
     "428270",
     "472491",
     "564000656",
-    "506110",
-    "555940",
-    "546778",
-    "475186",
-    "522522",
-    "519902",
-    "506101",
-    "496009",
-    "492584",
-    "483427",
-    "469667",
-    "444368",
-    "418760",
-    "418742",
-    "628051",
-    "650006",
-    "536613",
-    "418745",
-    "506184",
-    "406234",
-    "506104",
-    "483953",
 ];
 const loadZoneBins = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { data } = yield axios_1.default.get("https://sandbox.zonenetwork.com/gateway/api/banks/bins");
         exports.zoneSupportedBins = data.data.reduce((acc, bank) => {
-            return [...acc, ...bank.cardProfiles.map(item => item.cardPrefix)];
+            return [
+                ...acc,
+                ...bank.cardProfiles
+                    .filter((item) => !["fbn", "keystone"].includes(item.shortName))
+                    .map((item) => item.cardPrefix),
+            ];
         }, []);
     }
     catch (error) {
@@ -201,8 +166,20 @@ const loadZoneBins = () => __awaiter(void 0, void 0, void 0, function* () {
     return exports.zoneSupportedBins;
 });
 exports.loadZoneBins = loadZoneBins;
+/**
+ *
+ * @param ttl time to reload in seconds, default 6 minutes
+ */
+const loadZoneBinsPeriodically = (...args_1) => __awaiter(void 0, [...args_1], void 0, function* (ttl = 360) {
+    yield (0, exports.loadZoneBins)();
+    const totalTTl = ttl * 1000;
+    setTimeout(exports.loadZoneBinsPeriodically, totalTTl);
+});
+exports.loadZoneBinsPeriodically = loadZoneBinsPeriodically;
 const isZoneSupportedBin = (pan) => {
-    const bin = pan.startsWith("564000") ? pan.substring(0, 9) : pan.substring(0, 6);
+    const bin = pan.startsWith("564000")
+        ? pan.substring(0, 9)
+        : pan.substring(0, 6);
     return exports.zoneSupportedBins.includes(bin);
 };
 exports.isZoneSupportedBin = isZoneSupportedBin;

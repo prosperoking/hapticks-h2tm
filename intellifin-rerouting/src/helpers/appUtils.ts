@@ -1,6 +1,7 @@
 import { ObjectId } from "mongoose";
 import TerminalID from "../db/models/terminalIds.model";
 import Crypto from "crypto"
+import axios from "axios";
 const availableCharacters: string[] = Array(10).fill(null).map((_,i)=>i.toString()).concat(
     Array(26).fill(null).map((_,i)=>String.fromCharCode(i+65))
 );
@@ -76,4 +77,30 @@ export function generateTDESKey(bytes: number = 16): string
     return Crypto.randomBytes(bytes)
                 .toString('hex')
                 .toUpperCase();
+}
+
+
+export async function getPTSPNibssToken(payload:{
+    url: string,
+    apiKey: string,
+    clientId: string,
+    clientSecret: string
+}): Promise<{token_type: string, expires_in: number, ext_expires_in: number, access_token: string}|null> {
+    try {
+        const {data} = await axios.post(payload.url, {
+            client_id: payload.clientId,
+            client_secret: payload.clientSecret,
+            grant_type: "client_credentials",
+            scope: `${payload.clientId}/.default`
+        }, {
+            headers: {
+                'Content-Type': "application/x-www-form-urlencoded",
+                'Accept': "application/json",
+                apiKey: payload.apiKey
+            }
+        })
+        return data;
+    } catch (error) {
+        return null;
+    }
 }

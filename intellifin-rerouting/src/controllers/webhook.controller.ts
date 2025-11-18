@@ -1,4 +1,4 @@
-import webhookModel from "../db/models/webhook.model";
+import webhookModel, { IWebhook, IWebhookData } from "../db/models/webhook.model";
 import webhookRequestModel from "../db/models/webhook_request.model";
 import { Request, Response } from 'express';
 import logger from '../helpers/logger';
@@ -63,17 +63,20 @@ export async function createWebhook(req: Request, res: Response){
 
 export async function updateWebhook(req: Request, res: Response){
     try {
+        /**@var {IWebhook & IWebhookData} webhook */
         const webhook = await webhookModel.findById(req.params.id);
         if(!webhook) return res.status(404).json({
             message: "webhook not found"
         })
 
         const {urls, name } = req.body;
+        //@ts-ignore
         webhook.urls = Array.from(new Set(
-        urls
-        .filter((url)=> url?.length)
-        .map(url=>url.toLowerCase())
-    ));
+            urls
+            .filter((url)=> url?.length)
+            .map(url=>url.toLowerCase())
+        ));
+        //@ts-ignore
         webhook.name = name;
         await webhook.save();
         res.json(webhook);
@@ -91,7 +94,7 @@ export async function reCreateSecret(req: Request, res: Response) {
         if(!webhook) return res.status(404).json({
             message: "webhook not found"
         })
-
+        //@ts-ignore
         webhook.secret = createSha256Hash(randomUUID())
         await webhook.save()
         return res.json(webhook)
@@ -110,7 +113,7 @@ export async function deleteWebhook(req: Request, res: Response){
             message: "webhook not found"
         })
 
-        await webhook.delete();
+        await webhook.deleteOne();
 
         return res.json({
             message: "Webhook deleted",

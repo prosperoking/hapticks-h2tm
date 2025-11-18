@@ -82,7 +82,7 @@ class TerminalController {
                 if (!terminal) {
                     return response.status(404).json({ message: "Terminal not found" });
                 }
-                const data = yield terminal.update((0, lodash_1.pick)(request.body, [
+                const data = yield terminal.updateOne((0, lodash_1.pick)(request.body, [
                     "serialNo",
                     "terminalId",
                     "profileId",
@@ -123,7 +123,7 @@ class TerminalController {
                 if (!terminal) {
                     return response.status(404).json({ message: "Terminal not found" });
                 }
-                const data = yield terminal.delete();
+                const data = yield terminal.deleteOne();
                 response.json({ status: true, data });
             }
             catch (error) {
@@ -230,6 +230,7 @@ class TerminalController {
                 response.header('Content-Type', 'text/csv; charset=utf-8');
                 response.attachment(`terminals-${Date.now()}.csv`);
                 terminal_model_1.default.find(filter).cursor()
+                    //@ts-ignore
                     .pipe(terminal_model_1.default.csvTransformStream()).pipe(response);
             }
             catch (error) {
@@ -322,8 +323,8 @@ class TerminalController {
         });
     }
     generateTids(request, response) {
-        var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b;
             try {
                 let { start, end,
                 // iswPrefix,

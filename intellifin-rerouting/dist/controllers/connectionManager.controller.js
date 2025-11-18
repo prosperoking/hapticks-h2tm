@@ -9,7 +9,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.closeConnections = exports.killBridge = exports.getConnections = exports.status = void 0;
+exports.status = status;
+exports.getConnections = getConnections;
+exports.killBridge = killBridge;
+exports.closeConnections = closeConnections;
 const cardsockethelper_1 = require("../helpers/cardsockethelper");
 function status(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -28,7 +31,6 @@ function status(req, res) {
         }
     });
 }
-exports.status = status;
 function getConnections(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -50,7 +52,6 @@ function getConnections(req, res) {
         }
     });
 }
-exports.getConnections = getConnections;
 function killBridge(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -63,7 +64,6 @@ function killBridge(req, res) {
         }
     });
 }
-exports.killBridge = killBridge;
 function closeConnections(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -91,5 +91,4 @@ function closeConnections(req, res) {
         }
     });
 }
-exports.closeConnections = closeConnections;
 //# sourceMappingURL=connectionManager.controller.js.map

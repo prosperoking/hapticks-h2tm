@@ -17,20 +17,8 @@ const dbConfig = config.getConfig(process.env.NODE_ENV);
 
 /** connection mongodb */
 function connectDatabase(): Promise<Mongoose> {
-  return new Promise((resolve, reject) => {
-    mongoose.Promise = global.Promise;
-    Logger.log("Connecting to database");
-    mongoose.connect(dbConfig.DATABASE_URL, dbConfig.options, (err) => {
-      if (err) {
-        reject(err);
-      } else {
-        Logger.log(
-          `Connected to mongodb successfully on ${process.env.NODE_ENV}`
-        );
-        resolve(mongoose);
-      }
-    });
-  });
+  Logger.log("Connecting to database");
+  return mongoose.connect(dbConfig.DATABASE_URL, dbConfig.options).then(()=> mongoose);
 }
 
 const cli = new Command();

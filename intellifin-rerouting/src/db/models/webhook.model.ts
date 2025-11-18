@@ -1,10 +1,10 @@
-import { Schema, model, SchemaTypes, PaginateModel } from 'mongoose';
+import { Schema, Model, SchemaTypes, PaginateModel } from 'mongoose';
 import { encrypt, decrypt } from '../../helpers/crypt';
 import paginate from 'mongoose-paginate-v2';
 import * as mongoose from 'mongoose';
 import PTSPProfileModel from './ptspProfile.model';
 
-export interface IWebhookData {
+export interface IWebhookData extends Partial<Document>{
     _id?:  string| any,
     organisationId?: string | any,
     name: string,
@@ -13,7 +13,7 @@ export interface IWebhookData {
     secret: string,
     dest_urls: string[],
 }
-export interface IWebhook extends IWebhookData, Document{}
+export interface IWebhook extends Model<IWebhookData >{}
 
 const webhookSchema = new mongoose.Schema<IWebhookData>({
     organisationId:{
@@ -69,7 +69,8 @@ webhookSchema.virtual('dest_urls').get(function(){
         .map(url=>url.toLowerCase())
     ))
 });
-webhookSchema.post('remove',function(data){
+
+webhookSchema.post('deleteOne',function(data){
     PTSPProfileModel.updateMany({
         webhookId: data.id,
     },{
@@ -83,4 +84,4 @@ webhookSchema.post('remove',function(data){
 
 webhookSchema.plugin(paginate);
 
-export default mongoose.model<IWebhook, PaginateModel<IWebhook>>('webhooklistener', webhookSchema);
+export default mongoose.model<IWebhookData, PaginateModel<IWebhook>>('webhooklistener', webhookSchema);

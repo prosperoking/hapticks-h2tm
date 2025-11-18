@@ -59,5 +59,5 @@ terminalIDSchema.pre('save',function(){
 
 terminalIDSchema.plugin(paginate)
 
-const TerminalID = mongoose.model<ITerminalID, PaginateModel<ITerminalID>>("TerminalId",terminalIDSchema);
+const TerminalID = mongoose.model<ITerminalIDDocument, PaginateModel<ITerminalIDDocument> & ITerminalIDDocument>("TerminalId",terminalIDSchema);
 export default  TerminalID;

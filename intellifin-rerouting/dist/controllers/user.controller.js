@@ -12,14 +12,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteUser = exports.getAllPermissions = exports.updateUser = exports.addUser = exports.index = void 0;
+exports.index = index;
+exports.addUser = addUser;
+exports.updateUser = updateUser;
+exports.getAllPermissions = getAllPermissions;
+exports.deleteUser = deleteUser;
 const user_model_1 = __importDefault(require("../db/models/user.model"));
 const logger_1 = __importDefault(require("../helpers/logger"));
 const lodash_1 = __importDefault(require("lodash"));
 const permissions_1 = require("../config/permissions");
 function index(req, res) {
-    var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
+        var _a, _b;
         try {
             // @ts-ignore
             const orgFilter = ((_a = req.user) === null || _a === void 0 ? void 0 : _a.organisationId) === null
@@ -44,10 +48,9 @@ function index(req, res) {
         }
     });
 }
-exports.index = index;
 function addUser(req, res) {
-    var _a;
     return __awaiter(this, void 0, void 0, function* () {
+        var _a;
         try {
             const { body } = req;
             // @ts-ignore
@@ -66,10 +69,9 @@ function addUser(req, res) {
         }
     });
 }
-exports.addUser = addUser;
 function updateUser(req, res) {
-    var _a;
     return __awaiter(this, void 0, void 0, function* () {
+        var _a;
         try {
             // @ts-ignore
             const orgFilter = ((_a = req.user) === null || _a === void 0 ? void 0 : _a.organisationId) === null
@@ -97,22 +99,20 @@ function updateUser(req, res) {
         }
     });
 }
-exports.updateUser = updateUser;
 function getAllPermissions(req, res) {
     return res.json({
         data: permissions_1.APP_PERMISSIONS
     });
 }
-exports.getAllPermissions = getAllPermissions;
 function deleteUser(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const webhook = yield user_model_1.default.findById(req.params.id);
-            if (!webhook)
+            const user = yield user_model_1.default.findById(req.params.id);
+            if (!user)
                 return res.status(404).json({
                     message: "user not found",
                 });
-            yield webhook.delete();
+            yield user.deleteOne();
             return res.json({
                 message: "user deleted",
             });
@@ -125,7 +125,6 @@ function deleteUser(req, res) {
         }
     });
 }
-exports.deleteUser = deleteUser;
 function filterGen({ q }) {
     let query = {};
     if (!lodash_1.default.isEmpty(q)) {

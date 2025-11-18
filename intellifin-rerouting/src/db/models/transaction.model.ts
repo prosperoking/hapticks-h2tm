@@ -1,10 +1,10 @@
 import { Document, PaginateModel, SchemaTypes } from "mongoose";
 import { Processor } from "../../@types/types";
-import csv from "mongoose-csv-export";
 import paginate from "mongoose-paginate-v2";
 import * as mongoose from "mongoose";
+import csvExportPlugin from '../../helpers/mongooseCsvExport';
 
-export interface IJournal {
+export interface IJournal extends Partial<Document> {
   amount: number;
   amount_naira?: number;
   authCode: string;
@@ -44,7 +44,7 @@ export interface IJournal {
   updatedAt?: Date | string;
 }
 
-export interface IJournalDocument extends Document, IJournal {}
+export interface IJournalDocument extends IJournal {}
 
 let JournalsSchema = new mongoose.Schema<IJournalDocument>(
   {
@@ -139,7 +139,7 @@ JournalsSchema.virtual("amount_naira").get(function () {
 
 JournalsSchema.plugin(paginate);
 
-JournalsSchema.plugin(csv, {
+JournalsSchema.plugin(csvExportPlugin, {
   headers: [
     "MTI",
     "TerminalId",

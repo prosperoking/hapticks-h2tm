@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.index = void 0;
+exports.index = index;
 const logger_1 = __importDefault(require("../../helpers/logger"));
 const transaction_model_1 = __importDefault(require("../../db/models/transaction.model"));
 function index(req, res) {
@@ -41,5 +41,4 @@ function index(req, res) {
         }
     });
 }
-exports.index = index;
 //# sourceMappingURL=transaction.controller.js.map

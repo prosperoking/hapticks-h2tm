@@ -1,5 +1,5 @@
 import { createValidatedRequest } from './index';
-import { checkSchema } from 'express-validator/src/middlewares/schema';
+import { checkSchema } from 'express-validator';
 import UserModel from '../db/models/user.model';
 import OrganisationModel from '../db/models/organisation.model';
 import webhookModel from '../db/models/webhook.model';

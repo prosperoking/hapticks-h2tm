@@ -16,6 +16,6 @@ indexRoutes.use('/card', iso_card_transaction_route_1.default);
 indexRoutes.use('/organisation', organisation_route_1.default);
 indexRoutes.use('/dashboard', authenticate, admin_dashboard_route_1.default);
 indexRoutes.get('/', (req, res) => apiResponse_1.default.send(res, constants_1.apiStatusCodes.success, 'This app is running.'));
-indexRoutes.get('*', (req, res) => apiResponse_1.default.send(res, constants_1.apiStatusCodes.notFound, 'Endpoint not found.'));
+indexRoutes.get('/{*splat}', (req, res) => apiResponse_1.default.send(res, constants_1.apiStatusCodes.notFound, 'Endpoint not found.'));
 exports.default = indexRoutes;
 //# sourceMappingURL=index.route.js.map

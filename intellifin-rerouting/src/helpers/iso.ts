@@ -1,5 +1,5 @@
 import { ParsedTLv, PurchasePayload, SlimPurchasePayload } from "types";
-import { ITerminalDocument } from '../db/models/terminal.model';
+import { ITerminal } from '../db/models/terminal.model';
 import { TlvFactory } from "ber-tlv";
 import Terminal from '../db/models/terminal.model';
 import moment from "moment";
@@ -7,7 +7,7 @@ import moment from "moment";
 export async function reparkPayLoad(
   data: SlimPurchasePayload,
   action: "purchase" | "balance",
-  terminal: ITerminalDocument
+  terminal: ITerminal
 ): Promise<PurchasePayload> {
   const parsedData = parsePurchaseTlv(data.iccData);
   const account = {
@@ -52,7 +52,7 @@ export async function reparkPayLoad(
     field28: "D00000000",
     field11: data.stan,
     field55: data.iccData,
-    field12: moment().format("HHmmss"),
+    field12: data.stan,
     field13: parsedData.transactionDate.substring(0,4),
     field14: panInfo.expiryDate,
     field52: data.pinBlock,
@@ -70,6 +70,7 @@ export async function reparkPayLoad(
     field7: data.transDateTime,
     field3: `00${data.accountType??"00"}00`,
     field2: panInfo.pan,
+    geolocation: data.geolocation,
     processor: data.processor
   };
 }

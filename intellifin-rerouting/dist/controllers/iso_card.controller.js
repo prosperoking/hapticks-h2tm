@@ -18,6 +18,7 @@ const cardsockethelper_1 = require("../helpers/cardsockethelper");
 const types_1 = require("../@types/types");
 const transaction_model_1 = __importDefault(require("../db/models/transaction.model"));
 const utils_1 = __importDefault(require("../helpers/utils"));
+const ptspProfile_model_1 = __importDefault(require("../db/models/ptspProfile.model"));
 const queue_1 = require("../queue/queue");
 const inteliffin_1 = __importDefault(require("../services/inteliffin"));
 const inteliffin_2 = require("../services/inteliffin");
@@ -27,10 +28,43 @@ const moment_1 = __importDefault(require("moment"));
 const cardBins_1 = require("../helpers/cardBins");
 const webhook_model_1 = __importDefault(require("../db/models/webhook.model"));
 const zonebins_1 = require("../helpers/zonebins");
+const config_1 = __importDefault(require("../config/config"));
+const config = new config_1.default();
 class IsoCardContoller {
-    performKeyExchange(request, response) {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
+    sdkValidate(request, response) {
         return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const headers = request.headers;
+                console.log(headers, config.configObject.ptspId);
+                const profile = yield ptspProfile_model_1.default.findById(config.configObject.ptspId);
+                if (!profile) {
+                    return response.status(400).json({
+                        status: false,
+                        message: "Device not recognized",
+                    });
+                }
+                const { apiKey, clientId, clientSecret, tokenUrl } = profile.nibssConfig;
+                const result = yield (0, appUtils_1.getPTSPNibssToken)({
+                    url: tokenUrl,
+                    apiKey,
+                    clientId,
+                    clientSecret
+                });
+                if (!result)
+                    throw new Error("Unable to validate device");
+                return response.json(result);
+            }
+            catch (error) {
+                return response.status(400).json({
+                    error: "Unable to validate device",
+                    error_description: error.message
+                });
+            }
+        });
+    }
+    performKeyExchange(request, response) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
             try {
                 const appVersion = request.header("x-app-version");
                 const terminal = yield terminal_model_1.default.findOne({
@@ -204,8 +238,8 @@ class IsoCardContoller {
         });
     }
     requeryTransaction(request, response) {
-        var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b;
             try {
                 const appVersion = request.header("x-app-version");
                 const terminal = yield terminal_model_1.default.findOne({
@@ -282,8 +316,8 @@ class IsoCardContoller {
         });
     }
     static handleIntelifinKeyExchange(terminal, response) {
-        var _a;
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             const { isoHost, isoPort, isSSL } = terminal.profile;
             try {
                 const data = yield inteliffin_1.default.getPrepInfo({
@@ -373,8 +407,8 @@ class IsoCardContoller {
         });
     }
     getTerminalInfo(request, response) {
-        var _a, _b, _c, _d;
         return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b, _c, _d;
             try {
                 const serial = request.header("x-serial-no");
                 const brand = request.header("x-brand") || "";
@@ -434,8 +468,8 @@ class IsoCardContoller {
         return terminal;
     }
     processCard(request, response) {
-        var _a, _b, _c;
         return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b, _c;
             const startOfTransaction = performance.now();
             const serial = request.header("x-serial-no");
             const brand = request.header("x-brand");
@@ -625,8 +659,8 @@ class IsoCardContoller {
             : undefined;
     }
     checkBalance(request, response) {
-        var _a, _b, _c, _d, _e, _f, _g, _h;
         return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b, _c, _d, _e, _f, _g, _h;
             try {
                 const serial = request.header("x-serial-no");
                 const brand = request.header("x-brand");
@@ -653,6 +687,7 @@ class IsoCardContoller {
                 yield terminal.save().catch(console.log);
                 const { componentKey1, isoHost, isoPort, isSSL, type } = terminal.profile;
                 if (terminal.usingGroupedTid) {
+                    //@ts-ignore
                     terminal = IsoCardContoller.patchTerminalWithGroupValues(terminal);
                 }
                 const patchedPayload = Object.assign(Object.assign({}, body), { component: componentKey1, ip: isoHost, host: isoHost, ssl: String(isSSL), port: isoPort, clrsesskey: (_c = (_b = terminal.nibssParams) === null || _b === void 0 ? void 0 : _b.clrSessionKey) !== null && _c !== void 0 ? _c : terminal.clrsesskey, nibssPinKey: (_e = (_d = terminal.nibssParams) === null || _d === void 0 ? void 0 : _d.clrpinkey) !== null && _e !== void 0 ? _e : terminal.clrpinkey, clrpin: terminal.clrpinkey, field0: "0100", field3: "31" + body.field3.substring(2), field43: (_f = terminal.parsedParams) === null || _f === void 0 ? void 0 : _f.merchantNameLocation, field42: (_g = terminal.parsedParams) === null || _g === void 0 ? void 0 : _g.mid });
@@ -671,9 +706,9 @@ class IsoCardContoller {
             }
         });
     }
-    static hanldeIntellifin(type, payload, terminal, transType = null) {
-        var _a, _b, _c, _d;
-        return __awaiter(this, void 0, void 0, function* () {
+    static hanldeIntellifin(type_1, payload_1, terminal_1) {
+        return __awaiter(this, arguments, void 0, function* (type, payload, terminal, transType = null) {
+            var _a, _b, _c, _d;
             try {
                 const data = yield inteliffin_1.default.performTranaction({
                     amount: payload.field4,
@@ -766,11 +801,11 @@ class IsoCardContoller {
             acqId });
     }
     static patchZonePayload(data, profile, terminal) {
-        var _a, _b;
+        var _a, _b, _c;
         const { host, port, ssl, zpk, mid, acqId, mcc } = profile.zoneConfig;
         return Object.assign(Object.assign({}, data), { merchantLocation: data.terminalLocation ||
                 ((_a = terminal === null || terminal === void 0 ? void 0 : terminal.terminalLocation) === null || _a === void 0 ? void 0 : _a.location) ||
-                (terminal === null || terminal === void 0 ? void 0 : terminal.parsedParams.merchantNameLocation), tid: terminal.zoneTID, mid: mid, field18: mcc, field43: ((_b = terminal.parsedParams) === null || _b === void 0 ? void 0 : _b.merchantNameLocation) || data.field43, amount: data.field4 || data.amount || 0, totalamount: data.field4 || data.amount || 0, clrsesskey: terminal.clrsesskey, clrpin: terminal.clrpinkey, pinblock: data.pinblock || "", clearZpk: zpk, host,
+                (terminal === null || terminal === void 0 ? void 0 : terminal.parsedParams.merchantNameLocation), tid: (_b = terminal.zoneTID) !== null && _b !== void 0 ? _b : config.configObject.zone.fallbackZoneTid, mid: mid, field18: mcc, field43: ((_c = terminal.parsedParams) === null || _c === void 0 ? void 0 : _c.merchantNameLocation) || data.field43, amount: data.field4 || data.amount || 0, totalamount: data.field4 || data.amount || 0, clrsesskey: terminal.clrsesskey, clrpin: terminal.clrpinkey, pinblock: data.pinblock || "", clearZpk: zpk, host,
             port,
             ssl,
             acqId, institutionCode: acqId });

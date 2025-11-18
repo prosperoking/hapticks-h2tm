@@ -1,12 +1,11 @@
-import { Schema, model, SchemaTypes, ObjectId, PaginateModel } from "mongoose";
-import PTSPProfileModel, { IPTSPProfile } from "./ptspProfile.model";
-import OrganisationModel from "./organisation.model";
+import mongoose, { Schema, model, SchemaTypes, ObjectId, PaginateModel, Document, Model} from "mongoose";
+import PTSPProfileModel, { IPTSPProfileData } from "./ptspProfile.model";
+import OrganisationModel, { OrganisationProfileData } from "./organisation.model";
 import { OrganisationProfile } from "./organisation.model";
 import paginate from "mongoose-paginate-v2";
-import * as mongoose from "mongoose";
-import csv from "mongoose-csv-export";
 import groupTidModel, {IGroupTid} from "./groupTid.model";
 import { getAvailableTid } from "../../helpers/appUtils";
+import csvExportPlugin from "../../helpers/mongooseCsvExport";
 
 type TerminalLocation = {
   name: string;
@@ -24,8 +23,7 @@ export type ParsedParams = {
 }
 
 
-export interface ITerminal {
-  _id?: string;
+export interface ITerminal extends Document {
   serialNo: string;
   terminalId: string;
   terminalGroupId: ObjectId | null;
@@ -41,7 +39,7 @@ export interface ITerminal {
   brand?: string;
   createdAt: Date;
   updatedAt: Date;
-  profile?: IPTSPProfile;
+  profile?: IPTSPProfileData;
   organisationId?: ObjectId;
   iswTid?: string;
   customerAddress?: string;
@@ -62,7 +60,7 @@ export interface ITerminal {
   parsedParams?: ParsedParams;
   threeLineParsedParams?: ParsedParams;
   deviceModel?: string;
-  organisation?: OrganisationProfile;
+  organisation?: OrganisationProfileData;
   hydrogenTID?: string;
   habariTID?: string;
   iswISOTID?: string;
@@ -81,7 +79,7 @@ export interface ITerminal {
   },
 }
 
-export interface ITerminalDocument extends Document, ITerminal {}
+export interface ITerminalDocument extends Model<ITerminal>, PaginateModel<ITerminal> {}
 
 const terminalLocation = new mongoose.Schema<TerminalLocation>({
   name: {
@@ -447,7 +445,7 @@ terminalSchema.pre('save', async function(){
   }
 })
 
-terminalSchema.plugin(csv, {
+terminalSchema.plugin(csvExportPlugin, {
   headers: [
     "SerialNo",
     "TerminalId",
@@ -456,10 +454,11 @@ terminalSchema.plugin(csv, {
     "Brand",
     "AppVersion",
     "DeviceModel",
-    "ThreeLineTid",
-    "hydrogenTID",
-    "iswISOTID",
-    "habariTID",
+    "ThreeLineTID",
+    "HydrogenTID",
+    "IswISOTID",
+    "HabariTID",
+    'CustomerAddress'
   ],
   alias: {
     SerialNo: "serialNo",
@@ -469,16 +468,17 @@ terminalSchema.plugin(csv, {
     Brand: "brand",
     AppVersion: "appVersion",
     DeviceModel: "deviceModel",
-    ThreeLineTid: "threeLineTid",
-    IswISOTid: "iswISOTID",
-    HydrogenTid: "hydrogenTID",
-    HabariTid: "habariTID",
+    ThreeLineTID: "threeLineTid",
+    IswISOTID: "iswISOTID",
+    HydrogenTID: "hydrogenTID",
+    HabariTID: "habariTID",
+    CustomerAddress: "customerAddress",
   },
 });
 
 const Terminal = mongoose.model<
-  ITerminalDocument,
-  PaginateModel<ITerminalDocument>
+  ITerminal,
+  ITerminalDocument
 >("terminal", terminalSchema);
 
 export default Terminal;

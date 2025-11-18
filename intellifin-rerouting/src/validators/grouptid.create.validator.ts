@@ -1,8 +1,7 @@
 import { createValidatedRequest } from './index';
-import { checkSchema } from 'express-validator/src/middlewares/schema';
 import OrganisationModel from '../db/models/organisation.model';
 import PTSPProfileModel from '../db/models/ptspProfile.model';
-import { body } from 'express-validator';
+import { body, checkSchema } from 'express-validator';
 import groupTidModel from '../db/models/groupTid.model';
 
 const groupTidCreateValidator = createValidatedRequest(checkSchema({

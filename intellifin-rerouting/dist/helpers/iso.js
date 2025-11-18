@@ -12,13 +12,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.translateSlimCardPayload = exports.parseTrack2 = exports.getIccTags = exports.parsePurchaseTlv = exports.reparkPayLoad = void 0;
+exports.reparkPayLoad = reparkPayLoad;
+exports.parsePurchaseTlv = parsePurchaseTlv;
+exports.getIccTags = getIccTags;
+exports.parseTrack2 = parseTrack2;
+exports.translateSlimCardPayload = translateSlimCardPayload;
 const ber_tlv_1 = require("ber-tlv");
 const terminal_model_1 = __importDefault(require("../db/models/terminal.model"));
-const moment_1 = __importDefault(require("moment"));
 function reparkPayLoad(data, action, terminal) {
-    var _a, _b, _c, _d;
     return __awaiter(this, void 0, void 0, function* () {
+        var _a, _b, _c, _d;
         const parsedData = parsePurchaseTlv(data.iccData);
         const account = {
             "00": "Default",
@@ -62,7 +65,7 @@ function reparkPayLoad(data, action, terminal) {
             field28: "D00000000",
             field11: data.stan,
             field55: data.iccData,
-            field12: (0, moment_1.default)().format("HHmmss"),
+            field12: data.stan,
             field13: parsedData.transactionDate.substring(0, 4),
             field14: panInfo.expiryDate,
             field52: data.pinBlock,
@@ -80,11 +83,11 @@ function reparkPayLoad(data, action, terminal) {
             field7: data.transDateTime,
             field3: `00${(_d = data.accountType) !== null && _d !== void 0 ? _d : "00"}00`,
             field2: panInfo.pan,
+            geolocation: data.geolocation,
             processor: data.processor
         };
     });
 }
-exports.reparkPayLoad = reparkPayLoad;
 function parsePurchaseTlv(payload) {
     var _a;
     const data = ber_tlv_1.TlvFactory.parse(payload);
@@ -111,12 +114,10 @@ function parsePurchaseTlv(payload) {
         cvm: getVal('9F34')
     };
 }
-exports.parsePurchaseTlv = parsePurchaseTlv;
 function getIccTags(payload) {
     const data = ber_tlv_1.TlvFactory.parse(payload);
     return data.map((item) => item.tag);
 }
-exports.getIccTags = getIccTags;
 function parseTrack2(track2) {
     const [pan, other] = track2.split("D");
     return {
@@ -125,7 +126,6 @@ function parseTrack2(track2) {
         seviceRistricionCode: other.substring(4, 7)
     };
 }
-exports.parseTrack2 = parseTrack2;
 function translateSlimCardPayload(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         const serial = req.header("x-serial-no");
@@ -150,5 +150,4 @@ function translateSlimCardPayload(req, res, next) {
         next();
     });
 }
-exports.translateSlimCardPayload = translateSlimCardPayload;
 //# sourceMappingURL=iso.js.map

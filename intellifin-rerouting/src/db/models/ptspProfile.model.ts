@@ -1,10 +1,10 @@
-import { Schema, model, Document, SchemaTypes, PaginateModel } from "mongoose";
+import { Schema, model, Document, SchemaTypes, PaginateModel, Model } from "mongoose";
 import paginate from 'mongoose-paginate-v2';
 import * as mongoose from 'mongoose';
 import { decrypt, encrypt } from '../../helpers/crypt';
 
 export type IProcessors = 'nibss' | 'kimono' | 'bluesalt' | '3line' | 'isw' | 'hydrogen' | 'habari' | 'zone' | 'juliana';
-export interface IPTSPProfileData {
+export interface IPTSPProfileData extends Document{
     title: string,
     isoHost: string,
     isoPort: string,
@@ -109,9 +109,15 @@ export interface IPTSPProfileData {
         processor: IProcessors,
     }[],
     isLinked: boolean,
+    nibssConfig?: {
+        tokenUrl: string,
+        clientId: string,
+        clientSecret: string,
+        apiKey: string,
+    }
 }
 
-export interface IPTSPProfile extends Document, IPTSPProfileData { }
+export interface IPTSPProfile extends Model<IPTSPProfileData>, PaginateModel<IPTSPProfileData> { }
 
 const ptspProfileSchema = new mongoose.Schema<IPTSPProfileData>({
     title: {
@@ -450,7 +456,23 @@ const ptspProfileSchema = new mongoose.Schema<IPTSPProfileData>({
     linkedProfileId: {
         type: SchemaTypes.ObjectId,
         default: null
-    }
+    },
+    nibssConfig: new mongoose.Schema({
+        tokenUrl: String,
+        clientId: String,
+        clientSecret: {
+            type: String,
+            default: null,
+            set: (value: string)=> (value !== null && value?.length) ? encrypt(value) : null,
+            get: (value: string)=> (value !== null && value?.length) ? decrypt(value) : null,
+        },
+        apiKey: {
+            type: String,
+            default: null,
+            set: (value: string)=> (value !== null && value?.length) ? encrypt(value) : null,
+            get: (value: string)=> (value !== null && value?.length) ? decrypt(value) : null,
+        },
+    }),
 }, {
     timestamps: true,
     toJSON: {
@@ -529,5 +551,5 @@ ptspProfileSchema.virtual('blueSaltUrl').get(function(){
 // @ts-ignore
 ptspProfileSchema.plugin(paginate);
 
-const PTSPProfileModel = mongoose.model<IPTSPProfile, PaginateModel<IPTSPProfile>>("ptspProfile", ptspProfileSchema);
+const PTSPProfileModel = mongoose.model<IPTSPProfileData, IPTSPProfile>("ptspProfile", ptspProfileSchema);
 export default PTSPProfileModel

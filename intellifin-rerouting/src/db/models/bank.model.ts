@@ -2,11 +2,10 @@ import { Schema, model, SchemaTypes, PaginateModel } from 'mongoose';
 import paginate from 'mongoose-paginate-v2';
 import * as mongoose from 'mongoose';
 
-export interface IBankBinData {
-    _id?:  string| any,
+export interface IBankBinData extends Document {
     name: string,
 }
-export interface IWebhook extends IBankBinData, Document{}
+export interface IBankBin extends IBankBinData {}
 
 const bankBinSchema = new mongoose.Schema<IBankBinData>({
     name: {
@@ -31,4 +30,4 @@ const bankBinSchema = new mongoose.Schema<IBankBinData>({
 
 bankBinSchema.plugin(paginate);
 
-export default mongoose.model<IWebhook, PaginateModel<IWebhook>>('banks', bankBinSchema);
+export default mongoose.model<IBankBinData, PaginateModel<IBankBin>>('banks', bankBinSchema);

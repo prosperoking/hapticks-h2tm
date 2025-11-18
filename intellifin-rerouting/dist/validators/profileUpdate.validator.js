@@ -13,16 +13,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const index_1 = require("./index");
-const schema_1 = require("express-validator/src/middlewares/schema");
 const ptspProfile_model_1 = __importDefault(require("../db/models/ptspProfile.model"));
 const organisation_model_1 = __importDefault(require("../db/models/organisation.model"));
 const webhook_model_1 = __importDefault(require("../db/models/webhook.model"));
 const express_validator_1 = require("express-validator");
-const profileUpdateValidator = (0, index_1.createValidatedRequest)((0, schema_1.checkSchema)({
+const profileUpdateValidator = (0, index_1.createValidatedRequest)((0, express_validator_1.checkSchema)({
     id: {
         in: ['params'],
         custom: {
-            options: (value, { req, location, path }) => __awaiter(void 0, void 0, void 0, function* () {
+            options: (value_1, _a) => __awaiter(void 0, [value_1, _a], void 0, function* (value, { req, location, path }) {
                 try {
                     if (!ptspProfile_model_1.default.findById(value))
                         return false;
@@ -136,7 +135,7 @@ const profileUpdateValidator = (0, index_1.createValidatedRequest)((0, schema_1.
         in: ['body'],
         optional: true,
         custom: {
-            options: (value, { req, location, path }) => __awaiter(void 0, void 0, void 0, function* () {
+            options: (value_1, _a) => __awaiter(void 0, [value_1, _a], void 0, function* (value, { req, location, path }) {
                 if (!(value === null || value === void 0 ? void 0 : value.length))
                     return;
                 if (!(yield organisation_model_1.default.findById(value)))
@@ -157,7 +156,7 @@ const profileUpdateValidator = (0, index_1.createValidatedRequest)((0, schema_1.
         in: ['body'],
         optional: true,
         custom: {
-            options: (value, { req, location, path }) => __awaiter(void 0, void 0, void 0, function* () {
+            options: (value_1, _a) => __awaiter(void 0, [value_1, _a], void 0, function* (value, { req, location, path }) {
                 if (!(value === null || value === void 0 ? void 0 : value.length))
                     return;
                 if (!(yield webhook_model_1.default.findById(value)))
@@ -328,7 +327,7 @@ const profileUpdateValidator = (0, index_1.createValidatedRequest)((0, schema_1.
     "processorSettings.*.processor": {
         in: ['body'],
         custom: {
-            options: (value, { req, location, path }) => __awaiter(void 0, void 0, void 0, function* () {
+            options: (value_1, _a) => __awaiter(void 0, [value_1, _a], void 0, function* (value, { req, location, path }) {
                 return ['nibss', 'kimono', 'blueSalt'].includes(value);
             })
         }

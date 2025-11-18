@@ -273,6 +273,26 @@
             </template>
           </div>
 
+          <Disclosure as="div" v-slot="{ open }" class="py-2 my-2">
+            <DisclosureButton class="flex justify-between w-full p-1 text-center text-white bg-gray-500 rounded">
+              <span>Nibss Auth Settings</span>
+              <ChevronUpIcon :class="open ? 'rotate-180 transform' : ''" class="w-5 h-5 text-white" />
+            </DisclosureButton>
+            <DisclosurePanel>
+              <div>
+                <Input title="Auth Url" v-model:value="form.nibssConfig.tokenUrl" />
+              </div>
+              <div>
+                <Input title="ClientId" v-model:value="form.nibssConfig.clientId" />
+              </div>
+              <div>
+                <Input title="Client Secret" v-model:value="form.nibssConfig.clientSecret" />
+              </div>
+              <div>
+                <Input title="Api Key" v-model:value="form.nibssConfig.apiKey" />
+              </div>
+            </DisclosurePanel>
+          </Disclosure>
 
           <Disclosure as="div" v-slot="{ open }" class="py-2 my-2">
             <DisclosureButton class="flex justify-between w-full p-1 text-center text-white bg-gray-500 rounded">
@@ -840,6 +860,12 @@ export interface Profile {
       mid: string,
       julianaKey: string,
   } | object,
+  nibssConfig?: {
+        tokenUrl: string,
+        clientId: string,
+        clientSecret: string,
+        apiKey: string,
+  } | object
 }
 
 export type IProcessors = 'nibss' | 'kimono' | 'bluesalt' | '3line' | 'isw' | 'hydrogen' | 'habari' | 'zone' | 'juliana';
@@ -921,6 +947,7 @@ const defualtState: Profile = {
   habariConfig: {},
   zoneConfig: {},
   julianaConfig: {},
+  nibssConfig: {},
 }
 
 const institutionCodes = [
@@ -1028,11 +1055,12 @@ const editProfile = (value: Profile) => {
     organisationId: value.organisationId,
     webhookId: value.webhookId,
     _id: value._id,
-    iswISOConfig: enableISWISO.value? {...form.value, ...value.iswISOConfig}: undefined,
-    hydrogenConfig: enableHydrogen.value? {...form.value,...value.hydrogenConfig}: undefined,
-    habariConfig: enableHabari.value? {...form.value,...value.habariConfig}: undefined,
-    zoneConfig: enableZone.value? {...form.value,...value.zoneConfig}: undefined,
-    julianaConfig: enableJuliana.value? {...form.value,...value.julianaConfig}: undefined,
+    iswISOConfig: enableISWISO.value? {...value.iswISOConfig}: undefined,
+    hydrogenConfig: enableHydrogen.value? {...value.hydrogenConfig}: undefined,
+    habariConfig: enableHabari.value? {...value.habariConfig}: undefined,
+    zoneConfig: enableZone.value? {...value.zoneConfig}: undefined,
+    julianaConfig: enableJuliana.value? {...value.julianaConfig}: undefined,
+    nibssConfig: form.value.nibssConfig ? {...value.nibssConfig}: {},
   }
 
 }

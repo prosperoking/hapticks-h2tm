@@ -1,0 +1,66 @@
+<send>
+    <isomsg direction="outgoing">
+      <!-- org.nuc.packers.NibssPackager -->
+      <field id="0" value="0200"/>
+      <field id="2" value="524910******4762"/>
+      <field id="3" value="000000"/>
+      <field id="4" value="000000010000"/>
+      <field id="7" value="1106130201"/>
+      <field id="11" value="130201"/>
+      <field id="12" value="130201"/>
+      <field id="13" value="1106"/>
+      <field id="14" value="2902"/>
+      <field id="18" value="5300"/>
+      <field id="22" value="051"/>
+      <field id="23" value="001"/>
+      <field id="25" value="00"/>
+      <field id="26" value="06"/>
+      <field id="28" value="D00000000"/>
+      <field id="32" value="524910"/>
+      <field id="35" value="524910******4762D2902221014855377"/>
+      <field id="37" value="251106130201"/>
+      <field id="40" value="221"/>
+      <field id="41" value="2032AIBW"/>
+      <field id="42" value="2032LA023291614"/>
+      <field id="43" value="POS PURCHASE HOUSE G4 MOORLANG"/>
+      <field id="49" value="566"/>
+      <field id="52" value="F271D4FD779A53D7"/>
+      <field id="55" value="9F02060000000100009F03060000000000009F090200029F10120110A04003220000000000000000000000FF9F2608442499C0D9B9C86F950500008000009F2701809F3303E0F8C89F34030200019F3501229F3602000D9F3704D90779559F4104000000169F1A0205669A032511069C01005F200C4D46422F42455354535441525F24032902285F2A0205665F340101820239008407A0000000041010"/>
+      <field id="123" value="510101511344101"/>
+      <field id="128" value="86A12C5CCDE1797798F1BFD163FC072D51456DCBF7FA4769993C9A583FFE0F52"/>
+    </isomsg>
+  </send>
+
+  <receive>
+    <isomsg direction="incoming">
+      <!-- org.nuc.packers.NibssPackager -->
+      <field id="0" value="0210"/>
+      <field id="2" value="524910******4762"/>
+      <field id="3" value="000000"/>
+      <field id="4" value="000000010000"/>
+      <field id="7" value="1106130201"/>
+      <field id="11" value="130201"/>
+      <field id="12" value="130201"/>
+      <field id="13" value="1106"/>
+      <field id="14" value="2902"/>
+      <field id="18" value="5300"/>
+      <field id="22" value="051"/>
+      <field id="23" value="001"/>
+      <field id="25" value="00"/>
+      <field id="26" value="06"/>
+      <field id="28" value="C00000000"/>
+      <field id="32" value="300012"/>
+      <field id="33" value="602980"/>
+      <field id="35" value="524910******4762D2902221014855377"/>
+      <field id="37" value="251106130201"/>
+      <field id="39" value="57"/>
+      <field id="40" value="221"/>
+      <field id="41" value="2032AIBW"/>
+      <field id="42" value="2032LA023291614"/>
+      <field id="43" value="POS PURCHASE HOUSE G4 MOORLANG          "/>
+      <field id="49" value="566"/>
+      <field id="55" value="9F3602000D910a8AA0E10842F7F2D00000"/>
+      <field id="123" value="510101511344101"/>
+      <field id="128" value="c8df50a2b5e5ae5790bf1dc7256ba82965af04b26df1395a411f5ad034775548"/>
+    </isomsg>
+  </receive>

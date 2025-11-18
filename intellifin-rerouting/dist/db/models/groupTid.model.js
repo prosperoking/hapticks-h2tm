@@ -15,22 +15,33 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const mongoose_1 = __importStar(require("mongoose"));
+const mongoose_1 = require("mongoose");
 const mongoose_paginate_v2_1 = __importDefault(require("mongoose-paginate-v2"));
+const mongoose = __importStar(require("mongoose"));
 const ptspProfile_model_1 = __importDefault(require("./ptspProfile.model"));
 const organisation_model_1 = __importDefault(require("./organisation.model"));
-const groupTidSchema = new mongoose_1.default.Schema({
+const groupTidSchema = new mongoose.Schema({
     terminalId: {
         type: String,
         required: true,
@@ -132,5 +143,5 @@ groupTidSchema.virtual("parsedParams").get(function () {
     return data;
 });
 groupTidSchema.plugin(mongoose_paginate_v2_1.default);
-exports.default = mongoose_1.default.model("group_tids", groupTidSchema);
+exports.default = mongoose.model("group_tids", groupTidSchema);
 //# sourceMappingURL=groupTid.model.js.map

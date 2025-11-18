@@ -138,6 +138,7 @@ router.beforeEach((to, from,next)=>{
   const decideNavigation = ()=>{
     if(to.name === 'Login' && !userStore.isLoggedIn){
       next();
+      return;
     }
 
     if(to.name !== 'Login' && !userStore.isLoggedIn){

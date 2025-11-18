@@ -1,5 +1,5 @@
 import express, { NextFunction, Request, Response } from 'express';
-import OrganisationModel from '../db/models/organisation.model';
+import OrganisationModel, { OrganisationProfile, OrganisationProfileData } from '../db/models/organisation.model';
 import logger from '../helpers/logger';
 import { decrypt } from '../helpers/crypt';
 import argon2 from 'argon2';
@@ -23,7 +23,7 @@ const authenticator = async (req: Request, res: Response , next : NextFunction)=
             return res.status(401).json({message:"Invalid Token"})
         }
         const [encId, key] = token[1].split('.')
-        const organisation = await OrganisationModel.findById(decrypt(encId),{_id:1, apiKey:1});
+        const organisation: OrganisationProfileData = await OrganisationModel.findById(decrypt(encId),{_id:1, apiKey:1});
 
         if (!organisation || organisation.apiKey === null || !await argon2.verify(organisation.apiKey, key))
             return res.status(403).json({ message: "Invalid auth Token" });

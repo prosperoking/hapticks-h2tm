@@ -99,13 +99,13 @@ export function getAllPermissions(req: Request, res: Response) {
 
 export async function deleteUser(req: Request, res: Response) {
   try {
-    const webhook = await userModel.findById(req.params.id);
-    if (!webhook)
+    const user = await userModel.findById(req.params.id);
+    if (!user)
       return res.status(404).json({
         message: "user not found",
       });
 
-    await webhook.delete();
+    await user.deleteOne();
 
     return res.json({
       message: "user deleted",

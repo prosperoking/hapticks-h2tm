@@ -1,9 +1,9 @@
-import { Schema, model, Document, PaginateModel } from "mongoose";
+import { Schema, model, Document, PaginateModel, Model } from "mongoose";
 import uniqueValidator from "mongoose-unique-validator";
 import paginate from 'mongoose-paginate-v2';
 import * as mongoose from 'mongoose';
 
-export interface CardTransactionLogData {
+export interface CardTransactionLogData extends Document{
     maskedPan: string,
     rrn: string,
     tid: string,
@@ -12,7 +12,7 @@ export interface CardTransactionLogData {
     journalId: Schema.Types.ObjectId | string | null,
 }
 
-export interface CardTransactionLogProfile extends Document, CardTransactionLogData { }
+export interface CardTransactionLogProfile extends Model<CardTransactionLogData>, PaginateModel<CardTransactionLogData> { }
 
 const cardLogSchema = new mongoose.Schema<CardTransactionLogData>({
     maskedPan: {
@@ -49,5 +49,5 @@ cardLogSchema.plugin(paginate);
 cardLogSchema.plugin(uniqueValidator);
 
 
-const CardLogModel = mongoose.model<CardTransactionLogProfile, PaginateModel<CardTransactionLogProfile>>("cardLogs", cardLogSchema);
+const CardLogModel = mongoose.model<CardTransactionLogData, CardTransactionLogProfile>("cardLogs", cardLogSchema);
 export default CardLogModel

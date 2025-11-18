@@ -29,19 +29,8 @@ const config = new config_1.default();
 const dbConfig = config.getConfig(process.env.NODE_ENV);
 /** connection mongodb */
 function connectDatabase() {
-    return new Promise((resolve, reject) => {
-        mongoose_1.default.Promise = global.Promise;
-        logger_1.default.log("Connecting to database");
-        mongoose_1.default.connect(dbConfig.DATABASE_URL, dbConfig.options, (err) => {
-            if (err) {
-                reject(err);
-            }
-            else {
-                logger_1.default.log(`Connected to mongodb successfully on ${process.env.NODE_ENV}`);
-                resolve(mongoose_1.default);
-            }
-        });
-    });
+    logger_1.default.log("Connecting to database");
+    return mongoose_1.default.connect(dbConfig.DATABASE_URL, dbConfig.options).then(() => mongoose_1.default);
 }
 const cli = new commander_1.Command();
 cli

@@ -9,23 +9,24 @@ import {
 import { ISOPayload, KIMONOPayload, Processor } from "../@types/types";
 import vasjournalsModel, { IJournal } from "../db/models/transaction.model";
 import Utils from "../helpers/utils";
-import { ITerminal, ITerminalDocument } from "../db/models/terminal.model";
-import { IPTSPProfile } from "../db/models/ptspProfile.model";
+import { ITerminal } from "../db/models/terminal.model";
+import PTSPProfileModel, { IPTSPProfile, IPTSPProfileData } from "../db/models/ptspProfile.model";
 import { webhookQueue, ZoneJournalQueue } from "../queue/queue";
 import { IJournalDocument } from "../db/models/transaction.model";
 import Inteliffin from "../services/inteliffin";
-import { Document } from "mongoose";
 import { PurchasePayload } from "../@types/types";
 import { InteliffinTransTypes } from "../services/inteliffin";
 import CardLogModel, {
-  CardTransactionLogProfile,
+  CardTransactionLogData,
 } from "../db/models/cardTransactionLog.model";
-import { generateTDESKey } from "../helpers/appUtils";
+import { generateTDESKey, getPTSPNibssToken } from "../helpers/appUtils";
 import moment from "moment";
 import { getBinDetails } from "../helpers/cardBins";
-import webhookModel from "../db/models/webhook.model";
+import webhookModel, { IWebhook, IWebhookData } from "../db/models/webhook.model";
 import { isZoneSupportedBin } from "../helpers/zonebins";
+import  AppConfig  from '../config/config';
 
+const config = new AppConfig();
 export interface CardPurchaseResponse {
   resp: string;
   auth: string;
@@ -36,14 +37,39 @@ export interface CardPurchaseResponse {
   meta?: object;
   reversal?: object;
 }
-
-type TerminalDocument = Document<unknown, any, ITerminalDocument> &
-  ITerminalDocument &
-  Required<{
-    _id: string;
-  }>;
-
 class IsoCardContoller {
+
+  public async sdkValidate(request: Request, response: Response) {
+    try {
+      const headers = request.headers;
+      console.log(headers, config.configObject.ptspId);
+      const profile = await PTSPProfileModel.findById(config.configObject.ptspId);
+      if(!profile){
+        return response.status(400).json({
+          status: false,
+          message: "Device not recognized",
+        });
+      }
+      const { apiKey, clientId, clientSecret, tokenUrl}  = profile.nibssConfig
+      const result =  await getPTSPNibssToken({
+        url: tokenUrl,
+        apiKey,
+        clientId,
+        clientSecret
+      })
+
+      if(!result) throw new Error("Unable to validate device");
+
+      return response.json(result);
+    } catch (error) {
+      return response.status(400).json({
+        error: "Unable to validate device",
+        error_description: error.message
+      });
+    }
+
+  }
+
   public async performKeyExchange(request: Request, response: Response) {
     try {
       const appVersion = request.header("x-app-version");
@@ -347,7 +373,7 @@ class IsoCardContoller {
   }
 
   public static async handleIntelifinKeyExchange(
-    terminal: TerminalDocument,
+    terminal: ITerminal,
     response: Response
   ) {
     const { isoHost, isoPort, isSSL } = terminal.profile;
@@ -513,8 +539,8 @@ class IsoCardContoller {
   }
 
   public static patchTerminalWithGroupValues(
-    terminal: TerminalDocument
-  ): TerminalDocument {
+    terminal: ITerminal
+  ): ITerminal {
     const {
       encmasterkey,
       encpinkey,
@@ -544,7 +570,7 @@ class IsoCardContoller {
     const appVersion = request.header("x-app-version");
     const { body } = request;
     let patchedPayload,
-      terminal: TerminalDocument,
+      terminal: ITerminal,
       processor: string,
       transLog,
       transactingTid,
@@ -718,11 +744,9 @@ class IsoCardContoller {
     body: any,
     responseData: any,
     patchedPayload: any,
-    terminal: TerminalDocument,
+    terminal: ITerminal ,
     appVersion: string,
-    transLog: CardTransactionLogProfile & {
-      _id: import("mongoose").Types.ObjectId;
-    }
+    transLog: CardTransactionLogData
   ) {
     const journalPayload = IsoCardContoller.resolveJournal(
       messageType,
@@ -751,8 +775,8 @@ class IsoCardContoller {
           brand: terminal.brand
         }
       })
-      .then((data) => {
-        transLog.journalId = data._id;
+      .then((data: IJournal) => {
+        transLog.journalId = data._id as string;
         transLog.save();
         return IsoCardContoller.processWebHook(data, terminal);
       })
@@ -990,6 +1014,7 @@ class IsoCardContoller {
       const { componentKey1, isoHost, isoPort, isSSL, type } = terminal.profile;
 
       if (terminal.usingGroupedTid) {
+        //@ts-ignore
         terminal = IsoCardContoller.patchTerminalWithGroupValues(terminal);
       }
       const patchedPayload = {
@@ -1101,7 +1126,7 @@ class IsoCardContoller {
 
   private static patchISWPayload(
     data: any,
-    profile: IPTSPProfile,
+    profile: IPTSPProfileData,
     terminal: ITerminal
   ): object {
     return {
@@ -1125,7 +1150,7 @@ class IsoCardContoller {
 
   private static patchISWISOPayload(
     data: any,
-    profile: IPTSPProfile,
+    profile: IPTSPProfileData,
     terminal: ITerminal
   ): object {
     const {
@@ -1174,7 +1199,7 @@ class IsoCardContoller {
 
   private static patchHydrogenPayload(
     data: any,
-    profile: IPTSPProfile,
+    profile: IPTSPProfileData,
     terminal: ITerminal
   ): object {
     const { host, port, ssl, zpk, mid, acqId, mcc } = profile.hydrogenConfig;
@@ -1206,7 +1231,7 @@ class IsoCardContoller {
 
   private static patchHabariPayload(
     data: any,
-    profile: IPTSPProfile,
+    profile: IPTSPProfileData,
     terminal: ITerminal
   ): object {
     const { host, port, ssl, zpk, mid, acqId, mcc } = profile.habariConfig;
@@ -1238,7 +1263,7 @@ class IsoCardContoller {
 
   private static patchZonePayload(
     data: any,
-    profile: IPTSPProfile,
+    profile: IPTSPProfileData,
     terminal: ITerminal
   ): object {
     const { host, port, ssl, zpk, mid, acqId, mcc } = profile.zoneConfig;
@@ -1248,7 +1273,7 @@ class IsoCardContoller {
         data.terminalLocation ||
         terminal?.terminalLocation?.location ||
         terminal?.parsedParams.merchantNameLocation,
-      tid: terminal.zoneTID,
+      tid: terminal.zoneTID ?? config.configObject.zone.fallbackZoneTid ,
       mid: mid,
       field18: mcc,
       field43: terminal.parsedParams?.merchantNameLocation || data.field43,
@@ -1268,7 +1293,7 @@ class IsoCardContoller {
 
   private static patchJulianaPayload(
     data: any,
-    profile: IPTSPProfile,
+    profile: IPTSPProfileData,
     terminal: ITerminal
   ): object {
     //@ts-ignore
@@ -1581,7 +1606,7 @@ class IsoCardContoller {
     terminal: ITerminal
   ) {
     if (!terminal.profile.webhookId) return;
-    const webhook = await webhookModel.findById(terminal.profile.webhookId);
+    const webhook: IWebhookData = await webhookModel.findById(terminal.profile.webhookId);
     webhook.dest_urls.forEach((url)=>{
       webhookQueue.add("sendNotification", {
         tranactionId: transaction._id,

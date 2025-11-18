@@ -12,10 +12,11 @@ export interface AppConfig {
   options: {
     user: string,
     pass: string,
-    keepAlive: boolean,
-    keepAliveInitialDelay: number,
-    useNewUrlParser: boolean,
-    useUnifiedTopology: boolean
+    // keepAlive: boolean,
+    // keepAliveInitialDelay: number,
+    // useNewUrlParser: boolean,
+    // useUnifiedTopology: boolean
+    minPoolSize: number,
   },
   redis: {
     host: string,
@@ -29,7 +30,9 @@ export interface AppConfig {
   },
   zone: {
     baseURL: string
-  }
+    fallbackZoneTid: string
+  },
+  ptspId: string,
 }
 export default class Config {
 
@@ -46,10 +49,11 @@ export default class Config {
               options: {
                 user: process.env.DB_USERNAME || '',
                 pass: process.env.DB_PASSWORD || '',
-                keepAlive: true,
-                keepAliveInitialDelay: 300000,
-                useUnifiedTopology: true,
-                useNewUrlParser: true,
+                // keepAlive: true,
+                // keepAliveInitialDelay: 300000,
+                // useUnifiedTopology: true,
+                // useNewUrlParser: true,
+                minPoolSize: Number.parseInt(process.env.DB_POOL_SIZE) || 15,
               },
               redis: {
                 host: process.env.REDIS_HOST || 'localhost',
@@ -62,8 +66,10 @@ export default class Config {
                 hydrogen: process.env.HYDROGEN_TID_PREFIX
               },
               zone: {
-                baseURL: process.env.ZONE_BASE_URL ?? "https://zone.cluster.africa"
-              }
+                baseURL: process.env.ZONE_BASE_URL ?? "https://zone.cluster.africa",
+                fallbackZoneTid: process.env.FALLBACK_ZONE_TID || '2214F5FK'
+              },
+              ptspId: process.env.PTSP_ID || '',
             };
         }
 

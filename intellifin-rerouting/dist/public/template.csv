@@ -1,1 +1,1 @@
-terminalId,serialNo,iswTid,iswUniqueId,brand,deviceModel
+terminalId,serialNo,threeLineTid,iswISOTid,iswTid,iswUniqueId,habariTid,hydrogenTid,zoneTid,,brand,deviceModel,address,city,state

@@ -4,7 +4,8 @@ import bodyparser from 'body-parser';
 import cors from 'cors';
 import timeout from 'connect-timeout';
 import express from 'express';
-import winston from 'winston';
+import cookeParser from "cookie-parser";
+import session from "express-session";
 import Routes from './routes/index.route';
 import Config from './config/config';
 import Logger from './helpers/logger';
@@ -23,15 +24,11 @@ mongoose.Promise = global.Promise;
 const config = new Config();
 const dbConfig = config.getConfig(process.env.NODE_ENV);
 
-mongoose.connect(dbConfig.DATABASE_URL, dbConfig.options, (err) => {
-  if (err) Logger.log(err);
-  else { Logger.log(`Connected to mongodb successfully ...`); }
-});
-mongoose.set('debug', dbConfig.enable_logging);
-
 
 /** Enable Cross Origin Resource Sharing */
 app.use(cors());
+app.use(cookeParser());
+app.use(session({ secret: process.env.APP_SECRET, resave: true, saveUninitialized: false}))
 app.use(function(req, res, next) {
   res.setHeader('X-Frame-Options', 'sameorigin');
   next();
@@ -47,10 +44,20 @@ app.use('/api/v1', Routes);
 app.use('/admin/queue', authMiddleware(['admin']), registerQueueDashBoard(app, '/admin/queue' ))
 
 app.use(express.static(path.join(__dirname,'public')))
-app.use('*',express.static(path.join(__dirname,'public')))
+app.use('/{*splat}',express.static(path.join(__dirname,'public')))
 
-app.listen(port, () => {
+
+
+mongoose.set('debug', dbConfig.enable_logging);
+mongoose.connect(dbConfig.DATABASE_URL, dbConfig.options)
+.then( () => {
+  Logger.log("Connected to database successfully");
+  app.listen(port, () => {
     startQueWorkers();
-    loadZoneBins();
+    // loadZoneBins();
     return console.log(`Server Magic happening on port ${port}`);
+});
+})
+.catch( (err) => {
+  Logger.log(err);
 });

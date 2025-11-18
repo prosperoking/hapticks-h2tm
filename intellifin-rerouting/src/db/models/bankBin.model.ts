@@ -4,12 +4,12 @@ import paginate from 'mongoose-paginate-v2';
 import * as mongoose from 'mongoose';
 import PTSPProfileModel from './ptspProfile.model';
 
-export interface IBankBinData {
+export interface IBankBinData extends Document {
     _id?:  string| any,
     bin: string ,
     bankId: mongoose.ObjectId,
 }
-export interface IWebhook extends IBankBinData, Document{}
+export interface IBankBin extends IBankBinData{}
 
 const bankBinSchema = new mongoose.Schema<IBankBinData>({
     bin: {
@@ -41,4 +41,4 @@ bankBinSchema.virtual("bank", {
 
 bankBinSchema.plugin(paginate);
 
-export default mongoose.model<IWebhook, PaginateModel<IWebhook>>('bankBin', bankBinSchema);
+export default mongoose.model<IBankBinData, PaginateModel<IBankBin>>('bankBin', bankBinSchema);

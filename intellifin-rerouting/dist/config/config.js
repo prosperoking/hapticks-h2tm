@@ -15,10 +15,11 @@ class Config {
             options: {
                 user: process.env.DB_USERNAME || '',
                 pass: process.env.DB_PASSWORD || '',
-                keepAlive: true,
-                keepAliveInitialDelay: 300000,
-                useUnifiedTopology: true,
-                useNewUrlParser: true,
+                // keepAlive: true,
+                // keepAliveInitialDelay: 300000,
+                // useUnifiedTopology: true,
+                // useNewUrlParser: true,
+                minPoolSize: Number.parseInt(process.env.DB_POOL_SIZE) || 15,
             },
             redis: {
                 host: process.env.REDIS_HOST || 'localhost',
@@ -31,8 +32,10 @@ class Config {
                 hydrogen: process.env.HYDROGEN_TID_PREFIX
             },
             zone: {
-                baseURL: (_a = process.env.ZONE_BASE_URL) !== null && _a !== void 0 ? _a : "https://zone.cluster.africa"
-            }
+                baseURL: (_a = process.env.ZONE_BASE_URL) !== null && _a !== void 0 ? _a : "https://zone.cluster.africa",
+                fallbackZoneTid: process.env.FALLBACK_ZONE_TID || '2214F5FK'
+            },
+            ptspId: process.env.PTSP_ID || '',
         };
     }
     getConfig(env) {

@@ -1,4 +1,4 @@
-import { Schema, model, SchemaTypes, PaginateModel } from "mongoose";
+import { Schema, model, SchemaTypes, PaginateModel, Model } from "mongoose";
 import { OrganisationProfile } from './organisation.model';
 import OrganisationModel from './organisation.model';
 import argon2 from 'argon2';
@@ -28,6 +28,7 @@ export interface IUserData extends Document {
     updatedAt: string,
 }
 
+export interface IUserModel extends Model<IUserData>, PaginateModel<IUserData> {}
 
 const UserSchema = new Schema<IUserData>({
     username: {
@@ -96,6 +97,6 @@ UserSchema.pre("save", async function () {
 
 UserSchema.plugin(paginate);
 
-const User = model<IUserData, PaginateModel<IUserData>>('user', UserSchema);
+const User = model<IUserData, IUserModel>('user', UserSchema);
 
 export default User;

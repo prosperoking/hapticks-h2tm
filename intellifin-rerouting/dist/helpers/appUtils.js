@@ -12,9 +12,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateTDESKey = exports.totalPossibleGeneration = exports.getRanges = exports.getAvailableTid = exports.generateTids = exports.generateTidRange = void 0;
+exports.generateTidRange = generateTidRange;
+exports.generateTids = generateTids;
+exports.getAvailableTid = getAvailableTid;
+exports.getRanges = getRanges;
+exports.totalPossibleGeneration = totalPossibleGeneration;
+exports.generateTDESKey = generateTDESKey;
+exports.getPTSPNibssToken = getPTSPNibssToken;
 const terminalIds_model_1 = __importDefault(require("../db/models/terminalIds.model"));
 const crypto_1 = __importDefault(require("crypto"));
+const axios_1 = __importDefault(require("axios"));
 const availableCharacters = Array(10).fill(null).map((_, i) => i.toString()).concat(Array(26).fill(null).map((_, i) => String.fromCharCode(i + 65)));
 function generateTidRange(start, end, prefix = '') {
     const alphaNum = /^[a-zA-Z0-9]+$/;
@@ -25,7 +32,6 @@ function generateTidRange(start, end, prefix = '') {
     const ranges = getRanges(start, end);
     return generateTids(prefix, ranges);
 }
-exports.generateTidRange = generateTidRange;
 function generateTids(prefix = '', ranges) {
     const tids = [];
     for (let i = ranges.i.start; i <= ranges.i.end; i++) {
@@ -39,7 +45,6 @@ function generateTids(prefix = '', ranges) {
     }
     return tids;
 }
-exports.generateTids = generateTids;
 function getAvailableTid(id, type) {
     return __awaiter(this, void 0, void 0, function* () {
         const terminalId = yield terminalIds_model_1.default.findOneAndUpdate({ linkedTo: null, type }, {
@@ -50,7 +55,6 @@ function getAvailableTid(id, type) {
         return terminalId;
     });
 }
-exports.getAvailableTid = getAvailableTid;
 function charForIndex(index) {
     if (index < 10) {
         return index.toString();
@@ -72,7 +76,6 @@ function getRanges(start, end) {
             } });
     }, ranges);
 }
-exports.getRanges = getRanges;
 function totalPossibleGeneration(ranges) {
     return Object.keys(ranges).reduce((accumulator, letter) => {
         const range = ranges[letter];
@@ -80,11 +83,31 @@ function totalPossibleGeneration(ranges) {
         return accumulator ? accumulator * dif : dif;
     }, 0);
 }
-exports.totalPossibleGeneration = totalPossibleGeneration;
 function generateTDESKey(bytes = 16) {
     return crypto_1.default.randomBytes(bytes)
         .toString('hex')
         .toUpperCase();
 }
-exports.generateTDESKey = generateTDESKey;
+function getPTSPNibssToken(payload) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const { data } = yield axios_1.default.post(payload.url, {
+                client_id: payload.clientId,
+                client_secret: payload.clientSecret,
+                grant_type: "client_credentials",
+                scope: `${payload.clientId}/.default`
+            }, {
+                headers: {
+                    'Content-Type': "application/x-www-form-urlencoded",
+                    'Accept': "application/json",
+                    apiKey: payload.apiKey
+                }
+            });
+            return data;
+        }
+        catch (error) {
+            return null;
+        }
+    });
+}
 //# sourceMappingURL=appUtils.js.map

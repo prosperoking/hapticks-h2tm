@@ -1,8 +1,9 @@
 import { createValidatedRequest } from "./index";
-import { checkSchema } from "express-validator/src/middlewares/schema";
+import { checkSchema } from "express-validator";
 import Terminal from "../db/models/terminal.model";
 import PTSPProfileModel from "../db/models/ptspProfile.model";
 import OrganisationModel from "../db/models/organisation.model";
+import isoStates from "../helpers/statesIso";
 
 const terminalBulkUploadValidator = createValidatedRequest(
   checkSchema({
@@ -57,6 +58,9 @@ const terminalBulkUploadValidator = createValidatedRequest(
           min: 8,
         },
       },
+      customSanitizer: {
+        options: (value) => value.length? value.toUpperCase(): null,
+      },
       custom: {
         options: async (terminalId: string, { req, location, path }) => {
           try {
@@ -72,7 +76,7 @@ const terminalBulkUploadValidator = createValidatedRequest(
         errorMessage: "Terminal Id already exists",
       },
     },
-    "terminals.*.threelineTid": {
+    "terminals.*.threeLineTid": {
       in: ["body"],
       trim: true,
       notEmpty: true,
@@ -82,19 +86,21 @@ const terminalBulkUploadValidator = createValidatedRequest(
           min: 8,
         },
       },
+      customSanitizer: {
+        options: (value) => value.length? value.toUpperCase(): null,
+      },
       custom: {
         options: async (threelineTid: string, { req, location, path }) => {
           try {
             const terminal = await Terminal.findOne({
-              threelineTid: threelineTid,
+              threeLineTid: threelineTid,
             });
             if (terminal) return Promise.reject("Exists");
-            return true;
           } catch (error) {
             return false;
           }
         },
-        errorMessage: "threelineTid already exists",
+        errorMessage: "ThreeLineTid already exists",
       },
     },
 
@@ -135,62 +141,121 @@ const terminalBulkUploadValidator = createValidatedRequest(
     "terminals.*.iswTid": {
       in: ["body"],
       trim: true,
+      optional: true,
+      customSanitizer: {
+        options: (value) => value.length? value.toUpperCase(): null,
+      },
       custom: {
-        options: async (iswTid: string, { req, location, path }) => {
-          if (await Terminal.findOne({ iswTid })) throw Error("Exists");
+        options: async (iswTid: string, { req, location, path, ...others }) => {
+          if (iswTid && await Terminal.findOne({ iswTid })) throw Error("Exists");
         },
-        errorMessage: "IswTid alread taken",
+        errorMessage: "Kimono already taken",
       },
     },
     "terminals.*.iswISOTID": {
       in: ["body"],
       trim: true,
+      optional: true,
+      customSanitizer: {
+        options: (value) => value.length? value.toUpperCase(): null,
+      },
       custom: {
         options: async (iswISOTID: string, { req, location, path }) => {
           if (await Terminal.findOne({ iswISOTID })) throw Error("Exists");
         },
-        errorMessage: "iswISOTID alread taken",
+        errorMessage: "iswISOTID already taken",
       },
     },
     "terminals.*.hydrogenTID": {
       in: ["body"],
       trim: true,
+      optional: true,
+      customSanitizer: {
+        options: (value) => value.length? value.toUpperCase(): null,
+      },
       custom: {
         options: async (hydrogenTID: string, { req, location, path }) => {
           if (await Terminal.findOne({ hydrogenTID })) throw Error("Exists");
         },
-        errorMessage: "hydrogenTID alread taken",
+        errorMessage: "hydrogenTID already taken",
       },
     },
     "terminals.*.zoneTID": {
       in: ["body"],
       trim: true,
+      optional: true,
+      customSanitizer: {
+        options: (value) => value.length? value.toUpperCase(): null,
+      },
       custom: {
         options: async (zoneTID: string, { req, location, path }) => {
           if (await Terminal.findOne({ zoneTID })) throw Error("Exists");
         },
-        errorMessage: "zoneTID alread taken",
+        errorMessage: "zoneTID already taken",
       },
     },
     "terminals.*.julianaTID": {
       in: ["body"],
       trim: true,
+      optional: true,
+      customSanitizer: {
+        options: (value) => value.length? value.toUpperCase(): null,
+      },
       custom: {
         options: async (julianaTID: string, { req, location, path }) => {
           if (await Terminal.findOne({ julianaTID })) throw Error("Exists");
         },
-        errorMessage: "julianaTID alread taken",
+        errorMessage: "julianaTID already taken",
       },
     },
     "terminals.*.iswUniqueId": {
       in: ["body"],
       trim: true,
+      customSanitizer: {
+        options: (value) => value.length? value.toUpperCase(): null,
+      },
       custom: {
         options: async (iswUniqueId: string, { req, location, path }) => {
           if (await Terminal.findOne({ iswUniqueId })) throw Error("Exists");
         },
-        errorMessage: "Isw UniqueId taken",
+        errorMessage: "Isw UniqueId  already taken",
       },
+    },
+    "terminals.*.address": {
+      in: ["body"],
+      trim: true,
+      isLength: {
+        options: {
+          max: 26,
+        },
+      },
+      custom: {
+        options: async (address: string, { req, location, path }) => {
+          if (address.length > 26) throw Error("Exists");
+        },
+        errorMessage: "Address too long",
+      },
+    },
+    "terminals.*.city": {
+      in: ["body"],
+      trim: true,
+    },
+    "terminals.*.state": {
+      in: ["body"],
+      trim: true,
+      isLength: {
+        options: {
+          max: 10,
+        }
+      },
+      custom: {
+        options: async (state: string, { req, location, path }) => {
+          const states = isoStates.map(s=>s.code);
+          if (!states.includes(state.toUpperCase())) return Promise.reject();
+          return true;
+        },
+        errorMessage: "Invalid State",
+      }
     },
   })
 );

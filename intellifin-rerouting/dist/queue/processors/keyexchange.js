@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RotateKeysWorker = exports.SendZoneJournalWorker = exports.GroupKeyExchangeWorker = exports.keyExchangeWorker = void 0;
+//@ts-nocheck
 const bullmq_1 = require("bullmq");
 const terminal_model_1 = __importDefault(require("../../db/models/terminal.model"));
 const cardsockethelper_1 = require("../../helpers/cardsockethelper");

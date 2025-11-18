@@ -3,7 +3,7 @@ import { AES, enc } from 'crypto-js'
 const password = process.env.API_SECRET_KEY;
 
 export function encrypt (value) {
-    return AES.encrypt(value, password).toString();            
+    return AES.encrypt(value, password).toString();
 }
 
 export function decrypt(value) {

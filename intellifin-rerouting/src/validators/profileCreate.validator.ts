@@ -1,9 +1,8 @@
 import { createValidatedRequest } from './index';
-import { checkSchema } from 'express-validator/src/middlewares/schema';
 import Terminal from '../db/models/terminal.model';
 import webhookModel from '../db/models/webhook.model';
 import OrganisationModel from '../db/models/organisation.model';
-import { body } from 'express-validator';
+import { body, checkSchema } from 'express-validator';
 
 const profileCreateValidator = createValidatedRequest(checkSchema({
     componentKey1: {

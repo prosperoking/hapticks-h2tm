@@ -14,16 +14,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const axios_1 = __importDefault(require("axios"));
 const moment_1 = __importDefault(require("moment"));
+const https_1 = __importDefault(require("https"));
 class ZoneApi {
     static get client() {
         var _a;
+        const httpsAgent = new https_1.default.Agent({
+            rejectUnauthorized: false,
+        });
         return axios_1.default.create({
             baseURL: (_a = process.env.ZONE_BASE_URL) !== null && _a !== void 0 ? _a : "https://ofi.zonenetwork.com",
+            httpsAgent
         });
     }
     postJournal(transaction, options) {
-        var _a, _b, _c;
         return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b, _c;
             try {
                 const paylaod = {
                     Rrn: transaction.rrn,

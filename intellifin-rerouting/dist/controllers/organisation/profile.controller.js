@@ -12,12 +12,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.index = void 0;
+exports.index = index;
 const ptspProfile_model_1 = __importDefault(require("../../db/models/ptspProfile.model"));
 const logger_1 = __importDefault(require("../../helpers/logger"));
 function index(req, res) {
-    var _a;
     return __awaiter(this, void 0, void 0, function* () {
+        var _a;
         try {
             const profiles = yield ptspProfile_model_1.default.paginate(
             //@ts-ignore
@@ -33,5 +33,4 @@ function index(req, res) {
         }
     });
 }
-exports.index = index;
 //# sourceMappingURL=profile.controller.js.map

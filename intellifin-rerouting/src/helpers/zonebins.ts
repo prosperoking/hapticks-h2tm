@@ -18,10 +18,8 @@ export let zoneSupportedBins = [
   "444586",
   "445493",
   "482132",
-  "484842",
   "492069",
   "521090",
-  "522899",
   "525634",
   "528655",
   "531165",
@@ -34,16 +32,6 @@ export let zoneSupportedBins = [
   "519911",
   "545993",
   "506108",
-  "524282",
-  "516005",
-  "519830",
-  "520725",
-  "521886",
-  "521973",
-  "527699",
-  "533797",
-  "536337",
-  "542390",
   "400691",
   "416919",
   "462516",
@@ -62,10 +50,8 @@ export let zoneSupportedBins = [
   "419760",
   "419761",
   "419762",
-  "419763",
   "419764",
   "419765",
-  "419766",
   "419767",
   "419768",
   "420332",
@@ -96,8 +82,6 @@ export let zoneSupportedBins = [
   "413185",
   "413197",
   "443862",
-  "450073",
-  "450074",
   "450075",
   "450090",
   "450091",
@@ -114,7 +98,6 @@ export let zoneSupportedBins = [
   "527282",
   "530519",
   "521952",
-  "531525",
   "515803",
   "542231",
   "533301",
@@ -122,7 +105,6 @@ export let zoneSupportedBins = [
   "549970",
   "513469",
   "506115",
-  "650004",
   "460055",
   "446965",
   "468219",
@@ -151,45 +133,27 @@ export let zoneSupportedBins = [
   "428270",
   "472491",
   "564000656",
-  "506110",
-  "555940",
-  "546778",
-  "475186",
-  "522522",
-  "519902",
-  "506101",
-  "496009",
-  "492584",
-  "483427",
-  "469667",
-  "444368",
-  "418760",
-  "418742",
-  "628051",
-  "650006",
-  "536613",
-  "418745",
-  "506184",
-  "406234",
-  "506104",
-  "483953",
 ];
 
 export const loadZoneBins = async () => {
- try {
-  const {data}  = await axios.get<ZoneBinsResponse>("https://sandbox.zonenetwork.com/gateway/api/banks/bins")
-  zoneSupportedBins = data.data.reduce((acc, bank)=>{
-    return [
-      ...acc,
-      ... bank.cardProfiles.filter(item=>!['fbn','keystone'].includes(item.shortName)).map(item=>item.cardPrefix)
-    ]
-  }, [])
- } catch (error) {
-  console.log(error)
-  logger.error("failed to load zone bins")
- }
- return zoneSupportedBins;
-}
+  try {
+    const { data } = await axios.get<ZoneBinsResponse>(
+      "https://sandbox.zonenetwork.com/gateway/api/banks/bins"
+    );
+    zoneSupportedBins = data.data.reduce((acc, bank) => {
+      return [
+        ...acc,
+        ...bank.cardProfiles
+          .filter((item) => !["fbn", "keystone"].includes(item.shortName))
+          .map((item) => item.cardPrefix),
+      ];
+    }, []);
+  } catch (error) {
+    console.log(error);
+    logger.error("failed to load zone bins");
+  }
+  return zoneSupportedBins;
+};
 
 /**
  *
@@ -199,10 +163,12 @@ export const loadZoneBins = async () => {
 export const loadZoneBinsPeriodically = async (ttl: number = 360) => {
   await loadZoneBins();
   const totalTTl = ttl * 1000;
-  setTimeout(loadZoneBinsPeriodically, totalTTl)
-}
+  setTimeout(loadZoneBinsPeriodically, totalTTl);
+};
 
-export const isZoneSupportedBin = (pan: string):boolean =>{
-    const bin = pan.startsWith("564000") ? pan.substring(0,9) : pan.substring(0,6)
-    return zoneSupportedBins.includes(bin);
-}
+export const isZoneSupportedBin = (pan: string): boolean => {
+  const bin = pan.startsWith("564000")
+    ? pan.substring(0, 9)
+    : pan.substring(0, 6);
+  return zoneSupportedBins.includes(bin);
+};

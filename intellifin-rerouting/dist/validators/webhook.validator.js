@@ -13,15 +13,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const index_1 = require("./index");
-const schema_1 = require("express-validator/src/middlewares/schema");
+const express_validator_1 = require("express-validator");
 const webhook_model_1 = __importDefault(require("../db/models/webhook.model"));
 const organisation_model_1 = __importDefault(require("../db/models/organisation.model"));
-const webHookValidator = (0, index_1.createValidatedRequest)((0, schema_1.checkSchema)({
+const webHookValidator = (0, index_1.createValidatedRequest)((0, express_validator_1.checkSchema)({
     organisationId: {
         in: ['body'],
         optional: true,
         custom: {
-            options: (value, { req, location, path }) => __awaiter(void 0, void 0, void 0, function* () {
+            options: (value_1, _a) => __awaiter(void 0, [value_1, _a], void 0, function* (value, { req, location, path }) {
                 if ((value === null || value === void 0 ? void 0 : value.length) &&
                     !(yield organisation_model_1.default.findById(value)))
                     return Promise.reject();
@@ -37,11 +37,11 @@ const webHookValidator = (0, index_1.createValidatedRequest)((0, schema_1.checkS
             bail: true,
         },
         custom: {
-            options: (value, { req, location, path }) => __awaiter(void 0, void 0, void 0, function* () {
-                var _a;
+            options: (value_1, _a) => __awaiter(void 0, [value_1, _a], void 0, function* (value, { req, location, path }) {
+                var _b;
                 if (!(yield webhook_model_1.default.find({
                     urls: value,
-                    organisationId: ((_a = req.body.organisationId) === null || _a === void 0 ? void 0 : _a.length) ? req.body.organisationId : undefined,
+                    organisationId: ((_b = req.body.organisationId) === null || _b === void 0 ? void 0 : _b.length) ? req.body.organisationId : undefined,
                 })))
                     return Promise.reject();
             }),

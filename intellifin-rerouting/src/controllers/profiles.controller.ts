@@ -56,7 +56,8 @@ export default class ProfileController {
             body.habariConfig = body.habariConfig === undefined?null: body.habariConfig
             body.zoneConfig = body.zoneConfig === undefined?null: body.zoneConfig
             body.julianaConfig = body.julianaConfig === undefined?null: body.julianaConfig
-            const data = await profile.update(pick(body,[
+            body.nibssConfig = body.nibssConfig === undefined?null: body.nibssConfig
+            const data = await profile.updateOne(pick(body,[
                 "title",
                 "isoHost",
                 "isoPort",
@@ -87,6 +88,7 @@ export default class ProfileController {
                 "zoneConfig",
                 "julianaConfig",
                 "zpk",
+                "nibssConfig",
             ]));
             response.json({status: true, data})
         } catch (error) {

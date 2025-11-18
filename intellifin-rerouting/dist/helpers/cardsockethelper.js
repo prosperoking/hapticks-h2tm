@@ -3,7 +3,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendSocketMessage = exports.TransactionTypes = void 0;
+exports.TransactionTypes = void 0;
+exports.sendSocketMessage = sendSocketMessage;
 const net_1 = __importDefault(require("net"));
 const logger_1 = __importDefault(require("./logger"));
 var TransactionTypes;
@@ -40,7 +41,7 @@ var TransactionTypes;
     TransactionTypes["ZONE_CONNECTIONS"] = "HABARI_CONNECTIONS";
     TransactionTypes["KILL_BRIDGE"] = "KILL_BRIDGE";
     TransactionTypes["PING"] = "PING";
-})(TransactionTypes = exports.TransactionTypes || (exports.TransactionTypes = {}));
+})(TransactionTypes || (exports.TransactionTypes = TransactionTypes = {}));
 function sendSocketMessage(transaction, payload) {
     return new Promise((resolve, reject) => {
         let response = [];
@@ -91,5 +92,4 @@ function sendSocketMessage(transaction, payload) {
         }));
     });
 }
-exports.sendSocketMessage = sendSocketMessage;
 //# sourceMappingURL=cardsockethelper.js.map

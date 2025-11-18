@@ -1,5 +1,5 @@
 <template>
-    <div v-if="hasError" class="text-xs text-gray-500 flex w-full overflow-hidden">
+    <div v-if="hasError" class="flex w-full overflow-hidden text-xs text-red-500">
         <p :title="errorMessage ||''">{{errorMessage}}</p>
     </div>
 </template>

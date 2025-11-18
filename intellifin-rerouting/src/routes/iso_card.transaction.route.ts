@@ -14,4 +14,5 @@ router.post('/requery', isoCardController.requeryTransaction);
 router.post('/acknowledge', isoCardController.acknowledgeTransaction);
 router.post('/purchase', translateSlimCardPayload, isoCardController.processCard);
 router.post('/balance', translateSlimCardPayload, isoCardController.checkBalance);
+router.post('/sdk-handkShake', isoCardController.sdkValidate);
 export default router;

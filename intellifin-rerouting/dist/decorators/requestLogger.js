@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = routeLog;
 function routeLog() {
     return function (target, propertyKey, descriptor) {
         const original = descriptor.value;
@@ -16,5 +17,4 @@ function routeLog() {
         };
     };
 }
-exports.default = routeLog;
 //# sourceMappingURL=requestLogger.js.map

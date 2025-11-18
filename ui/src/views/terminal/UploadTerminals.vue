@@ -1,6 +1,6 @@
 <template>
   <h3 class="text-3xl font-medium text-gray-700">Upload Terminals</h3>
-  <div class="flex space-x-2 my-2">
+  <div class="flex my-2 space-x-2">
     <div>
       <label>Profile</label>
       <ComboSelect placeholder="select profile" :options="fetchProfiles" v-model="form.profileId" valueKey="id" titleKey="title" />
@@ -25,12 +25,12 @@
       @drop.prevent="handleFileDrop" @click="()=>
       // @ts-ignore
       $refs?.file.click()"
-      class="flex mt-2 items-center justify-center w-1/3 bg-white border-2 border-gray-700 border-dashed rounded shadow h-36 p-5 hover:cursor-pointer">
+      class="flex items-center justify-center w-1/3 p-5 mt-2 bg-white border-2 border-gray-700 border-dashed rounded shadow h-36 hover:cursor-pointer">
       <span v-if="fileName==null">Drop Or Click to upload</span>
       <span v-else>{{fileName}}</span>
       <input ref="file" class="hidden" type="file" accept="text/csv" @change="handleFileInputChange" />
     </div>
-    <a href="/template.csv" class="text-blue-500 hover:text-blue-600 hover:underline flex items-center space-x-2">
+    <a href="/template.csv" class="flex items-center space-x-2 text-blue-500 hover:text-blue-600 hover:underline">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
         <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
       </svg>
@@ -41,7 +41,7 @@
   </div>
   <template v-if="form.terminals.length">
     <div
-            class="inline-block min-w-full overflow-hidden rounded-lg shadow my-4"
+            class="inline-block min-w-full my-4 overflow-hidden rounded-lg shadow"
           >
             <table class="min-w-full leading-normal">
               <thead>
@@ -64,12 +64,32 @@
                   <th
                     class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-800 uppercase bg-gray-100 border-b-2 border-gray-200"
                   >
+                  ISW ISO TID
+                  </th>
+                  <th
+                    class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-800 uppercase bg-gray-100 border-b-2 border-gray-200"
+                  >
                     ISW Terminal ID
                   </th>
                   <th
                     class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-800 uppercase bg-gray-100 border-b-2 border-gray-200"
                   >
                     ISW Unique ID
+                  </th>
+                  <th
+                    class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-800 uppercase bg-gray-100 border-b-2 border-gray-200"
+                  >
+                  Habari TID
+                  </th>
+                  <th
+                    class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-800 uppercase bg-gray-100 border-b-2 border-gray-200"
+                  >
+                  Hydrogen TID
+                  </th>
+                  <th
+                    class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-800 uppercase bg-gray-100 border-b-2 border-gray-200"
+                  >
+                  ZONE TID
                   </th>
                   <th
                     class="px-5 py-3 text-xs font-semibold tracking-wider text-left text-gray-800 uppercase bg-gray-100 border-b-2 border-gray-200"
@@ -118,7 +138,17 @@
                         {{terminal.threeLineTid}}
                       </div>
                     </div>
-                    <error-message :errors="errors" :errorKey="`terminals[${index * page}].iswTid`" />
+                    <error-message :errors="errors" :errorKey="`terminals[${index * page}].threeLineTid`" />
+                  </td>
+                  <td
+                    class="px-5 py-5 text-sm bg-white border-b border-gray-200"
+                  >
+                  <div class="flex items-center space-y-2">
+                      <div class="flex-shrink-0 w-10 h-10">
+                        {{terminal.iswISOTid}}
+                      </div>
+                    </div>
+                    <error-message :errors="errors" :errorKey="`terminals[${index * page}].iswISOTid`" />
                   </td>
                   <td
                     class="px-5 py-5 text-sm bg-white border-b border-gray-200"
@@ -139,6 +169,38 @@
                       </div>
                     </div>
                     <error-message :errors="errors" :errorKey="`terminals[${index * page}].iswUniqueId`" />
+                  </td>
+                   <td
+                    class="px-5 py-5 text-sm bg-white border-b border-gray-200"
+                  >
+                  <div class="flex items-center space-y-2">
+                      <div class="flex-shrink-0 w-10 h-10">
+                        {{terminal.habariTid}}
+                      </div>
+                    </div>
+                    <error-message :errors="errors" :errorKey="`terminals[${index * page}].iswISOTid`" />
+                  </td>
+
+                   <td
+                    class="px-5 py-5 text-sm bg-white border-b border-gray-200"
+                  >
+                  <div class="flex items-center space-y-2">
+                      <div class="flex-shrink-0 w-10 h-10">
+                        {{terminal.hydrogenTid}}
+                      </div>
+                    </div>
+                    <error-message :errors="errors" :errorKey="`terminals[${index * page}].iswISOTid`" />
+                  </td>
+
+                   <td
+                    class="px-5 py-5 text-sm bg-white border-b border-gray-200"
+                  >
+                  <div class="flex items-center space-y-2">
+                      <div class="flex-shrink-0 w-10 h-10">
+                        {{terminal.zoneTid}}
+                      </div>
+                    </div>
+                    <error-message :errors="errors" :errorKey="`terminals[${index * page}].iswISOTid`" />
                   </td>
                   <td
                     class="px-5 py-5 text-sm bg-white border-b border-gray-200"
@@ -222,6 +284,10 @@ interface TerminalData {
   terminalId: string,
   threeLineTid?: string,
   iswTid?: string | null,
+  iswISOTid?: string | null,
+  habariTid?: string | null,
+  hydrogenTid?: string | null,
+  zoneTid?: string | null,
   iswUniqueId?: string | null,
   brand?: string | null,
   deviceModel?: string | null,
@@ -260,12 +326,6 @@ const rules = {
         required,
       },
       serialNo: {
-        required,
-      },
-      iswTid: {
-        required,
-      },
-      iswUniqueId: {
         required,
       },
       brand: {

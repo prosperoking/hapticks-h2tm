@@ -18,8 +18,8 @@ const terminal_model_1 = __importDefault(require("../db/models/terminal.model"))
 const moment_1 = __importDefault(require("moment"));
 class DashboardController {
     index(request, response) {
-        var _a;
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             try {
                 const { query } = request;
                 const orgFilter = Boolean((_a = request.user) === null || _a === void 0 ? void 0 : _a.organisation_id)
@@ -36,17 +36,17 @@ class DashboardController {
                 };
                 const totalTransactionsToday = yield transaction_model_1.default
                     .where(Object.assign({ transactionTime }, orgFilter))
-                    .count();
+                    .countDocuments();
                 const totalFailedTransactionsToday = yield transaction_model_1.default
                     .where(Object.assign({ transactionTime, responseCode: {
                         $ne: "00",
                     } }, orgFilter))
-                    .count();
+                    .countDocuments();
                 const lastestTransacions = yield transaction_model_1.default
                     .find(Object.assign({ transactionTime }, orgFilter))
                     .sort({ _id: -1 })
                     .limit(50);
-                const terminalCount = yield terminal_model_1.default.find({}).count();
+                const terminalCount = yield terminal_model_1.default.find({}).countDocuments();
                 return response.json({
                     totalTransactionsToday,
                     totalFailedTransactionsToday,
@@ -63,8 +63,8 @@ class DashboardController {
         });
     }
     stats(request, response) {
-        var _a;
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             try {
                 const { query } = request;
                 const orgFilter = Boolean((_a = request.user) === null || _a === void 0 ? void 0 : _a.organisation_id)
@@ -230,8 +230,8 @@ class DashboardController {
         });
     }
     transactions(request, response) {
-        var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b;
             try {
                 const date = (0, moment_1.default)().format("YYYY-MM-DD");
                 // @ts-ignore
@@ -257,8 +257,8 @@ class DashboardController {
         });
     }
     export(request, response) {
-        var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b;
             try {
                 const date = (0, moment_1.default)().format("YYYY-MM-DD");
                 // @ts-ignore
@@ -272,6 +272,7 @@ class DashboardController {
                     .find(Object.assign(Object.assign({}, DashboardController.filterGen(request.query)), organisationFilter))
                     .sort({ _id: -1 })
                     .cursor()
+                    // @ts-ignore
                     .pipe(transaction_model_1.default.csvTransformStream())
                     .pipe(response);
             }

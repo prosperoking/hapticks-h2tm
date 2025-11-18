@@ -100,7 +100,7 @@ class GroupTidController {
                     return response.status(404).json({ message: "Group Tid not found" });
                 }
                 console.log(request.body);
-                const data = yield groupTId.update((0, lodash_1.pick)(request.body, [
+                const data = yield groupTId.updateOne((0, lodash_1.pick)(request.body, [
                     "profileId",
                     "terminalId",
                     "iswISOTID",
@@ -129,7 +129,7 @@ class GroupTidController {
                 if (!groupTid) {
                     return response.status(404).json({ message: "Group Tid not found" });
                 }
-                const data = yield groupTid.delete();
+                const data = yield groupTid.deleteOne();
                 response.json({ status: true, data });
             }
             catch (error) {

@@ -17,11 +17,12 @@ export interface IWebhookRequestData extends Document {
     status: string,
     journalId: string | any,
     webhook?: Webhook,
+    secret?: string,
     organisation?: Organisation
     url?: string,
 }
 
-export interface IWebhookRequest extends Document, IWebhookRequestData{}
+export interface IWebhookRequest extends IWebhookRequestData{}
 
 const webhookRequestSchema = new mongoose.Schema<IWebhookRequestData>({
     webhookId: {

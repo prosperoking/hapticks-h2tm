@@ -13,17 +13,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const index_1 = require("./index");
-const schema_1 = require("express-validator/src/middlewares/schema");
 const terminal_model_1 = __importDefault(require("../db/models/terminal.model"));
 const ptspProfile_model_1 = __importDefault(require("../db/models/ptspProfile.model"));
 const organisation_model_1 = __importDefault(require("../db/models/organisation.model"));
 const express_validator_1 = require("express-validator");
 const groupTid_model_1 = __importDefault(require("../db/models/groupTid.model"));
-const terminalUpdateValidator = (0, index_1.createValidatedRequest)((0, schema_1.checkSchema)({
+const terminalUpdateValidator = (0, index_1.createValidatedRequest)((0, express_validator_1.checkSchema)({
     id: {
         in: ['params'],
         custom: {
-            options: (value, { req, location, path }) => __awaiter(void 0, void 0, void 0, function* () {
+            options: (value_1, _a) => __awaiter(void 0, [value_1, _a], void 0, function* (value, { req, location, path }) {
                 try {
                     if (!(yield terminal_model_1.default.findById(value)))
                         return Promise.reject();
@@ -41,11 +40,11 @@ const terminalUpdateValidator = (0, index_1.createValidatedRequest)((0, schema_1
         in: ['body'],
         trim: true,
         custom: {
-            options: (terminalId, { req, location, path }) => __awaiter(void 0, void 0, void 0, function* () {
-                var _a;
+            options: (terminalId_1, _a) => __awaiter(void 0, [terminalId_1, _a], void 0, function* (terminalId, { req, location, path }) {
+                var _b;
                 try {
                     if (!(yield terminal_model_1.default.findOne({ terminalId: terminalId, _id: { $ne: req.body._id } })) &&
-                        !((_a = req.body.terminalGroupId) === null || _a === void 0 ? void 0 : _a.length))
+                        !((_b = req.body.terminalGroupId) === null || _b === void 0 ? void 0 : _b.length))
                         return false;
                     return true;
                 }
@@ -60,7 +59,7 @@ const terminalUpdateValidator = (0, index_1.createValidatedRequest)((0, schema_1
         in: ['body'],
         optional: true,
         custom: {
-            options: (value, { req, location, path }) => __awaiter(void 0, void 0, void 0, function* () {
+            options: (value_1, _a) => __awaiter(void 0, [value_1, _a], void 0, function* (value, { req, location, path }) {
                 if (!(value === null || value === void 0 ? void 0 : value.length))
                     return;
                 if (!(yield groupTid_model_1.default.findById(value)))
@@ -75,7 +74,7 @@ const terminalUpdateValidator = (0, index_1.createValidatedRequest)((0, schema_1
         trim: true,
         notEmpty: true,
         custom: {
-            options: (serialNo, { req, location, path }) => __awaiter(void 0, void 0, void 0, function* () {
+            options: (serialNo_1, _a) => __awaiter(void 0, [serialNo_1, _a], void 0, function* (serialNo, { req, location, path }) {
                 try {
                     if (yield terminal_model_1.default.findOne({ serialNo }))
                         return false;
@@ -126,7 +125,7 @@ const terminalUpdateValidator = (0, index_1.createValidatedRequest)((0, schema_1
         in: ['body'],
         optional: true,
         custom: {
-            options: (value, { req, location, path }) => __awaiter(void 0, void 0, void 0, function* () {
+            options: (value_1, _a) => __awaiter(void 0, [value_1, _a], void 0, function* (value, { req, location, path }) {
                 try {
                     if (value === null)
                         return Promise.resolve();
@@ -145,7 +144,7 @@ const terminalUpdateValidator = (0, index_1.createValidatedRequest)((0, schema_1
     profileId: {
         in: ['body'],
         custom: {
-            options: (value, { req, location, path }) => __awaiter(void 0, void 0, void 0, function* () {
+            options: (value_1, _a) => __awaiter(void 0, [value_1, _a], void 0, function* (value, { req, location, path }) {
                 try {
                     console.log("Param ID: ", value);
                     if (!(yield ptspProfile_model_1.default.findById(value)))

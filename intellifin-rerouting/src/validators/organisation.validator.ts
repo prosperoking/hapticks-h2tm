@@ -1,5 +1,5 @@
 import { createValidatedRequest } from './index';
-import { checkSchema } from 'express-validator/src/middlewares/schema';
+import { checkSchema } from 'express-validator';
 import OrganisationModel from '../db/models/organisation.model';
 
 const organisationValidator = createValidatedRequest(checkSchema({

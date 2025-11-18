@@ -12,7 +12,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateApiKey = exports.destroy = exports.update = exports.create = exports.getAllOrganisations = exports.getOrganisations = void 0;
+exports.getOrganisations = getOrganisations;
+exports.getAllOrganisations = getAllOrganisations;
+exports.create = create;
+exports.update = update;
+exports.destroy = destroy;
+exports.generateApiKey = generateApiKey;
 const logger_1 = __importDefault(require("../helpers/logger"));
 const organisation_model_1 = __importDefault(require("../db/models/organisation.model"));
 const crypt_1 = require("../helpers/crypt");
@@ -43,7 +48,6 @@ function getOrganisations(req, res) {
         }
     });
 }
-exports.getOrganisations = getOrganisations;
 function getAllOrganisations(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -58,7 +62,6 @@ function getAllOrganisations(req, res) {
         }
     });
 }
-exports.getAllOrganisations = getAllOrganisations;
 function create(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -74,7 +77,6 @@ function create(req, res) {
         }
     });
 }
-exports.create = create;
 function update(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -94,14 +96,13 @@ function update(req, res) {
         }
     });
 }
-exports.update = update;
 function destroy(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const organisation = yield organisation_model_1.default.findById(req.params.id);
             if (!organisation)
                 return res.status(404).json({ message: "Organisation not found" });
-            organisation.delete();
+            organisation.deleteOne();
             return res.json(organisation);
         }
         catch (error) {
@@ -112,7 +113,6 @@ function destroy(req, res) {
         }
     });
 }
-exports.destroy = destroy;
 function generateApiKey(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -139,7 +139,6 @@ function generateApiKey(req, res) {
         }
     });
 }
-exports.generateApiKey = generateApiKey;
 function filterGen({ q }) {
     let query = {};
     if (q === null || q === void 0 ? void 0 : q.length) {

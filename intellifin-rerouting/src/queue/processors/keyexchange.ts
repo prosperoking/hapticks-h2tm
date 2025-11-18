@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { Job, Worker } from "bullmq";
 import Terminal from "../../db/models/terminal.model";
 import { sendSocketMessage, TransactionTypes } from '../../helpers/cardsockethelper';

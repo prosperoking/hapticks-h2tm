@@ -1,14 +1,15 @@
-import mongoose, { ObjectId, PaginateModel,SchemaTypes } from "mongoose";
+import { Model,Document, ObjectId, PaginateModel,SchemaTypes } from "mongoose";
 import paginate from "mongoose-paginate-v2";
-import PTSPProfileModel, { IPTSPProfile } from "./ptspProfile.model";
+import * as mongoose from "mongoose";
+import PTSPProfileModel, { IPTSPProfileData } from "./ptspProfile.model";
 import OrganisationModel, { OrganisationProfile } from "./organisation.model";
 import { ParsedParams } from "./terminal.model";
 
-export type IGroupTid = {
+export interface IGroupTid extends Document{
     id?: string,
     terminalId: string,
     profileId: ObjectId,
-    profile: IPTSPProfile,
+    profile: IPTSPProfileData,
     encmasterkey: string,
     encpinkey: string,
     encsesskey: string,
@@ -20,6 +21,7 @@ export type IGroupTid = {
     organisationId?: ObjectId,
     organisation?: OrganisationProfile,
  }
+export interface IGroupTidModel extends Model<IGroupTid>, PaginateModel<IGroupTid> {}
 
  const groupTidSchema = new mongoose.Schema<IGroupTid>({
      terminalId : {
@@ -131,6 +133,4 @@ groupTidSchema.virtual("parsedParams").get(function () {
 
 groupTidSchema.plugin(paginate);
 
-
-
- export default mongoose.model<IGroupTid, PaginateModel<IGroupTid>>("group_tids", groupTidSchema);
+ export default mongoose.model<IGroupTid, IGroupTidModel>("group_tids", groupTidSchema);

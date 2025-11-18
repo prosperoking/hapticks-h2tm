@@ -138,6 +138,7 @@ export interface PurchasePayload {
     field3:        string;
     field2:        string;
     processor?:    string;
+    geolocation?:  string;
 }
 
 export type SlimPurchasePayload = {
@@ -152,6 +153,7 @@ export type SlimPurchasePayload = {
     mid: string,
     entryMode?: string,
     processor?: string,
+    geolocation?: string,
 }
 
 export type ParsedTLv = {

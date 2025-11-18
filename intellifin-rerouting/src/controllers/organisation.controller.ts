@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import logger from '../helpers/logger';
-import OrganisationModel from '../db/models/organisation.model';
+import OrganisationModel, { OrganisationProfile, OrganisationProfileData } from '../db/models/organisation.model';
 import { encrypt } from '../helpers/crypt';
 import {randomBytes} from "crypto";
 import {promisify} from "util"
@@ -63,7 +63,7 @@ export async function create(req: Request, res: Response) {
 export async function update(req: Request, res: Response) {
     try {
         const {body} = req
-        const organisation = await OrganisationModel.findById(req.params.id);
+        const organisation:OrganisationProfileData = await OrganisationModel.findById(req.params.id);
 
         if(!organisation) return res.status(404).json({message: "Organisation not found"})
         organisation.name = body.name;
@@ -83,7 +83,7 @@ export async function destroy(req: Request, res: Response) {
         const organisation = await OrganisationModel.findById(req.params.id);
 
         if(!organisation) return res.status(404).json({message: "Organisation not found"})
-        organisation.delete();
+        organisation.deleteOne();
 
         return res.json(organisation)
     } catch (error) {
@@ -97,7 +97,7 @@ export async function destroy(req: Request, res: Response) {
 export async function generateApiKey(req: Request, res: Response) {
     try {
 
-        const organisation = await OrganisationModel.findById(req.params.id);
+        const organisation: OrganisationProfileData= await OrganisationModel.findById(req.params.id);
 
         if(!organisation) return res.status(404).json({message: "Organisation not found"})
         const key = await asyncRandomBytes(48)

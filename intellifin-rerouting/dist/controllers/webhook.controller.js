@@ -12,7 +12,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.retryWebhook = exports.webhookRequests = exports.deleteWebhook = exports.reCreateSecret = exports.updateWebhook = exports.createWebhook = exports.getWebhooks = void 0;
+exports.getWebhooks = getWebhooks;
+exports.createWebhook = createWebhook;
+exports.updateWebhook = updateWebhook;
+exports.reCreateSecret = reCreateSecret;
+exports.deleteWebhook = deleteWebhook;
+exports.webhookRequests = webhookRequests;
+exports.retryWebhook = retryWebhook;
 const webhook_model_1 = __importDefault(require("../db/models/webhook.model"));
 const webhook_request_model_1 = __importDefault(require("../db/models/webhook_request.model"));
 const logger_1 = __importDefault(require("../helpers/logger"));
@@ -21,8 +27,8 @@ const crypto_1 = require("crypto");
 const lodash_1 = __importDefault(require("lodash"));
 const queue_1 = require("../queue/queue");
 function getWebhooks(req, res) {
-    var _a, _b, _c, _d;
     return __awaiter(this, void 0, void 0, function* () {
+        var _a, _b, _c, _d;
         try {
             // @ts-ignore
             const orgFilter = JSON.parse(JSON.stringify(!((_a = req.user) === null || _a === void 0 ? void 0 : _a.organisationId) ? {
@@ -49,10 +55,9 @@ function getWebhooks(req, res) {
         }
     });
 }
-exports.getWebhooks = getWebhooks;
 function createWebhook(req, res) {
-    var _a;
     return __awaiter(this, void 0, void 0, function* () {
+        var _a;
         try {
             const secret = (0, crypt_1.createSha256Hash)((0, crypto_1.randomUUID)());
             const webhook = yield webhook_model_1.default.create(Object.assign(Object.assign({}, req.body), { secret, urls: Array.from(new Set(((_a = req.body.urls) !== null && _a !== void 0 ? _a : [])
@@ -68,19 +73,21 @@ function createWebhook(req, res) {
         }
     });
 }
-exports.createWebhook = createWebhook;
 function updateWebhook(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
+            /**@var {IWebhook & IWebhookData} webhook */
             const webhook = yield webhook_model_1.default.findById(req.params.id);
             if (!webhook)
                 return res.status(404).json({
                     message: "webhook not found"
                 });
             const { urls, name } = req.body;
+            //@ts-ignore
             webhook.urls = Array.from(new Set(urls
                 .filter((url) => url === null || url === void 0 ? void 0 : url.length)
                 .map(url => url.toLowerCase())));
+            //@ts-ignore
             webhook.name = name;
             yield webhook.save();
             res.json(webhook);
@@ -93,7 +100,6 @@ function updateWebhook(req, res) {
         }
     });
 }
-exports.updateWebhook = updateWebhook;
 function reCreateSecret(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -102,6 +108,7 @@ function reCreateSecret(req, res) {
                 return res.status(404).json({
                     message: "webhook not found"
                 });
+            //@ts-ignore
             webhook.secret = (0, crypt_1.createSha256Hash)((0, crypto_1.randomUUID)());
             yield webhook.save();
             return res.json(webhook);
@@ -114,7 +121,6 @@ function reCreateSecret(req, res) {
         }
     });
 }
-exports.reCreateSecret = reCreateSecret;
 function deleteWebhook(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -123,7 +129,7 @@ function deleteWebhook(req, res) {
                 return res.status(404).json({
                     message: "webhook not found"
                 });
-            yield webhook.delete();
+            yield webhook.deleteOne();
             return res.json({
                 message: "Webhook deleted",
             });
@@ -136,10 +142,9 @@ function deleteWebhook(req, res) {
         }
     });
 }
-exports.deleteWebhook = deleteWebhook;
 function webhookRequests(req, res) {
-    var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
+        var _a, _b;
         try {
             // @ts-ignore
             const orgFilter = ((_a = req.user) === null || _a === void 0 ? void 0 : _a.organisation_id) === null ? {
@@ -165,7 +170,6 @@ function webhookRequests(req, res) {
         }
     });
 }
-exports.webhookRequests = webhookRequests;
 function retryWebhook(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -197,7 +201,6 @@ function retryWebhook(req, res) {
         }
     });
 }
-exports.retryWebhook = retryWebhook;
 function filterGen({ q }) {
     let query = {};
     if (q === null || q === void 0 ? void 0 : q.length) {

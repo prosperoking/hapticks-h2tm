@@ -12,7 +12,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteTerminal = exports.createTerminal = exports.updateTermialTidGroupTid = exports.updateTermial = exports.getByTid = exports.getById = exports.terminalIds = exports.triggerKeyExchangeOnGroupTid = exports.getGroupedTids = void 0;
+exports.getGroupedTids = getGroupedTids;
+exports.triggerKeyExchangeOnGroupTid = triggerKeyExchangeOnGroupTid;
+exports.terminalIds = terminalIds;
+exports.getById = getById;
+exports.getByTid = getByTid;
+exports.updateTermial = updateTermial;
+exports.updateTermialTidGroupTid = updateTermialTidGroupTid;
+exports.createTerminal = createTerminal;
+exports.deleteTerminal = deleteTerminal;
 const groupTid_model_1 = __importDefault(require("../../db/models/groupTid.model"));
 const terminal_model_1 = __importDefault(require("../../db/models/terminal.model"));
 const logger_1 = __importDefault(require("../../helpers/logger"));
@@ -35,7 +43,6 @@ function getGroupedTids(req, res) {
         }
     });
 }
-exports.getGroupedTids = getGroupedTids;
 function triggerKeyExchangeOnGroupTid(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -85,7 +92,6 @@ function triggerKeyExchangeOnGroupTid(req, res) {
         }
     });
 }
-exports.triggerKeyExchangeOnGroupTid = triggerKeyExchangeOnGroupTid;
 function terminalIds(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -116,7 +122,6 @@ function terminalIds(req, res) {
         }
     });
 }
-exports.terminalIds = terminalIds;
 function getById(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -133,7 +138,6 @@ function getById(req, res) {
         }
     });
 }
-exports.getById = getById;
 function getByTid(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -150,7 +154,6 @@ function getByTid(req, res) {
         }
     });
 }
-exports.getByTid = getByTid;
 function updateTermial(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -162,7 +165,7 @@ function updateTermial(req, res) {
             if (!terminal || terminal == null) {
                 return res.status(400).json({ message: "No data found!" });
             }
-            const data = yield terminal.update((0, pick_1.default)(req.body, [
+            const data = yield terminal.updateOne((0, pick_1.default)(req.body, [
                 "serialNo",
                 "terminalId",
                 "profileId",
@@ -190,7 +193,6 @@ function updateTermial(req, res) {
         }
     });
 }
-exports.updateTermial = updateTermial;
 function updateTermialTidGroupTid(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -202,7 +204,7 @@ function updateTermialTidGroupTid(req, res) {
             if (!terminal || terminal == null) {
                 return res.status(400).json({ message: "No data found!" });
             }
-            const data = yield terminal.update((0, pick_1.default)(req.body, ["terminalId", "terminalGroupId"]));
+            const data = yield terminal.updateOne((0, pick_1.default)(req.body, ["terminalId", "terminalGroupId"]));
             terminal = yield terminal_model_1.default.findOne({
                 //@ts-ignore
                 organisationId: req.user._id,
@@ -216,7 +218,6 @@ function updateTermialTidGroupTid(req, res) {
         }
     });
 }
-exports.updateTermialTidGroupTid = updateTermialTidGroupTid;
 function createTerminal(request, response) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -231,7 +232,6 @@ function createTerminal(request, response) {
         }
     });
 }
-exports.createTerminal = createTerminal;
 function deleteTerminal(request, response) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -248,5 +248,4 @@ function deleteTerminal(request, response) {
         }
     });
 }
-exports.deleteTerminal = deleteTerminal;
 //# sourceMappingURL=terminal.controller.js.map

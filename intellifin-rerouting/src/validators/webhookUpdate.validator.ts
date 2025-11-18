@@ -1,5 +1,5 @@
 import { createValidatedRequest } from './index';
-import { checkSchema } from 'express-validator/src/middlewares/schema';
+import { checkSchema } from 'express-validator';
 import WebhookModel from '../db/models/webhook.model';
 
 const webHookUpdateValidator = createValidatedRequest(checkSchema({

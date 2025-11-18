@@ -4,13 +4,13 @@ import paginate from 'mongoose-paginate-v2';
 import argon2 from 'argon2';
 import * as mongoose from 'mongoose';
 
-export interface OrganisationProfileData {
+export interface OrganisationProfileData extends Document{
     name: String,
     apiKey: string,
     hasApiKey: boolean,
 }
 
-export interface OrganisationProfile extends Document, OrganisationProfileData { }
+export interface OrganisationProfile extends mongoose.Model<OrganisationProfileData>{ }
 
 const orgSchema = new mongoose.Schema<OrganisationProfileData>({
     name: {
@@ -71,5 +71,5 @@ orgSchema.plugin(paginate);
 orgSchema.plugin(uniqueValidator);
 
 
-const OrganisationModel = mongoose.model<OrganisationProfile, PaginateModel<OrganisationProfile>>("organisationProfile", orgSchema);
+const OrganisationModel = mongoose.model<OrganisationProfileData, PaginateModel<OrganisationProfile>>("organisationProfile", orgSchema);
 export default OrganisationModel

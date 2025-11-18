@@ -90,7 +90,7 @@ export default class GroupTidController {
 
             console.log(request.body)
 
-            const data = await groupTId.update(pick(request.body,[
+            const data = await groupTId.updateOne(pick(request.body,[
                 "profileId",
                 "terminalId",
                 "iswISOTID",
@@ -119,7 +119,7 @@ export default class GroupTidController {
                 return response.status(404).json({message: "Group Tid not found"});
             }
 
-            const data = await groupTid.delete();
+            const data = await groupTid.deleteOne();
 
             response.json({status: true, data})
         } catch (error) {
@@ -155,9 +155,7 @@ export default class GroupTidController {
     }
 
     public static async performKeyExchange(
-        groupTerminal:  Document<unknown, any, IGroupTid> & Omit<IGroupTid & {
-            _id: Types.ObjectId;
-        }, never>
+        groupTerminal:  IGroupTid
     ) {
         const profile = groupTerminal.profile;
         let result: CardSocketResponse<any> = {status: false, data: null};
