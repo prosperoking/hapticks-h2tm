@@ -104,6 +104,10 @@ let JournalsSchema = new mongoose.Schema({
         type: Date,
         default: null,
     },
+    geolocation: {
+        type: String,
+        default: null,
+    }
 }, {
     timestamps: true,
     toJSON: {

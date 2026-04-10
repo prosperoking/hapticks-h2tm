@@ -43,10 +43,12 @@ const webhookRequestSchema = new mongoose.Schema({
     webhookId: {
         type: mongoose_1.SchemaTypes.ObjectId,
         required: true,
+        index: true,
     },
     terminalId: {
         type: String,
         required: true,
+        index: true,
     },
     payload: {
         type: Object,
@@ -75,6 +77,7 @@ const webhookRequestSchema = new mongoose.Schema({
     journalId: {
         type: mongoose_1.SchemaTypes.ObjectId,
         required: true,
+        index: true,
     },
     organisationId: {
         type: mongoose_1.SchemaTypes.ObjectId,

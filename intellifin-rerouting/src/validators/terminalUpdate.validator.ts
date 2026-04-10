@@ -28,7 +28,12 @@ const terminalUpdateValidator = createValidatedRequest(checkSchema({
             options: async (terminalId: string, {req, location, path}) =>{
                 try {
                     if(
-                        ! await Terminal.findOne({terminalId: terminalId, _id: {$ne: req.body._id}}) &&
+                        ! await Terminal.findOne({
+                            $and:[
+                        {terminalId},
+                        {terminalId: {$type: "string"}}
+                    ],
+                     _id: {$ne: req.body._id}}) &&
                         ! req.body.terminalGroupId?.length
                     ) return false;
                     return true;
@@ -59,7 +64,12 @@ const terminalUpdateValidator = createValidatedRequest(checkSchema({
         custom: {
             options: async (serialNo: string, {req, location, path}) =>{
                 try {
-                    if(await Terminal.findOne({serialNo})) return false;
+                    if(await Terminal.findOne({
+                        $and:[
+                        {serialNo: serialNo},
+                        {serialNo: {$type: "string"}}
+                    ]
+                    })) return false;
                     return true;
                 } catch (error) {
                     return false;

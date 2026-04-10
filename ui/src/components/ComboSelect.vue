@@ -8,7 +8,7 @@
         >
           <ComboboxInput
             class="w-full py-2 pl-3 pr-10 text-sm leading-5 text-gray-900 border-none focus:ring-0"
-            :displayValue="display"
+            :displayValue="()=>display"
             :placeholder="placeholder"
             @change="query = $event.target.value"
           />
@@ -124,6 +124,7 @@ let selected = ref(props.modelValue)
 let query = ref('')
 let asyncOptions = ref<Array<Option>>([]);
 let busy = ref(false);
+let selectedItem = ref()
 
 const emit = defineEmits(['update:modelValue'])
 
@@ -169,9 +170,11 @@ let data = computed<Option[]>(() =>{
 })
 
 const display = computed( (value: any)=> {
+
  if(data.value instanceof Array === false || !value === undefined || value?.length < 1) return
- const item = (Array.from(data.value) || []).find(item=>item[props.valueKey] === props.modelValue) || {}
- return ()=> item[props.titleKey]
+ const item = (Array.from(data.value) || []).find(item=>(item[props.valueKey] ?? item['_id']) === props.modelValue) || {}
+ console.log("Selected Item: ", item)
+ return item[props.titleKey] ?? item['name'] ?? item['title']
 })
 
 onMounted(()=>{

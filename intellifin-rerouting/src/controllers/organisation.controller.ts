@@ -10,6 +10,8 @@ const asyncRandomBytes = promisify(randomBytes)
 
 export async function getOrganisations(req: Request, res: Response) {
     try {
+        const start= performance.now();
+        console.log(req.query, start)
         const organisations = await OrganisationModel.paginate({
             ...filterGen(req.query),
         },{
@@ -17,12 +19,12 @@ export async function getOrganisations(req: Request, res: Response) {
             limit: Number(req.query.limit || 50),
             page: Number(req.query.page || 1),
             populate: [
-                { path: 'users_count' },
-                { path: 'terminals_count' },
-                { path: 'transactions_count' },
+                // { path: 'users_count' },
+                // { path: 'terminals_count' },
+                // { path: 'transactions_count' },
             ]
         });
-
+        console.log("Time taken to fetch orgs", performance.now() - start)
         return res.json(organisations)
     } catch (error) {
         logger.error(error.message);

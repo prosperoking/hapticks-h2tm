@@ -680,7 +680,7 @@ class IsoCardContoller {
           : await performCardSocketTransaction(messageType, patchedPayload);
       const totalTransTime = performance.now() - startOfTransaction;
       const { data } = socketResponse;
-      const responseData = data?.data || data;
+      const responseData = data?.data || data || {resp: "06", meaning: "No Response", auth: "", icc:""};
       responseData.transactingTid = transactingTid;
       responseData.transactingMid = transactingMid;
       body.totalTransTime = totalTransTime;
@@ -765,6 +765,7 @@ class IsoCardContoller {
     vasjournalsModel
       .create({
         ...journalPayload,
+        geolocation: body.geolocation,
         organisationId: terminal.organisationId,
         webhookData: body.webhookData,
         totalTransTime: body.totalTransTime,
@@ -1396,6 +1397,8 @@ class IsoCardContoller {
       isCompleted: true,
       processor: processor ?? Processor.NIBSS,
       meta: response.meta,
+      reversal: Boolean(response.reversal),
+      reversalData: response.reversal,
     };
   }
 

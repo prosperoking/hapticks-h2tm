@@ -1,6 +1,10 @@
 export type Transaction = {
   product: Product;
   reversal: boolean;
+  reversalData: null | {
+    resp: string,
+    meaning: string,
+  }
   responseCode: string;
   responseDescription: string;
   terminalId: string;

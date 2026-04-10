@@ -155,6 +155,11 @@ const terminalSchema = new mongoose_1.default.Schema({
         type: String,
         default: null,
         set: (value) => value.toUpperCase(),
+        index: {
+            partialFilterExpression: {
+                brand: { $type: "string" }
+            }
+        }
     },
     appVersion: {
         type: String,
@@ -165,6 +170,11 @@ const terminalSchema = new mongoose_1.default.Schema({
         type: String,
         default: null,
         set: (value) => value.toUpperCase(),
+        index: {
+            partialFilterExpression: {
+                deviceModel: { $type: "string" }
+            }
+        }
     },
     iswTid: {
         type: String,
@@ -258,7 +268,7 @@ const terminalSchema = new mongoose_1.default.Schema({
         index: {
             unique: true,
             partialFilterExpression: {
-                iswISOTID: { $type: "string" }
+                iswISOTIDNew: { $type: "string" }
             }
         },
         set: (value) => (value === null || value === void 0 ? void 0 : value.length) ? value : null
@@ -269,7 +279,7 @@ const terminalSchema = new mongoose_1.default.Schema({
         index: {
             unique: true,
             partialFilterExpression: {
-                iswISOTID: { $type: "string" }
+                zoneTID: { $type: "string" }
             }
         },
         set: (value) => (value === null || value === void 0 ? void 0 : value.length) ? value : null
@@ -280,7 +290,7 @@ const terminalSchema = new mongoose_1.default.Schema({
         index: {
             unique: true,
             partialFilterExpression: {
-                iswISOTID: { $type: "string" }
+                julianaTID: { $type: "string" }
             }
         },
         set: (value) => (value === null || value === void 0 ? void 0 : value.length) ? value : null

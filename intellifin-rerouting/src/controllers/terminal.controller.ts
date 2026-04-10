@@ -18,6 +18,7 @@ export default class TerminalController {
                 filter = {
                     $or:[
                         { terminalId: RegExp(`^${q}`,'i') },
+                        { terminalId: {$type: "string"} },
                         { hydrogenTID: RegExp(`^${q}`,'i') },
                         { habariTID: RegExp(`^${q}`,'i') },
                         { iswISOTID: RegExp(`^${q}`,'i') },

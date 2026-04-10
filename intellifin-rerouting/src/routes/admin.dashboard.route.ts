@@ -42,8 +42,18 @@ router.get('/transactions/export',
     dashboardController.export
 );
 
-router.get('/organisations', hasRoleOrPermissions(['admin'],['organisations.list']), OrganisationController.getOrganisations);
-router.get('/organisations/all', hasRoleOrPermissions(['admin'],['organisations.list']), OrganisationController.getAllOrganisations);
+router.get(
+    '/organisations',
+    hasRoleOrPermissions(['admin'],['organisations.list']),
+    OrganisationController.getOrganisations
+);
+
+router.get(
+    '/organisations/all',
+    hasRoleOrPermissions(['admin'],['organisations.list']),
+    OrganisationController.getAllOrganisations
+);
+
 router.post('/organisations', [
     hasRoleOrPermissions(['admin'],['organisations.create']),
     ... organisationValidator

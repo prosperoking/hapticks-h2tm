@@ -37,14 +37,11 @@ passport.use(new LocalStrategy.Strategy(function (username, password, done) {
 passport.use(new RememeberMeStrategy.Strategy(
     function (token, done) {
         try {
-            console.log({cookieToken: token})
             const decrypted =  decrypt(Buffer.from(token,'base64').toString())
             if(!decrypted || !decrypted?.length) return done(null, false);
-            console.log({decrypted})
             const payload = JSON.parse(decrypted);
         User.findById(payload.id).populate('organisation')
             .then(user => {
-                console.log({user})
                 if (!user) return done(null, false);
                 done(null,user);
             }).catch(err => done(err))
@@ -54,7 +51,8 @@ passport.use(new RememeberMeStrategy.Strategy(
         }
     },
     function (user, done) {
-        const rememberToken = Buffer.from(crypto.randomUUID()).toString('base64');
+        const clear = JSON.stringify({ id: user.id });
+        const rememberToken = Buffer.from(encrypt(clear)).toString("base64");
         User.updateOne({ _id: user.id, }, { rememberToken })
             .then(() => {
                 done(null, rememberToken );
@@ -138,13 +136,10 @@ export const authMiddleware: (roles?:string[], permissions?: string[])=> Request
             return next();
         }
 
-
         // @ts-ignore
         if(permissions.length && _.difference(permissions, req.user?.permissions).length == 0 ) {
             return next();
         }
-        // @ts-ignore
-        console.log(req.user?.role)
         // @ts-ignore
         if(roles.length && roles.includes(req.user?.role)) {
             return next();

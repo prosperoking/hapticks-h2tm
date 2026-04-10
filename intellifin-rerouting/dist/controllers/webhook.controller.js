@@ -31,18 +31,18 @@ function getWebhooks(req, res) {
         var _a, _b, _c, _d;
         try {
             // @ts-ignore
-            const orgFilter = JSON.parse(JSON.stringify(!((_a = req.user) === null || _a === void 0 ? void 0 : _a.organisationId) ? {
+            const orgFilter = [null, undefined].includes((_a = req.user) === null || _a === void 0 ? void 0 : _a.organisation_id) ? {
                 organisationId: ((_c = (_b = req.query) === null || _b === void 0 ? void 0 : _b.organisationId) === null || _c === void 0 ? void 0 : _c.length) ? (_d = req.query) === null || _d === void 0 ? void 0 : _d.organisationId : undefined,
             } :
                 //@ts-ingore
-                { organisationId: req.user.organisation_id }));
+                { organisationId: req.user.organisation_id };
             const webhooks = yield webhook_model_1.default.paginate(Object.assign(Object.assign({}, filterGen(req.query)), orgFilter), {
                 sort: { name: -1 },
                 limit: Number(req.query.limit || 50),
                 page: Number(req.query.page || 1),
                 populate: [
-                    { path: 'organisation', select: 'name' },
-                    { path: 'request_count', model: webhook_request_model_1.default },
+                // { path: 'organisation', select: 'name',  foreignField:"_id", localField:"organisationId", },
+                // { path: 'request_count', model: webhookRequestModel, localField: '_id', foreignField: 'webhookId', count: true },
                 ]
             });
             return res.json(webhooks);
@@ -147,7 +147,7 @@ function webhookRequests(req, res) {
         var _a, _b;
         try {
             // @ts-ignore
-            const orgFilter = ((_a = req.user) === null || _a === void 0 ? void 0 : _a.organisation_id) === null ? {
+            const orgFilter = [null, undefined].includes((_a = req.user) === null || _a === void 0 ? void 0 : _a.organisation_id) ? {
                 organisationId: (_b = req.query.organisationId) !== null && _b !== void 0 ? _b : undefined,
             } :
                 { organisationId: req.user.organisation_id };
@@ -156,8 +156,8 @@ function webhookRequests(req, res) {
                 limit: Number(req.query.limit || 50),
                 page: Number(req.query.page || 1),
                 populate: [
-                    { path: 'organisation', select: 'name' },
-                    { path: 'webhook', model: webhook_model_1.default },
+                    { path: 'organisation', select: 'name', foreignField: "_id", localField: "organisationId", },
+                    { path: 'webhook', model: webhook_model_1.default, foreignField: "_id", localField: "webhookId", },
                 ]
             });
             return res.json(webhookRequests);

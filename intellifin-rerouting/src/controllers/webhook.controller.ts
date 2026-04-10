@@ -12,12 +12,11 @@ import { webhookQueue } from '../queue/queue';
 export async function getWebhooks(req: Request, res: Response){
     try {
         // @ts-ignore
-        const orgFilter = JSON.parse(JSON.stringify(!req.user?.organisationId ?{
+        const orgFilter = [null, undefined].includes(req.user?.organisation_id) ?{
             organisationId: req.query?.organisationId?.length ? req.query?.organisationId:undefined,
         }:
         //@ts-ingore
-        {organisationId: (req.user as IUserData).organisation_id}
-        ));
+        {organisationId: (req.user as IUserData).organisation_id};
         const webhooks = await webhookModel.paginate({
             ...filterGen(req.query),
             ... orgFilter,
@@ -26,8 +25,8 @@ export async function getWebhooks(req: Request, res: Response){
             limit: Number(req.query.limit || 50),
             page: Number(req.query.page || 1),
             populate: [
-                { path: 'organisation', select: 'name' },
-                { path: 'request_count', model: webhookRequestModel },
+                // { path: 'organisation', select: 'name',  foreignField:"_id", localField:"organisationId", },
+                // { path: 'request_count', model: webhookRequestModel, localField: '_id', foreignField: 'webhookId', count: true },
             ]
         });
 
@@ -129,7 +128,7 @@ export async function deleteWebhook(req: Request, res: Response){
 export async function webhookRequests(req: Request, res: Response) {
     try {
         // @ts-ignore
-        const orgFilter = req.user?.organisation_id === null?{
+        const orgFilter = [null, undefined].includes(req.user?.organisation_id) ? {
             organisationId: req.query.organisationId ?? undefined,
         }:
 
@@ -142,8 +141,8 @@ export async function webhookRequests(req: Request, res: Response) {
             limit: Number(req.query.limit || 50),
             page: Number(req.query.page || 1),
             populate: [
-                { path: 'organisation', select: 'name' },
-                { path: 'webhook', model: webhookModel },
+                { path: 'organisation', select: 'name', foreignField:"_id", localField:"organisationId", },
+                { path: 'webhook', model: webhookModel, foreignField:"_id", localField:"webhookId", },
             ]
         });
 

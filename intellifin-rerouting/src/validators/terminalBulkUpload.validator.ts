@@ -91,6 +91,7 @@ const terminalBulkUploadValidator = createValidatedRequest(
       },
       custom: {
         options: async (threelineTid: string, { req, location, path }) => {
+          if(!threelineTid.length) return true;
           try {
             const terminal = await Terminal.findOne({
               threeLineTid: threelineTid,

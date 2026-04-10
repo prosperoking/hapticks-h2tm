@@ -9,7 +9,7 @@ export function createValidatedRequest(validator: HandlerSchema | Handler): Requ
         if(!result.isEmpty()) {
             return res.status(412).json({
                 // @ts-ignore
-                errors: result.array().reduce((acc,err)=>({...acc,[err.param]:[...(acc[err.param]||[]), err.msg]}),{}),
+                errors: result.array().reduce((acc,err)=>({...acc,[err.param?? err.path]:[...(acc[err.param ?? err.path]||[]), err.msg]}),{}),
                 message: "Invalid Data"
             });
         }

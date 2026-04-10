@@ -40,6 +40,7 @@ export interface IJournal extends Partial<Document> {
   deviceInfo?: object;
   acknowlededAt?: Date;
   zoneJournalPushedAt?: Date ;
+  geolocation?: string | null,
   createdAt?: Date | string;
   updatedAt?: Date | string;
 }
@@ -111,6 +112,10 @@ let JournalsSchema = new mongoose.Schema<IJournalDocument>(
       type: Date,
       default: null,
     },
+    geolocation: {
+      type: String,
+      default: null,
+    }
   },
   {
     timestamps: true,

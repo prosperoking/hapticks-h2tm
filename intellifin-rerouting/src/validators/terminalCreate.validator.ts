@@ -13,7 +13,10 @@ const terminalCreateValidator = createValidatedRequest(checkSchema({
             options: async (terminalId: string, {req, location, path}) =>{
                 try {
                     if(
-                        ! await Terminal.findOne({terminalId: terminalId}) &&
+                        ! await Terminal.findOne({$and: [
+                            {terminalId: terminalId},
+                            {terminalGroupId: {$type: "string"}}
+                        ]}) &&
                         ! req.body.terminalGroupId?.length
                     ) return false;
                     return true;
@@ -43,9 +46,14 @@ const terminalCreateValidator = createValidatedRequest(checkSchema({
         notEmpty: true,
         custom: {
             options: async (serialNo: string, {req, location, path}) =>{
-                if(await Terminal.findOne({serialNo})) return Promise.reject();
+                if(await Terminal.findOne({
+                    $and:[
+                        {serialNo: serialNo},
+                        {serialNo: {$type: "string"}}
+                    ]
+                })) return Promise.reject();
             },
-            errorMessage: "Terminal not Found",
+            errorMessage: "Terminal Already Exists",
         }
     },
     brand: {

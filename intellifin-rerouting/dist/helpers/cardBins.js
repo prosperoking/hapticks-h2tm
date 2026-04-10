@@ -1704,6 +1704,11 @@ exports.CardBins = [
         'id': 507881,
         "bank": "PalmPay",
         "code": "PalmPay"
+    },
+    {
+        'id': 564037,
+        "bank": "TofaMFB",
+        "code": "TofaMFB"
     }
 ];
 const getBinDetails = (bin) => exports.CardBins.find((card) => card.id === parseInt(bin)) || {

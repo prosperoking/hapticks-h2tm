@@ -119,6 +119,8 @@ const terminalBulkUploadValidator = (0, index_1.createValidatedRequest)((0, expr
         },
         custom: {
             options: (threelineTid_1, _a) => __awaiter(void 0, [threelineTid_1, _a], void 0, function* (threelineTid, { req, location, path }) {
+                if (!threelineTid.length)
+                    return true;
                 try {
                     const terminal = yield terminal_model_1.default.findOne({
                         threeLineTid: threelineTid,

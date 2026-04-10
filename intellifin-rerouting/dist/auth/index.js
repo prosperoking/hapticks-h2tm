@@ -52,7 +52,6 @@ const passport_local_1 = __importDefault(require("passport-local"));
 const passport_remember_me_1 = __importDefault(require("passport-remember-me"));
 const user_model_1 = __importDefault(require("../db/models/user.model"));
 const logger_1 = __importDefault(require("../helpers/logger"));
-const crypto_1 = __importDefault(require("crypto"));
 const argon2_1 = __importDefault(require("argon2"));
 const _ = __importStar(require("lodash"));
 const config_1 = __importDefault(require("../config/config"));
@@ -77,15 +76,12 @@ passport_1.default.use(new passport_local_1.default.Strategy(function (username,
 }));
 passport_1.default.use(new passport_remember_me_1.default.Strategy(function (token, done) {
     try {
-        console.log({ cookieToken: token });
         const decrypted = (0, crypt_1.decrypt)(Buffer.from(token, 'base64').toString());
         if (!decrypted || !(decrypted === null || decrypted === void 0 ? void 0 : decrypted.length))
             return done(null, false);
-        console.log({ decrypted });
         const payload = JSON.parse(decrypted);
         user_model_1.default.findById(payload.id).populate('organisation')
             .then(user => {
-            console.log({ user });
             if (!user)
                 return done(null, false);
             done(null, user);
@@ -96,7 +92,8 @@ passport_1.default.use(new passport_remember_me_1.default.Strategy(function (tok
         done(error);
     }
 }, function (user, done) {
-    const rememberToken = Buffer.from(crypto_1.default.randomUUID()).toString('base64');
+    const clear = JSON.stringify({ id: user.id });
+    const rememberToken = Buffer.from((0, crypt_1.encrypt)(clear)).toString("base64");
     user_model_1.default.updateOne({ _id: user.id, }, { rememberToken })
         .then(() => {
         done(null, rememberToken);
@@ -158,7 +155,7 @@ function applyAuthSetup(app) {
 }
 const authMiddleware = (roles = [], permissions = []) => {
     return (req, res, next) => {
-        var _a, _b, _c, _d;
+        var _a, _b, _c;
         if (!req.user) {
             return res.status(401).json({
                 message: "Not Authenticated"
@@ -176,9 +173,7 @@ const authMiddleware = (roles = [], permissions = []) => {
             return next();
         }
         // @ts-ignore
-        console.log((_c = req.user) === null || _c === void 0 ? void 0 : _c.role);
-        // @ts-ignore
-        if (roles.length && roles.includes((_d = req.user) === null || _d === void 0 ? void 0 : _d.role)) {
+        if (roles.length && roles.includes((_c = req.user) === null || _c === void 0 ? void 0 : _c.role)) {
             return next();
         }
         return res.status(403).json({

@@ -556,7 +556,7 @@ class IsoCardContoller {
                     : yield (0, cardsockethelper_1.sendSocketMessage)(messageType, patchedPayload);
                 const totalTransTime = performance.now() - startOfTransaction;
                 const { data } = socketResponse;
-                const responseData = (data === null || data === void 0 ? void 0 : data.data) || data;
+                const responseData = (data === null || data === void 0 ? void 0 : data.data) || data || { resp: "06", meaning: "No Response", auth: "", icc: "" };
                 responseData.transactingTid = transactingTid;
                 responseData.transactingMid = transactingMid;
                 body.totalTransTime = totalTransTime;
@@ -588,7 +588,7 @@ class IsoCardContoller {
         const journalPayload = IsoCardContoller.resolveJournal(messageType, type, body, responseData, patchedPayload, terminal);
         terminal_model_1.default.findOneAndUpdate({ _id: terminal._id }, { appVersion }, { new: true });
         transaction_model_1.default
-            .create(Object.assign(Object.assign({}, journalPayload), { organisationId: terminal.organisationId, webhookData: body.webhookData, totalTransTime: body.totalTransTime, issuer: (0, cardBins_1.getBinDetails)(journalPayload.PAN).code, deviceInfo: {
+            .create(Object.assign(Object.assign({}, journalPayload), { geolocation: body.geolocation, organisationId: terminal.organisationId, webhookData: body.webhookData, totalTransTime: body.totalTransTime, issuer: (0, cardBins_1.getBinDetails)(journalPayload.PAN).code, deviceInfo: {
                 serial: terminal.serialNo,
                 model: terminal.deviceModel,
                 brand: terminal.brand
@@ -881,6 +881,8 @@ class IsoCardContoller {
             isCompleted: true,
             processor: processor !== null && processor !== void 0 ? processor : types_1.Processor.NIBSS,
             meta: response.meta,
+            reversal: Boolean(response.reversal),
+            reversalData: response.reversal,
         };
     }
     static create3LineJournal(response, payload, processor) {

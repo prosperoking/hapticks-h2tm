@@ -147,6 +147,11 @@
                           Total Trans Time:
                         </span> {{ formatSeconds(u.totalTransTime/1000) }}
                       </div>
+                      <div v-if="u.reversal && u.reversalData" class="text-sm leading-5 text-gray-500">
+                        <span class="inline-flex font-semibold leading-5 rounded-full">
+                          Reversal Response: {{ u.reversalData.resp }}/{{ u.reversalData.meaning }}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </td>

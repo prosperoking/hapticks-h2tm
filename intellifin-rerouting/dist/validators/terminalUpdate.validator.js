@@ -43,7 +43,13 @@ const terminalUpdateValidator = (0, index_1.createValidatedRequest)((0, express_
             options: (terminalId_1, _a) => __awaiter(void 0, [terminalId_1, _a], void 0, function* (terminalId, { req, location, path }) {
                 var _b;
                 try {
-                    if (!(yield terminal_model_1.default.findOne({ terminalId: terminalId, _id: { $ne: req.body._id } })) &&
+                    if (!(yield terminal_model_1.default.findOne({
+                        $and: [
+                            { terminalId },
+                            { terminalId: { $type: "string" } }
+                        ],
+                        _id: { $ne: req.body._id }
+                    })) &&
                         !((_b = req.body.terminalGroupId) === null || _b === void 0 ? void 0 : _b.length))
                         return false;
                     return true;
@@ -76,7 +82,12 @@ const terminalUpdateValidator = (0, index_1.createValidatedRequest)((0, express_
         custom: {
             options: (serialNo_1, _a) => __awaiter(void 0, [serialNo_1, _a], void 0, function* (serialNo, { req, location, path }) {
                 try {
-                    if (yield terminal_model_1.default.findOne({ serialNo }))
+                    if (yield terminal_model_1.default.findOne({
+                        $and: [
+                            { serialNo: serialNo },
+                            { serialNo: { $type: "string" } }
+                        ]
+                    }))
                         return false;
                     return true;
                 }

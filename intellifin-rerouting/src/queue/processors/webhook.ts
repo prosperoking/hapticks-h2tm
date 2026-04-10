@@ -49,6 +49,7 @@ async (job: Job) => {
          merchantAddress: journal.merchantAddress,
          rrn: journal.rrn,
          metaData: journal.webhookData,
+         geolocation: journal.geolocation,
     };
 
     const verifyString = createSha256Hash(JSON.stringify(payloadObject));

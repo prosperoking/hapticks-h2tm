@@ -28,10 +28,12 @@ const webhookRequestSchema = new mongoose.Schema<IWebhookRequestData>({
     webhookId: {
         type: SchemaTypes.ObjectId,
         required: true,
+        index: true,
     },
     terminalId: {
         type: String,
         required: true,
+        index: true,
     },
 
     payload: {
@@ -61,6 +63,7 @@ const webhookRequestSchema = new mongoose.Schema<IWebhookRequestData>({
     journalId: {
         type: SchemaTypes.ObjectId,
         required: true,
+        index: true,
     },
     organisationId: {
         type: SchemaTypes.ObjectId,

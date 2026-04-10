@@ -8,7 +8,7 @@ function createValidatedRequest(validator) {
         if (!result.isEmpty()) {
             return res.status(412).json({
                 // @ts-ignore
-                errors: result.array().reduce((acc, err) => (Object.assign(Object.assign({}, acc), { [err.param]: [...(acc[err.param] || []), err.msg] })), {}),
+                errors: result.array().reduce((acc, err) => { var _a, _b; return (Object.assign(Object.assign({}, acc), { [(_a = err.param) !== null && _a !== void 0 ? _a : err.path]: [...(acc[(_b = err.param) !== null && _b !== void 0 ? _b : err.path] || []), err.msg] })); }, {}),
                 message: "Invalid Data"
             });
         }

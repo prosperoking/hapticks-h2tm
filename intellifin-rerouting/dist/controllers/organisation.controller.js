@@ -28,16 +28,19 @@ const asyncRandomBytes = (0, util_1.promisify)(crypto_1.randomBytes);
 function getOrganisations(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
+            const start = performance.now();
+            console.log(req.query, start);
             const organisations = yield organisation_model_1.default.paginate(Object.assign({}, filterGen(req.query)), {
                 sort: { name: -1 },
                 limit: Number(req.query.limit || 50),
                 page: Number(req.query.page || 1),
                 populate: [
-                    { path: 'users_count' },
-                    { path: 'terminals_count' },
-                    { path: 'transactions_count' },
+                // { path: 'users_count' },
+                // { path: 'terminals_count' },
+                // { path: 'transactions_count' },
                 ]
             });
+            console.log("Time taken to fetch orgs", performance.now() - start);
             return res.json(organisations);
         }
         catch (error) {
