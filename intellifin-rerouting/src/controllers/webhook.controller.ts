@@ -12,8 +12,8 @@ import { webhookQueue } from '../queue/queue';
 export async function getWebhooks(req: Request, res: Response){
     try {
         // @ts-ignore
-        const orgFilter = [null, undefined].includes(req.user?.organisation_id) ?{
-            organisationId: req.query?.organisationId?.length ? req.query?.organisationId:undefined,
+        const orgFilter = [null, undefined].includes(req.user?.organisation_id) ? {
+            ...  req.query?.organisationId?.length ? { organisationId: req.query?.organisationId }: {} ,
         }:
         //@ts-ingore
         {organisationId: (req.user as IUserData).organisation_id};
@@ -41,7 +41,7 @@ export async function getWebhooks(req: Request, res: Response){
 
 export async function createWebhook(req: Request, res: Response){
     try {
-        const secret = createSha256Hash(randomUUID());
+        const secret = req.body.secret ?? createSha256Hash(randomUUID());
         const webhook = await webhookModel.create({
             ...req.body,
             secret,
@@ -94,7 +94,7 @@ export async function reCreateSecret(req: Request, res: Response) {
             message: "webhook not found"
         })
         //@ts-ignore
-        webhook.secret = createSha256Hash(randomUUID())
+        webhook.secret = req.body.secret ?? createSha256Hash( randomUUID())
         await webhook.save()
         return res.json(webhook)
     } catch (error) {

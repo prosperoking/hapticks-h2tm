@@ -77,6 +77,10 @@ let JournalsSchema = new mongoose.Schema({
         type: String,
         default: null
     },
+    cardHolderName: {
+        type: String,
+        default: null
+    },
     meta: {
         type: Object,
     },

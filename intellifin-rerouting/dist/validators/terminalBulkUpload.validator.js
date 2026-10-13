@@ -91,7 +91,10 @@ const terminalBulkUploadValidator = (0, index_1.createValidatedRequest)((0, expr
             options: (terminalId_1, _a) => __awaiter(void 0, [terminalId_1, _a], void 0, function* (terminalId, { req, location, path }) {
                 try {
                     const terminal = yield terminal_model_1.default.findOne({
-                        terminalId: terminalId,
+                        $and: [
+                            { terminalId: terminalId },
+                            { terminalId: { $type: "string" } },
+                        ]
                     });
                     if (terminal)
                         return Promise.reject("Exists");
@@ -123,7 +126,10 @@ const terminalBulkUploadValidator = (0, index_1.createValidatedRequest)((0, expr
                     return true;
                 try {
                     const terminal = yield terminal_model_1.default.findOne({
-                        threeLineTid: threelineTid,
+                        $and: [
+                            { threeLineTid: threelineTid },
+                            { threeLineTid: { $type: "string" } },
+                        ]
                     });
                     if (terminal)
                         return Promise.reject("Exists");
@@ -180,7 +186,14 @@ const terminalBulkUploadValidator = (0, index_1.createValidatedRequest)((0, expr
         custom: {
             options: (iswTid, _a) => __awaiter(void 0, void 0, void 0, function* () {
                 var { req, location, path } = _a, others = __rest(_a, ["req", "location", "path"]);
-                if (iswTid && (yield terminal_model_1.default.findOne({ iswTid })))
+                if (!iswTid.length)
+                    return true;
+                if (iswTid && (yield terminal_model_1.default.findOne({
+                    $and: [
+                        { iswTid },
+                        { iswTid: { $type: "string" } },
+                    ]
+                })))
                     throw Error("Exists");
             }),
             errorMessage: "Kimono already taken",
@@ -195,7 +208,14 @@ const terminalBulkUploadValidator = (0, index_1.createValidatedRequest)((0, expr
         },
         custom: {
             options: (iswISOTID_1, _a) => __awaiter(void 0, [iswISOTID_1, _a], void 0, function* (iswISOTID, { req, location, path }) {
-                if (yield terminal_model_1.default.findOne({ iswISOTID }))
+                if (!iswISOTID.length)
+                    return true;
+                if (yield terminal_model_1.default.findOne({
+                    $and: [
+                        { iswISOTID },
+                        { iswISOTID: { $type: "string" } },
+                    ]
+                }))
                     throw Error("Exists");
             }),
             errorMessage: "iswISOTID already taken",
@@ -210,7 +230,14 @@ const terminalBulkUploadValidator = (0, index_1.createValidatedRequest)((0, expr
         },
         custom: {
             options: (hydrogenTID_1, _a) => __awaiter(void 0, [hydrogenTID_1, _a], void 0, function* (hydrogenTID, { req, location, path }) {
-                if (yield terminal_model_1.default.findOne({ hydrogenTID }))
+                if (!(hydrogenTID === null || hydrogenTID === void 0 ? void 0 : hydrogenTID.length))
+                    return true;
+                if (yield terminal_model_1.default.findOne({
+                    $and: [
+                        { hydrogenTID },
+                        { hydrogenTID: { $type: "string" } },
+                    ]
+                }))
                     throw Error("Exists");
             }),
             errorMessage: "hydrogenTID already taken",
@@ -225,7 +252,14 @@ const terminalBulkUploadValidator = (0, index_1.createValidatedRequest)((0, expr
         },
         custom: {
             options: (zoneTID_1, _a) => __awaiter(void 0, [zoneTID_1, _a], void 0, function* (zoneTID, { req, location, path }) {
-                if (yield terminal_model_1.default.findOne({ zoneTID }))
+                if (!zoneTID.length)
+                    return true;
+                if (yield terminal_model_1.default.findOne({
+                    $and: [
+                        { zoneTID },
+                        { zoneTID: { $type: "string" } },
+                    ]
+                }))
                     throw Error("Exists");
             }),
             errorMessage: "zoneTID already taken",
@@ -240,7 +274,14 @@ const terminalBulkUploadValidator = (0, index_1.createValidatedRequest)((0, expr
         },
         custom: {
             options: (julianaTID_1, _a) => __awaiter(void 0, [julianaTID_1, _a], void 0, function* (julianaTID, { req, location, path }) {
-                if (yield terminal_model_1.default.findOne({ julianaTID }))
+                if (!julianaTID.length)
+                    return true;
+                if (yield terminal_model_1.default.findOne({
+                    $and: [
+                        { julianaTID },
+                        { julianaTID: { $type: "string" } },
+                    ]
+                }))
                     throw Error("Exists");
             }),
             errorMessage: "julianaTID already taken",
@@ -254,6 +295,8 @@ const terminalBulkUploadValidator = (0, index_1.createValidatedRequest)((0, expr
         },
         custom: {
             options: (iswUniqueId_1, _a) => __awaiter(void 0, [iswUniqueId_1, _a], void 0, function* (iswUniqueId, { req, location, path }) {
+                if (!(iswUniqueId === null || iswUniqueId === void 0 ? void 0 : iswUniqueId.length))
+                    return true;
                 if (yield terminal_model_1.default.findOne({ iswUniqueId }))
                     throw Error("Exists");
             }),

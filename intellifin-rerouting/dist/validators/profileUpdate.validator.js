@@ -82,8 +82,9 @@ const profileUpdateValidator = (0, index_1.createValidatedRequest)((0, express_v
         in: ['body'],
         isBoolean: true,
         customSanitizer: {
-            options: value => ['true', 'false', '1', '0'].includes(String(value)
-                .toLowerCase())
+            options: value => ["true", "1", "yes"].includes(String(value).toLowerCase())
+                ? true
+                : false,
         },
         optional: {
             options: {

@@ -101,6 +101,7 @@ export async function getPTSPNibssToken(payload:{
         })
         return data;
     } catch (error) {
+        console.log(error);
         return null;
     }
 }

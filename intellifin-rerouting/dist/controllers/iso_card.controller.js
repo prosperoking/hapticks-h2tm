@@ -64,7 +64,7 @@ class IsoCardContoller {
     }
     performKeyExchange(request, response) {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
+            var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p;
             try {
                 const appVersion = request.header("x-app-version");
                 const terminal = yield terminal_model_1.default.findOne({
@@ -121,6 +121,7 @@ class IsoCardContoller {
                         threeLineTid: terminal.threeLineTid,
                         kimonoTid: terminal.iswTid,
                         organisationId: (_e = terminal.organisation) === null || _e === void 0 ? void 0 : _e._id,
+                        maxTransactionAmount: (_f = terminal.maxTransAmount) !== null && _f !== void 0 ? _f : 1000000,
                     });
                 }
                 const newKey = (0, appUtils_1.generateTDESKey)();
@@ -130,7 +131,7 @@ class IsoCardContoller {
                 terminal.clrmasterkey = newKey;
                 terminal.clrsesskey = newKey;
                 terminal.clrpinkey = newKey;
-                if (!((_f = terminal.terminalId) === null || _f === void 0 ? void 0 : _f.length)) {
+                if (!((_g = terminal.terminalId) === null || _g === void 0 ? void 0 : _g.length)) {
                     const datetime = (0, moment_1.default)().format('YYYYMMDDHHmmss');
                     const merchantid = "2302BAXXXXXX9611";
                     const timeout = "60";
@@ -138,7 +139,7 @@ class IsoCardContoller {
                     const country_code = "566";
                     const callhome = "60";
                     const merchant_category_code = "5411";
-                    const merchant_address = (_g = terminal.customerAddress) !== null && _g !== void 0 ? _g : "DEVICE NEEDS SETUP";
+                    const merchant_address = (_h = terminal.customerAddress) !== null && _h !== void 0 ? _h : "DEVICE NEEDS SETUP";
                     terminal.paramdownload = [
                         ["020", padLeadingZeros(datetime.length), datetime],
                         ["030", padLeadingZeros(merchantid.length), merchantid],
@@ -171,11 +172,12 @@ class IsoCardContoller {
                         customerAddress: terminal.customerAddress,
                         iswISOTID: terminal.iswISOTID,
                         hydrogenTID: terminal.hydrogenTID,
-                        profileId: (_h = terminal.profile) === null || _h === void 0 ? void 0 : _h._id,
+                        profileId: (_j = terminal.profile) === null || _j === void 0 ? void 0 : _j._id,
                         iswTid: terminal.iswTid,
                         kimonoTid: terminal.iswTid,
                         threeLineTid: terminal.threeLineTid,
-                        organisationId: (_j = terminal.organisation) === null || _j === void 0 ? void 0 : _j._id,
+                        organisationId: (_k = terminal.organisation) === null || _k === void 0 ? void 0 : _k._id,
+                        maxTransactionAmount: (_l = terminal.maxTransAmount) !== null && _l !== void 0 ? _l : 1000000,
                     });
                 }
                 if (type === "intelliffin")
@@ -221,11 +223,12 @@ class IsoCardContoller {
                     customerAddress: terminal.customerAddress,
                     iswISOTID: terminal.iswISOTID,
                     hydrogenTID: terminal.hydrogenTID,
-                    profileId: (_k = terminal.profile) === null || _k === void 0 ? void 0 : _k._id,
+                    profileId: (_m = terminal.profile) === null || _m === void 0 ? void 0 : _m._id,
                     iswTid: terminal.iswTid,
                     kimonoTid: terminal.iswTid,
                     threeLineTid: terminal.threeLineTid,
-                    organisationId: (_l = terminal.organisation) === null || _l === void 0 ? void 0 : _l._id,
+                    organisationId: (_o = terminal.organisation) === null || _o === void 0 ? void 0 : _o._id,
+                    maxTransactionAmount: (_p = terminal.maxTransAmount) !== null && _p !== void 0 ? _p : 1000000,
                 });
             }
             catch (error) {
@@ -408,7 +411,7 @@ class IsoCardContoller {
     }
     getTerminalInfo(request, response) {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a, _b, _c, _d;
+            var _a, _b, _c, _d, _e;
             try {
                 const serial = request.header("x-serial-no");
                 const brand = request.header("x-brand") || "";
@@ -447,6 +450,7 @@ class IsoCardContoller {
                     kimonoTid: terminal.iswTid,
                     threeLineTid: terminal.threeLineTid,
                     organisationId: (_d = terminal.organisation) === null || _d === void 0 ? void 0 : _d._id,
+                    maxTransactionAmount: (_e = terminal.maxTransAmount) !== null && _e !== void 0 ? _e : 1000000,
                 });
             }
             catch (error) {

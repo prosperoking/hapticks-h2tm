@@ -40,6 +40,7 @@ router.use(authenticator)
 // terminal endpoints
 router.get('/terminals',  TerminalController.terminalIds);
 router.get('/terminals/tid/:tid',  TerminalController.getByTid);
+router.post('/terminals/find-by-device-info',  TerminalController.getBySerial);
 router.get('/terminals/:id',  TerminalController.getById);
 router.get('/group-tids',  TerminalController.getGroupedTids);
 router.get('/group-tids/key-exchange/:id',  TerminalController.triggerKeyExchangeOnGroupTid);

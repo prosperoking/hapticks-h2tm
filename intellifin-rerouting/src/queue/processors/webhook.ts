@@ -30,31 +30,38 @@ export const webhookWorker = new Worker<IWebhookRequest>('webhook',
 async (job: Job) => {
     const data: WebhookJobData = job.data;
     const journal = await TransactionModel.findById(data.tranactionId);
-    const webhook: IWebhookRequest = await WebhookModel.findById(data.webhookId);
+    const webhook = await WebhookModel.findById(data.webhookId);
     const organisation = await OrganisationModel.findById(data.organisationId);
     if(!webhook || !journal) return;
     const payloadObject = {
          MTI: journal.MTI,
          amount: journal.amount / 100,
          terminalId: journal.terminalId,
-         responseCode: journal.responseCode,
+         responseCode: journal.responseCode?.length? journal.responseCode: '06',
          responseDescription: journal.responseDescription,
          PAN: journal.PAN,
          STAN: journal.STAN ,
+         reversalSent: journal.reversal,
+         processor: journal.processor,
          authCode: journal.authCode,
          transactionTime: journal.transactionTime,
          reversal: false,
+         cardHolderName: journal.cardHolderName,
+         cardIssuerName: journal.issuer,
          merchantId: journal.merchantId,
          merchantName: journal.merchantName,
          merchantAddress: journal.merchantAddress,
+         cardExpiration: journal.cardExpiration,
          rrn: journal.rrn,
          metaData: journal.webhookData,
          geolocation: journal.geolocation,
     };
 
     const verifyString = createSha256Hash(JSON.stringify(payloadObject));
+    //@ts-ignore
     const signature = createDigest(webhook.secret, verifyString);
-    let response:AxiosResponse = null;
+    let response: AxiosResponse<unknown, any, {}> | null = null;
+    let isSuccess = false;
     try {
         response = await axios.post(data.url, payloadObject, {
             headers:{
@@ -62,6 +69,7 @@ async (job: Job) => {
                 'x-signature': signature,
             }
         })
+        isSuccess = true;
     } catch (error) {
         if(!error.isAxiosError){
            throw error
@@ -74,10 +82,10 @@ async (job: Job) => {
         payload: payloadObject,
         webhookId: webhook.id,
         organisationId: data.organisationId,
-        responseCode: response.status,
-        responseType: response.headers['content-type'],
-        responseBody: response.headers['content-type'] === 'application/json'? JSON.stringify(response.data): response.data,
-        status: response.status === 200 ? 'success': 'fail',
+        responseCode: response!!.status,
+        responseType: response!!.headers['content-type'],
+        responseBody: response!!.headers['content-type'] === 'application/json'? JSON.stringify(response!!.data): response!!.data,
+        status: isSuccess ? 'success': 'fail',
         isRetry: data.retry ??  false,
         terminalId: journal.terminalId,
         verifyString,
@@ -85,8 +93,8 @@ async (job: Job) => {
         url: data.url
     });
 
-    if(response.status !== 200) {
-        throw new Error(response.statusText);
+    if(!isSuccess) {
+        throw new Error(response?.statusText);
     }
     return true;
 },{

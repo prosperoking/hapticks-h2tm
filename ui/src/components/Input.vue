@@ -25,7 +25,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useAttrs, defineProps, defineEmits, computed } from 'vue'
+import { useAttrs, computed } from 'vue'
 interface Props {
   title?: string,
   value: any,

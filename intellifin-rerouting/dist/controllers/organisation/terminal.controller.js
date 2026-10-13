@@ -17,6 +17,7 @@ exports.triggerKeyExchangeOnGroupTid = triggerKeyExchangeOnGroupTid;
 exports.terminalIds = terminalIds;
 exports.getById = getById;
 exports.getByTid = getByTid;
+exports.getBySerial = getBySerial;
 exports.updateTermial = updateTermial;
 exports.updateTermialTidGroupTid = updateTermialTidGroupTid;
 exports.createTerminal = createTerminal;
@@ -154,6 +155,23 @@ function getByTid(req, res) {
         }
     });
 }
+function getBySerial(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const { serialNo } = req.body;
+            const data = yield terminal_model_1.default.findOne({
+                //@ts-ignore
+                organisationId: req.user._id,
+                serialNo,
+            }).exec();
+            res.status(data === null ? 404 : 200).json({ status: data !== null, data });
+        }
+        catch (error) {
+            logger_1.default.error(error);
+            res.status(400).json({ message: "Something went wrong" });
+        }
+    });
+}
 function updateTermial(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -244,6 +262,7 @@ function deleteTerminal(request, response) {
         }
         catch (error) {
             console.log(error);
+            //@ts-ignore
             response.status(400).json({ message: error.message });
         }
     });

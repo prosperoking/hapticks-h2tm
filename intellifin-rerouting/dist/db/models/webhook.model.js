@@ -89,7 +89,7 @@ webhookSchema.virtual('dest_urls').get(function () {
     var _a;
     return Array.from(new Set([this.url, ...((_a = this.urls) !== null && _a !== void 0 ? _a : [])]
         .filter((url) => url === null || url === void 0 ? void 0 : url.length)
-        .map(url => url.toLowerCase())));
+        .map(url => url === null || url === void 0 ? void 0 : url.toLowerCase())));
 });
 webhookSchema.post('deleteOne', function (data) {
     ptspProfile_model_1.default.updateMany({

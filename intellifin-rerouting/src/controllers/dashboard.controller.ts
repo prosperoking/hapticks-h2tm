@@ -46,6 +46,13 @@ export default class DashboardController {
         .sort({ _id: -1 })
         .limit(50);
       const terminalCount = await Terminal.find({}).countDocuments();
+
+      const [] = await Promise.all([
+        totalTransactionsToday,
+        totalFailedTransactionsToday,
+        lastestTransacions,
+        terminalCount,
+      ]);
       return response.json({
         totalTransactionsToday,
         totalFailedTransactionsToday,
@@ -53,6 +60,7 @@ export default class DashboardController {
         terminalCount,
       });
     } catch (error) {
+      // @ts-ignore
       logger.error(error.message);
       response.status(400).json({
         message: "An error occured",
@@ -226,6 +234,7 @@ export default class DashboardController {
         stats
       });
     } catch (error) {
+      // @ts-ignore
       logger.error(error.message);
       response.status(400).json({
         message: "An error occured",
@@ -258,6 +267,7 @@ export default class DashboardController {
 
       return response.json(transactions);
     } catch (error) {
+      // @ts-ignore
       logger.error(error.message);
       response.status(400).json({
         message: "An error occured",
@@ -287,6 +297,7 @@ export default class DashboardController {
         .pipe(vasjournalsModel.csvTransformStream())
         .pipe(response);
     } catch (error) {
+      // @ts-ignore
       logger.error(error.message);
       response.status(400).json({
         message: "An error occured",

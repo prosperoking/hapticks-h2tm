@@ -1,8 +1,6 @@
 import userModel from "../db/models/user.model";
 import { Request, Response } from "express";
 import logger from "../helpers/logger";
-import { createSha256Hash } from "../helpers/crypt";
-import { randomUUID } from "crypto";
 import { IUserData } from "../db/models/user.model";
 import _ from "lodash";
 import { APP_PERMISSIONS } from '../config/permissions';

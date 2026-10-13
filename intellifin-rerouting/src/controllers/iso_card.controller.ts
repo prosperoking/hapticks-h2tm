@@ -73,6 +73,7 @@ class IsoCardContoller {
   public async performKeyExchange(request: Request, response: Response) {
     try {
       const appVersion = request.header("x-app-version");
+      const appName = request.header("x-app-name");
       const terminal = await Terminal.findOne({
         serialNo: request.header("x-serial-no"),
         deviceModel: request.header("x-device-model")?.toUpperCase() || null,
@@ -90,6 +91,7 @@ class IsoCardContoller {
         });
       }
       terminal.appVersion = appVersion; // update app version
+      terminal.appName = appName; // update app name
       const padLeadingZeros = (num: number) => num.toString().padStart(2, "0");
       const {
         componentKey1,
@@ -150,6 +152,7 @@ class IsoCardContoller {
           threeLineTid: terminal.threeLineTid,
           kimonoTid: terminal.iswTid,
           organisationId: terminal.organisation?._id,
+          maxTransactionAmount: terminal.maxTransAmount?? 1000000,
         });
       }
 
@@ -217,6 +220,7 @@ class IsoCardContoller {
           kimonoTid: terminal.iswTid,
           threeLineTid: terminal.threeLineTid,
           organisationId: terminal.organisation?._id,
+          maxTransactionAmount: terminal.maxTransAmount?? 1000000,
         });
       }
 
@@ -283,6 +287,7 @@ class IsoCardContoller {
         kimonoTid: terminal.iswTid,
         threeLineTid: terminal.threeLineTid,
         organisationId: terminal.organisation?._id,
+        maxTransactionAmount: terminal.maxTransAmount?? 1000000,
       });
     } catch (error) {
       console.log(error);
@@ -531,6 +536,7 @@ class IsoCardContoller {
         kimonoTid: terminal.iswTid,
         threeLineTid: terminal.threeLineTid,
         organisationId: terminal.organisation?._id,
+        maxTransactionAmount: terminal.maxTransAmount?? 1000000,
       });
     } catch (error) {
       console.log("Error: %s", error.message);
@@ -568,6 +574,7 @@ class IsoCardContoller {
     const brand = request.header("x-brand");
     const deviceModel = request.header("x-device-model") || "";
     const appVersion = request.header("x-app-version");
+    const appName = request.header("x-app-name");
     const { body } = request;
     let patchedPayload,
       terminal: ITerminal,
@@ -692,7 +699,8 @@ class IsoCardContoller {
         patchedPayload,
         terminal,
         appVersion,
-        transLog
+        transLog,
+        appName,
       );
       return response.json({
         ...socketResponse,
@@ -722,6 +730,7 @@ class IsoCardContoller {
         terminal,
         appVersion,
         transLog,
+        appName,
       );
 
       if (error.payload) {
@@ -746,7 +755,8 @@ class IsoCardContoller {
     patchedPayload: any,
     terminal: ITerminal ,
     appVersion: string,
-    transLog: CardTransactionLogData
+    transLog: CardTransactionLogData,
+    appName: string
   ) {
     const journalPayload = IsoCardContoller.resolveJournal(
       messageType,
@@ -758,7 +768,7 @@ class IsoCardContoller {
     );
     Terminal.findOneAndUpdate(
       { _id: terminal._id },
-      { appVersion },
+      { appVersion, appName },
       { new: true }
     );
 

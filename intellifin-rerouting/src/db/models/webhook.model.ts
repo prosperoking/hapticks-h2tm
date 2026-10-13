@@ -10,7 +10,7 @@ export interface IWebhookData extends Partial<Document>{
     name: string,
     url?: string,
     urls: string[],
-    secret: string,
+    secret: string | null,
     dest_urls: string[],
 }
 export interface IWebhook extends Model<IWebhookData >{}
@@ -66,7 +66,7 @@ webhookSchema.virtual('dest_urls').get(function(){
     return Array.from(new Set(
         [this.url,...(this.urls ?? [])]
         .filter((url)=> url?.length)
-        .map(url=>url.toLowerCase())
+        .map(url=>url?.toLowerCase())
     ))
 });
 

@@ -30,15 +30,13 @@ class TerminalController {
                 if (q === null || q === void 0 ? void 0 : q.length) {
                     filter = {
                         $or: [
-                            { terminalId: RegExp(`^${q}`, 'i') },
-                            { terminalId: { $type: "string" } },
-                            { hydrogenTID: RegExp(`^${q}`, 'i') },
-                            { habariTID: RegExp(`^${q}`, 'i') },
-                            { iswISOTID: RegExp(`^${q}`, 'i') },
-                            { iswISOTIDNew: RegExp(`^${q}`, 'i') },
+                            { $and: [{ terminalId: RegExp(`^${q}`, 'i') }, { terminalId: { '$type': 'string' } }] },
                             { serialNo: RegExp(`^${q}`, 'i') },
-                            { brand: RegExp(`^${q}`, 'i') },
-                            { deviceModel: RegExp(`^${q}`, 'i') },
+                            { $and: [{ hydrogenTID: RegExp(`^${q}`, 'i') }, { hydrogenTID: { '$type': 'string' } }] },
+                            { $and: [{ habariTID: RegExp(`^${q}`, 'i') }, { habariTID: { '$type': 'string' } }] },
+                            { $and: [{ iswISOTID: RegExp(`^${q}`, 'i') }, { iswISOTID: { '$type': 'string' } }] },
+                            { $and: [{ brand: RegExp(`^${q}`, 'i') }, { brand: { '$type': 'string' } }] },
+                            { $and: [{ deviceModel: RegExp(`^${q}`, 'i') }, { deviceModel: { '$type': 'string' } }] },
                         ]
                     };
                 }

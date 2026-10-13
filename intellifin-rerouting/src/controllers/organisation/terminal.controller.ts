@@ -140,6 +140,23 @@ export async function getByTid(req: Request, res: Response) {
   }
 }
 
+export async function getBySerial(req: Request, res: Response) {
+  try {
+    const { serialNo } = req.body;
+    const data = await TerminalModel.findOne({
+      //@ts-ignore
+      organisationId: req.user._id,
+      serialNo,
+    }).exec();
+
+    res.status(data === null ? 404 : 200).json({ status: data !== null, data });
+
+  } catch (error) {
+    logger.error(error);
+    res.status(400).json({ message: "Something went wrong" });
+  }
+}
+
 export async function updateTermial(req: Request, res: Response) {
   try {
     let terminal = await TerminalModel.findOne({
@@ -231,6 +248,7 @@ export async function deleteTerminal(request: Request, response: Response) {
     response.json({ status: true, data });
   } catch (error) {
     console.log(error);
+    //@ts-ignore
     response.status(400).json({ message: error.message });
   }
 }

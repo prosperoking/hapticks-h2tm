@@ -36,6 +36,7 @@ export interface ITerminal extends Document {
   profileId: ObjectId;
   paramdownload: string;
   appVersion?: string;
+  appName?: string;
   brand?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -197,6 +198,11 @@ const terminalSchema = new mongoose.Schema<ITerminal>(
       }
     },
     appVersion: {
+      type: String,
+      default: null,
+      set: (value: string) => value.toUpperCase(),
+    },
+    appName: {
       type: String,
       default: null,
       set: (value: string) => value.toUpperCase(),

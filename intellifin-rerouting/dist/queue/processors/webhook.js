@@ -28,7 +28,7 @@ const connection = {
     password: config.redis.password,
 };
 exports.webhookWorker = new bullmq_1.Worker('webhook', (job) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
+    var _a, _b;
     const data = job.data;
     const journal = yield transaction_model_1.default.findById(data.tranactionId);
     const webhook = yield webhook_model_1.default.findById(data.webhookId);
@@ -39,23 +39,30 @@ exports.webhookWorker = new bullmq_1.Worker('webhook', (job) => __awaiter(void 0
         MTI: journal.MTI,
         amount: journal.amount / 100,
         terminalId: journal.terminalId,
-        responseCode: journal.responseCode,
+        responseCode: ((_a = journal.responseCode) === null || _a === void 0 ? void 0 : _a.length) ? journal.responseCode : '06',
         responseDescription: journal.responseDescription,
         PAN: journal.PAN,
         STAN: journal.STAN,
+        reversalSent: journal.reversal,
+        processor: journal.processor,
         authCode: journal.authCode,
         transactionTime: journal.transactionTime,
         reversal: false,
+        cardHolderName: journal.cardHolderName,
+        cardIssuerName: journal.issuer,
         merchantId: journal.merchantId,
         merchantName: journal.merchantName,
         merchantAddress: journal.merchantAddress,
+        cardExpiration: journal.cardExpiration,
         rrn: journal.rrn,
         metaData: journal.webhookData,
         geolocation: journal.geolocation,
     };
     const verifyString = (0, crypt_1.createSha256Hash)(JSON.stringify(payloadObject));
+    //@ts-ignore
     const signature = (0, crypt_1.createDigest)(webhook.secret, verifyString);
     let response = null;
+    let isSuccess = false;
     try {
         response = yield axios_1.default.post(data.url, payloadObject, {
             headers: {
@@ -63,6 +70,7 @@ exports.webhookWorker = new bullmq_1.Worker('webhook', (job) => __awaiter(void 0
                 'x-signature': signature,
             }
         });
+        isSuccess = true;
     }
     catch (error) {
         if (!error.isAxiosError) {
@@ -78,15 +86,15 @@ exports.webhookWorker = new bullmq_1.Worker('webhook', (job) => __awaiter(void 0
         responseCode: response.status,
         responseType: response.headers['content-type'],
         responseBody: response.headers['content-type'] === 'application/json' ? JSON.stringify(response.data) : response.data,
-        status: response.status === 200 ? 'success' : 'fail',
-        isRetry: (_a = data.retry) !== null && _a !== void 0 ? _a : false,
+        status: isSuccess ? 'success' : 'fail',
+        isRetry: (_b = data.retry) !== null && _b !== void 0 ? _b : false,
         terminalId: journal.terminalId,
         verifyString,
         verifySignature: signature,
         url: data.url
     });
-    if (response.status !== 200) {
-        throw new Error(response.statusText);
+    if (!isSuccess) {
+        throw new Error(response === null || response === void 0 ? void 0 : response.statusText);
     }
     return true;
 }), {

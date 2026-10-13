@@ -66,8 +66,9 @@ const profileUpdateValidator = createValidatedRequest(checkSchema({
         isBoolean: true,
         customSanitizer: {
             options:
-                value => ['true','false','1','0'].includes(String(value)
-                            .toLowerCase())
+                value => ["true", "1", "yes"].includes(String(value).toLowerCase())
+            ? true
+            : false,
         },
         optional:{
             options:{

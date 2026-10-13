@@ -31,9 +31,7 @@ function getWebhooks(req, res) {
         var _a, _b, _c, _d;
         try {
             // @ts-ignore
-            const orgFilter = [null, undefined].includes((_a = req.user) === null || _a === void 0 ? void 0 : _a.organisation_id) ? {
-                organisationId: ((_c = (_b = req.query) === null || _b === void 0 ? void 0 : _b.organisationId) === null || _c === void 0 ? void 0 : _c.length) ? (_d = req.query) === null || _d === void 0 ? void 0 : _d.organisationId : undefined,
-            } :
+            const orgFilter = [null, undefined].includes((_a = req.user) === null || _a === void 0 ? void 0 : _a.organisation_id) ? Object.assign({}, ((_c = (_b = req.query) === null || _b === void 0 ? void 0 : _b.organisationId) === null || _c === void 0 ? void 0 : _c.length) ? { organisationId: (_d = req.query) === null || _d === void 0 ? void 0 : _d.organisationId } : {}) :
                 //@ts-ingore
                 { organisationId: req.user.organisation_id };
             const webhooks = yield webhook_model_1.default.paginate(Object.assign(Object.assign({}, filterGen(req.query)), orgFilter), {
@@ -57,10 +55,10 @@ function getWebhooks(req, res) {
 }
 function createWebhook(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        var _a;
+        var _a, _b;
         try {
-            const secret = (0, crypt_1.createSha256Hash)((0, crypto_1.randomUUID)());
-            const webhook = yield webhook_model_1.default.create(Object.assign(Object.assign({}, req.body), { secret, urls: Array.from(new Set(((_a = req.body.urls) !== null && _a !== void 0 ? _a : [])
+            const secret = (_a = req.body.secret) !== null && _a !== void 0 ? _a : (0, crypt_1.createSha256Hash)((0, crypto_1.randomUUID)());
+            const webhook = yield webhook_model_1.default.create(Object.assign(Object.assign({}, req.body), { secret, urls: Array.from(new Set(((_b = req.body.urls) !== null && _b !== void 0 ? _b : [])
                     .filter((url) => url === null || url === void 0 ? void 0 : url.length)
                     .map(url => url.toLowerCase()))) }));
             return res.json(webhook);
@@ -102,6 +100,7 @@ function updateWebhook(req, res) {
 }
 function reCreateSecret(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
+        var _a;
         try {
             const webhook = yield webhook_model_1.default.findById(req.params.id);
             if (!webhook)
@@ -109,7 +108,7 @@ function reCreateSecret(req, res) {
                     message: "webhook not found"
                 });
             //@ts-ignore
-            webhook.secret = (0, crypt_1.createSha256Hash)((0, crypto_1.randomUUID)());
+            webhook.secret = (_a = req.body.secret) !== null && _a !== void 0 ? _a : (0, crypt_1.createSha256Hash)((0, crypto_1.randomUUID)());
             yield webhook.save();
             return res.json(webhook);
         }

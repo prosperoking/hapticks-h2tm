@@ -47,6 +47,12 @@ class DashboardController {
                     .sort({ _id: -1 })
                     .limit(50);
                 const terminalCount = yield terminal_model_1.default.find({}).countDocuments();
+                const [] = yield Promise.all([
+                    totalTransactionsToday,
+                    totalFailedTransactionsToday,
+                    lastestTransacions,
+                    terminalCount,
+                ]);
                 return response.json({
                     totalTransactionsToday,
                     totalFailedTransactionsToday,
@@ -55,6 +61,7 @@ class DashboardController {
                 });
             }
             catch (error) {
+                // @ts-ignore
                 logger_1.default.error(error.message);
                 response.status(400).json({
                     message: "An error occured",
@@ -222,6 +229,7 @@ class DashboardController {
                 });
             }
             catch (error) {
+                // @ts-ignore
                 logger_1.default.error(error.message);
                 response.status(400).json({
                     message: "An error occured",
@@ -249,6 +257,7 @@ class DashboardController {
                 return response.json(transactions);
             }
             catch (error) {
+                // @ts-ignore
                 logger_1.default.error(error.message);
                 response.status(400).json({
                     message: "An error occured",
@@ -277,6 +286,7 @@ class DashboardController {
                     .pipe(response);
             }
             catch (error) {
+                // @ts-ignore
                 logger_1.default.error(error.message);
                 response.status(400).json({
                     message: "An error occured",

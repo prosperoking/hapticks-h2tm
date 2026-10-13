@@ -65,7 +65,10 @@ const terminalBulkUploadValidator = createValidatedRequest(
         options: async (terminalId: string, { req, location, path }) => {
           try {
             const terminal = await Terminal.findOne({
-              terminalId: terminalId,
+              $and: [
+                { terminalId: terminalId },
+                { terminalId: { $type: "string" } },
+              ]
             });
             if (terminal) return Promise.reject("Exists");
             return true;
@@ -94,7 +97,10 @@ const terminalBulkUploadValidator = createValidatedRequest(
           if(!threelineTid.length) return true;
           try {
             const terminal = await Terminal.findOne({
-              threeLineTid: threelineTid,
+              $and: [
+                { threeLineTid: threelineTid },
+                { threeLineTid: { $type: "string" } },
+              ]
             });
             if (terminal) return Promise.reject("Exists");
           } catch (error) {
@@ -148,7 +154,13 @@ const terminalBulkUploadValidator = createValidatedRequest(
       },
       custom: {
         options: async (iswTid: string, { req, location, path, ...others }) => {
-          if (iswTid && await Terminal.findOne({ iswTid })) throw Error("Exists");
+          if(!iswTid.length) return true;
+          if (iswTid && await Terminal.findOne({
+            $and:[
+              { iswTid },
+              { iswTid: { $type: "string" } },
+            ]
+           })) throw Error("Exists");
         },
         errorMessage: "Kimono already taken",
       },
@@ -162,7 +174,13 @@ const terminalBulkUploadValidator = createValidatedRequest(
       },
       custom: {
         options: async (iswISOTID: string, { req, location, path }) => {
-          if (await Terminal.findOne({ iswISOTID })) throw Error("Exists");
+          if(!iswISOTID.length) return true;
+          if (await Terminal.findOne({
+            $and:[
+              { iswISOTID },
+              { iswISOTID: { $type: "string" } },
+            ]
+           })) throw Error("Exists");
         },
         errorMessage: "iswISOTID already taken",
       },
@@ -176,7 +194,13 @@ const terminalBulkUploadValidator = createValidatedRequest(
       },
       custom: {
         options: async (hydrogenTID: string, { req, location, path }) => {
-          if (await Terminal.findOne({ hydrogenTID })) throw Error("Exists");
+          if (!hydrogenTID?.length) return true;
+          if (await Terminal.findOne({
+            $and:[
+              { hydrogenTID },
+              { hydrogenTID: { $type: "string" } },
+            ]
+           })) throw Error("Exists");
         },
         errorMessage: "hydrogenTID already taken",
       },
@@ -190,7 +214,13 @@ const terminalBulkUploadValidator = createValidatedRequest(
       },
       custom: {
         options: async (zoneTID: string, { req, location, path }) => {
-          if (await Terminal.findOne({ zoneTID })) throw Error("Exists");
+          if(!zoneTID.length) return true;
+          if (await Terminal.findOne({
+            $and:[
+              { zoneTID },
+              { zoneTID: { $type: "string" } },
+            ]
+           })) throw Error("Exists");
         },
         errorMessage: "zoneTID already taken",
       },
@@ -204,7 +234,13 @@ const terminalBulkUploadValidator = createValidatedRequest(
       },
       custom: {
         options: async (julianaTID: string, { req, location, path }) => {
-          if (await Terminal.findOne({ julianaTID })) throw Error("Exists");
+          if(!julianaTID.length) return true;
+          if (await Terminal.findOne({
+            $and:[
+              { julianaTID },
+              { julianaTID: { $type: "string" } },
+            ]
+           })) throw Error("Exists");
         },
         errorMessage: "julianaTID already taken",
       },
@@ -217,6 +253,7 @@ const terminalBulkUploadValidator = createValidatedRequest(
       },
       custom: {
         options: async (iswUniqueId: string, { req, location, path }) => {
+          if(!iswUniqueId?.length) return true;
           if (await Terminal.findOne({ iswUniqueId })) throw Error("Exists");
         },
         errorMessage: "Isw UniqueId  already taken",

@@ -21,6 +21,7 @@ export interface IJournal extends Partial<Document> {
   cashback?: string;
   merchantName: string;
   merchantCategoryCode?: string;
+  cardHolderName?: string;
   merchantAddress?: string;
   currencyCode?: string;
   rrn: string;
@@ -82,6 +83,10 @@ let JournalsSchema = new mongoose.Schema<IJournalDocument>(
     extraData: { type: String, default: "" },
     processor: { type: String, default: "NIBSS" },
     issuer: {
+        type: String,
+        default: null
+    },
+    cardHolderName: {
         type: String,
         default: null
     },
